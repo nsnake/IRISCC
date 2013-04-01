@@ -1,0 +1,552 @@
+<!--/***************************************************************************
+Don't remove this title!
+FRIPAPER
+@description
+        this module can read remark from program files in src directory, 
+        and create help files use html language in in dst directory
+@version 2009-06-22 1.0.1
+@author freeiris-安静 <yuzegao@163.com>
+@package Freeiris2 Package Fripaper
+Please submit bug reports, patches, etc to <yuzegao@163.com>
+www.voxen.cn
+ENDPAPER
+See http://www.freeiris.org for more information about
+the Freeiris project.
+Freeiris2 -- 开源通信系统
+本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+请查阅LICENSE文件。
+***************************************************************************/-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> 分机函数包 </TITLE>
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+<BODY>
+<div align="center">
+<H1>分机函数包</H1>
+<p>&nbsp;</p>
+</div>
+
+<div align="left">
+<p><b>作者</b> : <link src="mailto:hoowa.sun AT gmail DOT com">Sun bing</link><br>
+<b>版本</b> : 1.0<br>
+<b>文件</b> : rpcpbx_userexten.php<br>
+<b>说明 : </b><br>
+	&nbsp;&nbsp;分机函数包
+
+<br>
+<b>函数</b> :
+<UL>
+<LI><a href="#extension_hints_add">extension_hints_add</a>
+<LI><a href="#extension_list">extension_list</a>
+<LI><a href="#extension_get">extension_get</a>
+<LI><a href="#extension_get_sip">extension_get_sip</a>
+<LI><a href="#extension_add_sip">extension_add_sip</a>
+<LI><a href="#extension_edit_sip">extension_edit_sip</a>
+<LI><a href="#extension_delete_sip">extension_delete_sip</a>
+<LI><a href="#extension_get_iax2">extension_get_iax2</a>
+<LI><a href="#extension_add_iax2">extension_add_iax2</a>
+<LI><a href="#extension_edit_iax2">extension_edit_iax2</a>
+<LI><a href="#extension_delete_iax2">extension_delete_iax2</a>
+<LI><a href="#extension_get_virtual">extension_get_virtual</a>
+<LI><a href="#extension_add_virtual">extension_add_virtual</a>
+<LI><a href="#extension_edit_virtual">extension_edit_virtual</a>
+<LI><a href="#extension_delete_virtual">extension_delete_virtual</a>
+<LI><a href="#extension_get_custom">extension_get_custom</a>
+<LI><a href="#extension_add_custom">extension_add_custom</a>
+<LI><a href="#extension_edit_custom">extension_edit_custom</a>
+<LI><a href="#extension_delete_custom">extension_delete_custom</a>
+<LI><a href="#extension_freechan_fxs">extension_freechan_fxs</a>
+<LI><a href="#extension_get_fxs">extension_get_fxs</a>
+<LI><a href="#extension_add_fxs">extension_add_fxs</a>
+<LI><a href="#extension_edit_fxs">extension_edit_fxs</a>
+<LI><a href="#extension_delete_fxs">extension_delete_fxs</a>
+<LI><a href="#extengroup_list">extengroup_list</a>
+<LI><a href="#extengroup_delete">extengroup_delete</a>
+<LI><a href="#extengroup_add">extengroup_add</a>
+<LI><a href="#extengroup_get">extengroup_get</a>
+<LI><a href="#extengroup_edit">extengroup_edit</a>
+</UL>
+
+<p>&nbsp;</p>
+<h2><a name="extension_hints_add">extension_hints_add</a></h2>
+<p><b><br>非公开内部函数,删除指定分机的subscribe hints订阅服务
+		<pre id='code'>	
+  $retrun = extension_hints_add($number)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$number		号码,唯一的
+</b><br>
+	 <b>$protocol		协议类型字符
+</b><br>
+	 <b>$numberstring		号码设备字符串
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		无
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_list">extension_list</a></h2>
+<p><b><br>全部中继列表
+		<pre id='code'>	
+  $retrun = extension_list($order,$limitfrom,$limitoffset)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$order		排序方式,比如填写'order by '
+</b><br>
+	 <b>$limitfrom		取得记录结果的开始位置
+</b><br>
+	 <b>$limitoffset		取得记录结果的结束位置
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'trunks' : 中继列表显示所有中继的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_get">extension_get</a></h2>
+<p><b><br>取得分机不管他是什么协议的
+		<pre id='code'>	
+  $retrun = extension_get($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'extension' : 分机数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_get_sip">extension_get_sip</a></h2>
+<p><b><br>取出SIP协议分机
+		<pre id='code'>	
+  $retrun = extension_get_sip($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个分机的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_add_sip">extension_add_sip</a></h2>
+<p><b><br>增加一个新的SIP分机
+		<pre id='code'>	
+  $retrun = extension_add_sip($devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$devdata		增加的分机信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_edit_sip">extension_edit_sip</a></h2>
+<p><b><br>编辑SIP分机
+		<pre id='code'>	
+  $retrun = extension_edit_sip($accountcode,$exten)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	 <b>$exten		分机的数据信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_delete_sip">extension_delete_sip</a></h2>
+<p><b><br>删除SIP分机
+		<pre id='code'>	
+  $retrun = extension_delete_sip($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_get_iax2">extension_get_iax2</a></h2>
+<p><b><br>取出IAX2分机的信息
+		<pre id='code'>	
+  $retrun = extension_get_iax2($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 分机数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_add_iax2">extension_add_iax2</a></h2>
+<p><b><br>增加一个新的IAX2分机
+		<pre id='code'>	
+  $retrun = extension_add_iax2($exten)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$exten		增加的分机信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_edit_iax2">extension_edit_iax2</a></h2>
+<p><b><br>编辑IAX2分机
+		<pre id='code'>	
+  $retrun = extension_edit_iax2($accountcode,$exten)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	 <b>$exten		分机的数据信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_delete_iax2">extension_delete_iax2</a></h2>
+<p><b><br>删除IAX2分机
+		<pre id='code'>	
+  $retrun = extension_delete_iax2($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_get_virtual">extension_get_virtual</a></h2>
+<p><b><br>取出虚拟分机
+		<pre id='code'>	
+  $retrun = extension_get_virtual($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个分机的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_add_virtual">extension_add_virtual</a></h2>
+<p><b><br>增加一个新的虚拟分机
+		<pre id='code'>	
+  $retrun = extension_add_virtual($exten)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$exten		增加的分机信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_edit_virtual">extension_edit_virtual</a></h2>
+<p><b><br>编辑虚拟分机
+		<pre id='code'>	
+  $retrun = extension_edit_virtual($accountcode,$exten)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	 <b>$exten		分机的数据信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_delete_virtual">extension_delete_virtual</a></h2>
+<p><b><br>删除虚拟分机
+		<pre id='code'>	
+  $retrun = extension_delete_virtual($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_get_custom">extension_get_custom</a></h2>
+<p><b><br>取出自定义分机
+		<pre id='code'>	
+  $retrun = extension_get_custom($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个分机的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_add_custom">extension_add_custom</a></h2>
+<p><b><br>增加一个新的自定义分机
+		<pre id='code'>	
+  $retrun = extension_add_custom($exten)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$exten		增加的分机信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_edit_custom">extension_edit_custom</a></h2>
+<p><b><br>编辑自定义分机
+		<pre id='code'>	
+  $retrun = extension_edit_custom($accountcode,$exten)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	 <b>$exten		分机的数据信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_delete_custom">extension_delete_custom</a></h2>
+<p><b><br>删除自定义分机
+		<pre id='code'>	
+  $retrun = extension_delete_custom($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_freechan_fxs">extension_freechan_fxs</a></h2>
+<p><b><br>取出可用的FXS模拟分机信道
+		<pre id='code'>	
+  $retrun = extension_freechan_fxs()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'freechan' : 分机信道记录</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_get_fxs">extension_get_fxs</a></h2>
+<p><b><br>取出FXS模拟分机
+		<pre id='code'>	
+  $retrun = extension_get_fxs($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个分机的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_add_fxs">extension_add_fxs</a></h2>
+<p><b><br>增加一个新的FXS模拟分机
+		<pre id='code'>	
+  $retrun = extension_add_fxs($exten)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$exten		增加的分机信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_edit_fxs">extension_edit_fxs</a></h2>
+<p><b><br>编辑FXS模拟分机
+		<pre id='code'>	
+  $retrun = extension_edit_fxs($accountcode,$exten)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$accountcode		分机帐户
+</b><br>
+	 <b>$exten		分机的数据信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extension_delete_fxs">extension_delete_fxs</a></h2>
+<p><b><br>删除FXS模拟分机
+		<pre id='code'>	
+  $retrun = extension_delete_fxs($accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		分机帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extengroup_list">extengroup_list</a></h2>
+<p><b><br>取得分机分组列表
+		<pre id='code'>	
+  $retrun = extengroup_list($order)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$order		排序方式,比如填写'order by '
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'result_array' : 分机分组列表数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extengroup_delete">extengroup_delete</a></h2>
+<p><b><br>删除分机分组
+		<pre id='code'>	
+  $retrun = extension_delete_sip($groupid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$groupid		分组编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extengroup_add">extengroup_add</a></h2>
+<p><b><br>增加一个新的分机分组
+		<pre id='code'>	
+  $retrun = extengroup_add($groupname,$remark)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$groupname		分机分组名称
+</b><br>
+	 <b>$remark		分机分组注释
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extengroup_get">extengroup_get</a></h2>
+<p><b><br>取出分机分组信息
+		<pre id='code'>	
+  $retrun = extengroup_get($groupid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$groupid		分组帐户
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个分机的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="extengroup_edit">extengroup_edit</a></h2>
+<p><b><br>编辑分机分组
+		<pre id='code'>	
+  $retrun = extengroup_edit($groupid,$putdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$groupid		分组编号
+</b><br>
+	 <b>$putdata		分组的数据信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+</BODY>
+</HTML>

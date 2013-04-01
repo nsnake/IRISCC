@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> Freeiris2开发人员指南 HTML </TITLE>
+  <META NAME="Author" CONTENT="hoowa.sun">
+  <META NAME="Keywords" CONTENT="Freeiris2 development guide">
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+ <BODY>
+ <div align="left">
+<H1>Freeiris2的技术介绍</H1>
+ </div>
+ <div align="center">
+ &nbsp;<img src="./freeiris2.png"><p align="left"><b>系统结构</b></p>
+	<p align="left">&nbsp;&nbsp;&nbsp; 有很多人都在问,Freeiris2是如何跟Asterisk进行沟通的,是象FreePBX那样,每个存储到数据库中每次呼叫动态更新配置文件,还是其他的什么方法。我们在这里可以准确的说,Freeiris2的处理方法要比FreePBX的方式&quot;麻烦&quot;多了, 
+	Freeiris2以&quot;尽力做到&quot;的方式进行混合性处理.既读写配置文件,又操作数据库.我们在这里可以称为Freeiris2的几样法宝</p>
+	<p align="left"><b>法宝一, PHPRPC分离请求和访问端</b></p>
+	<p align="left">&nbsp; 不象FreePBX或其他系统那样,Freeiris2的控制管理核心，实际上只有一个文件实现的，他就是PHPRPC的服务端rpcpbx.php这个程序,负责请求来自WEB管理端程序发来的请求，并且做出响应的动作反映. 
+	采用这样技术的好处是，可以做到界面无关性. 任何人都可以自己开发客户端,而且我们采用的PHPRPC使得我们的系统具备更佳的多语言支持性,关于PHPRPC技术的资料请参考<a href="http://www.phprpc.org网站有所介绍">http://www.phprpc.org网站有所介绍</a>.</p>
+	<p align="left"><b>法宝二, Asterisk::config + asteriskconf</b></p>
+	<p align="left">&nbsp; 这两个活宝绝对是Freeiris2独创的, 
+	可能很多开发Asterisk应用的人都知道Asterisk的配置文件不同于其他软件的配置文件，他十分灵活,更想是一种简单的描述性语言. 
+	如果你希望对其进行控制, 是十分困难的.&nbsp; 你不能将其看做为数据库, 因此, Trixbox 和 Elastix的核心 FreePBX选择的处理方式是, 
+	以自己所能识别的方法将数据存储在数据库中，每次有呼叫的时候动态根据自己的Template生成配置文件。 这样做的坏处就是，非常消耗系统资源， 因为FreePBX本身不能知道配置是否正确，所以每次都必须要做检测这一机械动作.</p>
+	<p align="left">&nbsp; 而Freeiris2系统所采用的这两个活宝(Asterisk::config 
+	是为Perl语言所设计的，现在不仅仅Freeiris2使用,一些国外的基于Asterisk项目也在使用 而 asteriskconf是其姐妹版为PHP语言所设计)可以分析,读出Asterisk所有配置文件的数据结构,并且可以通过其所提供的函数接口对配置文件进行管理和更新. 
+	这样就不需要FreePBX所使用的那种必须利用数据库的麻烦方式了。</p>
+	<p align="left"><b>法宝三, agispeedy 性能与易用性兼顾</b></p>
+	<p align="left">&nbsp; 大家都知道AGI的性能不怎么样, 如果一个系统设计的很复杂,势必我们要以性能作为代价. asterisk 
+	app module性能好,可是又有几个人会写呢. fastagi 性能居于AGI和 app mdoule之间，可是fastagi 
+	代码编写复杂,如果写不好可能会对整个系统造成更严重的性能负担， 就没有折中的方法么?&nbsp; 有的，就是我们的agispeedy技术.</p>
+	<ol>
+		<li>
+		<p align="left">直线性能提升,性能接近asterisk app,再也不用被agi性能低下困绕</p></li>
+		<li>
+		<p align="left">asterisk无关性,agispeedy不象app那样需要编译,需要依赖asterisk版本,他与asterisk无关</p>
+		</li>
+		<li>
+		<p align="left">编写简易,采用fork技术实现,即使你的代码有问题，也不会影响整个fastagi引擎.</p></li>
+	</ol>
+	<p align="left"><b>法宝四, 硬件识别更符合中国环境</b></p>
+	<p align="left">&nbsp; 现在几乎所有基于Asterisk的系统都有一套对语音卡的识别程序. 我们也不例外,&nbsp; 
+	不过我们的识别程序也经过了一系列的优化, 这样的优化让我们的识别程序可以更适合中国的线路,提供更多可以参考有价值的配置参数.</p>
+	<p align="left"><b>法宝五, 全中文的设计</b></p>
+	<p align="left">&nbsp; 
+	相信大家能理解,代码中不可避免的会有英文注释信息。但是我们确保,直接提供给用户的，大部分的数据和信息都是中文的. 这样更具有贴切力.</p>
+	<p align="left"><b>本手册讲什么</b></p>
+
+ <p align="left">&nbsp; 
+	本手册将把重点放在如何,基于freeiris2进行一些二次开发,和改进设计上的话题.以及让你了解如何向我们提出问题.</p>
+ <p><a href="index.html">上一页</a>&nbsp;<a href="menu.html">目录导航</a>&nbsp;<a href="subversion.html">下一页</a></p>
+ </div>
+ </BODY>
+</HTML>

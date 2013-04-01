@@ -1,0 +1,38 @@
+context dynamic-nway {
+  _XXXX => {
+    Answer;
+    Set(CONFNO=${EXTEN});
+    Set(MEETME_EXIT_CONTEXT=dynamic-nway-invite);
+    Set(DYNAMIC_FEATURES=);
+    MeetMe(${CONFNO},pdX);
+    Hangup;
+  };
+};
+
+context dynamic-nway-invite {
+  0 => {
+    Read(DEST,dial,4,i);
+    Set(DYNAMIC_FEATURES=nway-inv#nway-noinv);
+    if ("${DEST}" != "") { 
+         Dial(Local/${DEST}@app-exten/n,,g);
+         } 
+ 
+    Set(DYNAMIC_FEATURES=);
+    Goto(dynamic-nway,${CONFNO},1);
+  };
+  i => Goto(dynamic-nway,${CONFNO},1);
+};
+
+macro ael-nway-start() {
+  Set(CONFNO=${CALLERID(num)});
+  ChannelRedirect(${BRIDGEPEER},dynamic-nway,${CONFNO},1);
+  Gosub(dynamic-nway,${CONFNO},1);
+};
+
+macro ael-nway-ok() {
+  ChannelRedirect(${BRIDGEPEER},dynamic-nway,${CONFNO},1);
+};
+
+macro ael-nway-notok() {
+  SoftHangup(${BRIDGEPEER});
+};

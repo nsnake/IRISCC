@@ -1,0 +1,204 @@
+#!/usr/bin/perl
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@gmail.com>
+#
+#	See http://www.freeiris.org for more information about
+#	the Freeiris project.
+#
+#	This program is free software, distributed under the terms of
+#	the GNU General Public License Version 2. See the LICENSE file
+#	at the top of the source tree.
+#
+#	Freeiris2 -- 开源通信系统
+#	本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+#	请查阅LICENSE文件。
+#
+#
+#   $Id$
+#
+use strict;
+
+# AUTO FLASH
+$|=1;
+
+my $VERSION = 0.1;
+
+my ($FRI_Msgbox_SPEED,$FRI_Msgbox_WIDTH,$FRI_Msgbox_UPDATE,$FRI_Msgbox_TEXT,%CHUCK,$CONCURRENTCALLS_REFRESH,%DATABASE);
+
+# seconds
+$CONCURRENTCALLS_REFRESH=5;
+
+# GETOUT FRI_Msgbox speed and width
+my $bMsgbox;
+open(LCD,"/etc/lcd4linux.conf") or die "Can't Open /etc/lcd4linux.conf : $!";
+foreach(<LCD>) {
+
+    if (defined$FRI_Msgbox_SPEED && defined$FRI_Msgbox_WIDTH && defined$FRI_Msgbox_UPDATE) {
+        last;
+    }
+
+    if ($_ =~ /Widget FRI_Msgbox/) {
+	$bMsgbox=1;
+	next;
+    } elsif ($_ =~ /width(.*)/ && $_ !~ /#/ && $bMsgbox) {
+	$FRI_Msgbox_WIDTH=$1;
+	$FRI_Msgbox_WIDTH=~s/^\s+//;
+	$FRI_Msgbox_WIDTH=~s/\s+$//;
+	next;
+    } elsif ($_ =~ /speed(.*)/ && $_ !~ /#/ && $bMsgbox) {
+	$FRI_Msgbox_SPEED=$1;
+	$FRI_Msgbox_SPEED=~s/^\s+//;
+	$FRI_Msgbox_SPEED=~s/\s+$//;
+	next;
+    } elsif ($_ =~ /update(.*)/ && $_ !~ /#/ && $bMsgbox) {
+	$FRI_Msgbox_UPDATE=$1;
+	$FRI_Msgbox_UPDATE=~s/^\s+//;
+	$FRI_Msgbox_UPDATE=~s/\s+$//;
+	next;
+    }
+}
+close(LCD);
+if (!defined$FRI_Msgbox_SPEED || !defined$FRI_Msgbox_WIDTH || !defined$FRI_Msgbox_UPDATE || 
+    $FRI_Msgbox_SPEED =~ /[^0-9]/ || $FRI_Msgbox_WIDTH =~ /[^0-9]/ || $FRI_Msgbox_UPDATE =~ /[^0-9]/) {
+    die "Error to load msgbox width or speed! \n";
+}
+
+# GETOUT chuck
+$CHUCK{'system'} = `/freeiris2/bin/hardware --release`;
+chomp($CHUCK{'system'});
+
+foreach (`/freeiris2/bin/hardware --license`) {
+    chomp($_);
+my  @data = split(/\=/,$_);
+    $data[0]=~s/^\s+//;
+    $data[0]=~s/\s+$//;
+    $data[1]=~s/^\s+//;
+    $data[1]=~s/\s+$//;
+    $CHUCK{$data[0]}=$data[1];
+}
+
+# GETOUT VERSION AND DATABASE INFO
+open(FRI,"/etc/freeiris2/freeiris.conf") or die "Can't Open /etc/freeiris2/freeiris.conf : $!";
+foreach(<FRI>) {
+    if (defined$CHUCK{'version'} && defined$DATABASE{'dbuser'} && defined$DATABASE{'dbpasswd'} && defined$DATABASE{'dbname'}) {
+        last;
+    }
+
+    if ($_ =~ /version\=(.*)/) {
+    	$CHUCK{'version'}=$1;
+	    chomp($CHUCK{'version'});
+        $CHUCK{'version'}=~s/^\s+//;
+        $CHUCK{'version'}=~s/\s+$//;
+        next;
+    } elsif ($_ =~ /dbuser\=(.*)/) {
+    	$DATABASE{'dbuser'}=$1;
+	    chomp($DATABASE{'dbuser'});
+        $DATABASE{'dbuser'}=~s/^\s+//;
+        $DATABASE{'dbuser'}=~s/\s+$//;
+        next;
+    } elsif ($_ =~ /dbpasswd\=(.*)/) {
+    	$DATABASE{'dbpasswd'}=$1;
+	    chomp($DATABASE{'dbpasswd'});
+        $DATABASE{'dbpasswd'}=~s/^\s+//;
+        $DATABASE{'dbpasswd'}=~s/\s+$//;
+        next;
+    } elsif ($_ =~ /dbname\=(.*)/) {
+    	$DATABASE{'dbname'}=$1;
+	    chomp($DATABASE{'dbname'});
+        $DATABASE{'dbname'}=~s/^\s+//;
+        $DATABASE{'dbname'}=~s/\s+$//;
+        next;
+    }
+}
+close(FRI);
+
+
+#-------------------------fork two fish
+my  $twofish = fork();
+# father process
+if ($twofish!=0) {
+
+    # displaying
+    my $normal;
+    while(1) {
+
+        $FRI_Msgbox_TEXT='';
+
+        # ALARM TRYING
+        # E1/T1 Card Alarm Checking.
+        #$msgline='WARNNING! E1/T1 [RED/YELLOW] Alarm.';
+
+        # NORMAL SETTINGS
+	if (!defined$normal) {
+            $FRI_Msgbox_TEXT = 'Loading...';
+            $normal=0;
+
+        } elsif ($normal eq '0') {
+
+            # header
+            $FRI_Msgbox_TEXT = $CHUCK{'system'}.' TELEPHONY SYSTEM';
+            $normal++;
+
+        } elsif ($normal eq '1') {
+
+            # version
+            if ($CHUCK{'system'} ne 'freeiris') {
+                $FRI_Msgbox_TEXT = 'SID: '.$CHUCK{'keyid'};
+            } else {
+                $FRI_Msgbox_TEXT = 'VER: '.$CHUCK{'version'};
+            }
+            $normal++;
+
+        } else {
+
+        my  @dbresult = `mysql --user=$DATABASE{'dbuser'} --password=$DATABASE{'dbpasswd'} --database=$DATABASE{'dbname'} --execute="select count(*) from extension"`;
+            chomp($dbresult[1]);
+            $FRI_Msgbox_TEXT = 'Extens: '.$dbresult[1].' / ';
+        my  @dbresult = `mysql --user=$DATABASE{'dbuser'} --password=$DATABASE{'dbpasswd'} --database=$DATABASE{'dbname'} --execute="select count(*) from trunk"`;
+            chomp($dbresult[1]);
+            $FRI_Msgbox_TEXT .= 'Trunks: '.$dbresult[1];
+
+            $normal=0;
+
+        }
+
+        my  $sleeptime = (($FRI_Msgbox_SPEED*$FRI_Msgbox_WIDTH)+($FRI_Msgbox_SPEED*length($FRI_Msgbox_TEXT))+$FRI_Msgbox_UPDATE)/1000;
+
+        # Write to file
+        warn "-$FRI_Msgbox_TEXT-$sleeptime-\n" if ($ARGV[0] eq '--debug');
+        system("echo '".$FRI_Msgbox_TEXT."        ' > /tmp/frilcd_Msgbox.fifo");
+
+        sleep($sleeptime);
+        next;
+    }
+
+} else {
+    while (1) {
+
+    my  $concurrentcalls='000';
+
+        foreach (`asterisk -rx "show channels"`) {
+            if ($_ =~ /^([0-9]+) active channel/) {
+                $concurrentcalls=$1;
+                last;
+            }
+        }
+        if (length($concurrentcalls) == 2) {
+            $concurrentcalls = '0'.$concurrentcalls;
+        } elsif (length($concurrentcalls) == 1) {
+            $concurrentcalls = '00'.$concurrentcalls;
+        }
+
+        #write to file
+        warn "-$concurrentcalls-CHILD-\n" if ($ARGV[0] eq '--debug');
+        system("echo '".$concurrentcalls."        ' > /tmp/frilcd_Concurrentcalls.fifo");
+
+        sleep($CONCURRENTCALLS_REFRESH);
+        next;
+
+    }
+}
+
+exit;

@@ -1,0 +1,277 @@
+#!/usr/bin/perl
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@gmail.com>
+#
+#	See http://www.freeiris.org for more information about
+#	the Freeiris project.
+#
+#	This program is free software, distributed under the terms of
+#	the GNU General Public License Version 2. See the LICENSE file
+#	at the top of the source tree.
+#
+#	Freeiris2 -- 开源通信系统
+#	本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+#	请查阅LICENSE文件。
+#
+#
+#   $Id$
+#
+
+# AUTO FLASH
+$|=1;
+
+my $VERSION='0.2';
+if (defined$ARGV[0] && $ARGV[0] eq '--help') {
+
+	print qq~
+freeiris2 backup $VERSION
+
+syntax:
+  print help                          :    $0 --help
+  backup all freeiris2 to single file :    $0 --backup
+  restore back file to current sys    :    $0 --restore [filenamexxxx]
+~;
+
+	exit;
+
+} elsif ($ARGV[0] =~ /^\-\-backup/) {
+	
+	&backup();
+
+} elsif ($ARGV[0] =~ /^\-\-restore/) {
+	
+	&restore();
+
+} else {
+
+	print "syntax :    $0 --help\n";
+
+	exit;
+}
+
+
+sub backup
+{
+	#前期检测
+	warn "freeiris2 backup $VERSION\n";
+	if (!-e"/usr/bin/mysqldump") {
+		print "which mysqldump?";
+		exit;
+	}
+
+my	$currentdir = `pwd`;
+	chmod($currentdir);
+
+	#查找当前版本
+my	$fri2version;
+	open(VER,"/freeiris2/etc/freeiris.conf") or die "error to open : $!";
+	while (<VER>) {
+		if ($_ =~ /version\=(.*)/) {
+			$fri2version=$1;
+			last;
+		}
+	}
+	close(VER);
+	if (!defined $fri2version || $fri2version eq '') {
+		warn "no /freeiris2/etc/freeiris.conf!\n";
+		exit;
+	}
+
+	#取得当前日期信息
+my	@datetime = localtime();	$datetime[5] += 1900;	$datetime[4]++;
+	#如果想每次生成一个就改变这个语法
+#my	$mainname = 'fri'.time;
+my	$mainname = 'frifull';
+
+
+	#开始处理
+	warn "    [STEP] new backup $mainname at $datetime[5]-$datetime[4]-$datetime[3]\n";
+
+	#准备目录
+	warn "    [STEP] creating /tmp/$mainname...\n";
+	system("rm -rf /tmp/$mainname");
+	system("mkdir /tmp/$mainname");
+	system("mkdir /tmp/$mainname/etc");
+	system("mkdir /tmp/$mainname/freeiris2");
+	system("mkdir /tmp/$mainname/freeiris2/etc");
+	system("mkdir /tmp/$mainname/var");
+	system("mkdir /tmp/$mainname/var/lib");
+	chdir("/tmp/$mainname");
+
+	#进行文件复制
+	warn "    [STEP] copying mysql configure my.cnf --> $mainname...\n";
+	system("cp -af /etc/my.cnf ./etc/");
+	warn "    [STEP] copying asterisk configure --> $mainname...\n";
+	system("cp -af /etc/asterisk/ ./etc/");
+	warn "    [STEP] copying freeiris2 configure --> $mainname...\n";
+	system("cp -af /freeiris2/etc/ freeiris2/");
+	warn "    [STEP] copying asterisk lib --> $mainname...\n";
+	system("cp -af /var/lib/asterisk/ ./var/lib/");
+
+	#数据库备份
+	warn "    [STEP] dumping mysql database full --> $mainname...\n";
+	system("/usr/bin/mysqldump freeiris2 > databasefull.sql");
+
+	#生成版本配置文件
+	open(SAVE,">/tmp/$mainname/config");
+	print SAVE "fri2backup=$VERSION\n";
+	print SAVE "freeiris2=$fri2version\n";
+	close(SAVE);
+
+	#打压缩包
+	warn "    [STEP] compressing to file $mainname.backup...\n";
+	chdir("/tmp");
+	system("tar czf $mainname.backup $mainname/");
+	system("rm -rf /tmp/$mainname");
+
+	#output args
+my	($outputdir);
+	if ($ARGV[1] =~ /\-\-output=(.*)/) {
+		if (-d$1) {
+			$outputdir=$1;
+		}
+	}
+	if (!$outputdir) {
+		$outputdir = $currentdir;
+	}
+        warn "    [STEP] saving $outputdir\n";
+	system("mv /tmp/$mainname.backup $outputdir");
+
+	warn "done!\n";
+
+exit;
+}
+
+sub restore
+{
+	#前期检测
+	warn "freeiris2 backup restore $VERSION\n";
+	if (!-e"/usr/bin/mysql") {
+		print "which mysql?";
+		exit;
+	}
+
+my	$currentdir = `pwd`;
+	chop($currentdir);
+
+	#查找当前版本
+my	$fri2version;
+	open(VER,"/freeiris2/etc/freeiris.conf") or die "error to open : $!";
+	while (<VER>) {
+		if ($_ =~ /version\=(.*)/) {
+			$fri2version=$1;
+			last;
+		}
+	}
+	close(VER);
+	if (!defined $fri2version || $fri2version eq '') {
+		warn "no /freeiris2/etc/freeiris.conf!\n";
+		exit;
+	}
+
+	#查找文件
+	if (!-e"$ARGV[1]") {
+		warn "no file $ARGV[1] \n";
+		exit;
+	}
+
+	#取得当前日期信息
+my	@datetime = localtime();	$datetime[5] += 1900;	$datetime[4]++;
+
+	#警告信息
+	warn "RESTORE WARNNING!!!\n";
+	warn "Please keep new system and old system same version\n";
+	warn "    [STEP] restore $ARGV[1]\n";
+	print "continue?(yes/no) ";
+	if (<STDIN>!~/^yes/) {
+		warn "bye!\n";
+		exit;
+	}
+
+	#停止Fonoirs的对外服务,请在操作完所有备份工作以后,重新启动机器.
+	warn "    [STEP] stopping httpd service...\n";
+	system("/etc/init.d/httpd stop");
+	warn "    [STEP] stopping fri2d service...\n";
+	system("/etc/init.d/fri2d stop");
+	warn "    [STEP] stopping asterisk service...\n";
+	system("/etc/init.d/asterisk stop");
+	sleep(2);
+
+	#首先解压缩
+	warn "    [STEP] uncompressing $ARGV[1]\n";
+	system("tar zxf $ARGV[1]");
+my	($mainname,undef)=split(/\./,$ARGV[1]);
+	chdir("$currentdir/$mainname/") or die "$!";
+
+	#检测版本
+my	($FILE_FRI2VERSION,$FILE_SYSVER);
+	open(VER,"config") or die "can't open config : $!";
+	while(<VER>) {
+		if ($_=~/fri2backup\=(.*)/) {
+			$FILE_SYSVER=$1;
+			chomp($FILE_SYSVER);
+		}
+		if ($_=~/freeiris2\=(.*)/) {
+			$FILE_FRI2VERSION=$1;
+			chomp($FILE_FRI2VERSION);
+		}
+	}
+	close(VER);
+	
+	if ($VERSION ne $FILE_SYSVER) {
+		warn "$0($VERSION) version no match backup file $FILE_SYSVER\n";
+		print "continue?(yes/no) ";
+		if (<STDIN>!~/^yes/) {
+			warn "bye!\n";
+			exit;
+		}
+	}
+
+	if ($fri2version ne $FILE_FRI2VERSION) {
+		warn "WARNNING!!!\n";
+		warn "current freeiris $fri2version not match back file $FILE_FRI2VERSION \n";
+		print "continue?(yes/no) ";
+		if (<STDIN>!~/^yes/) {
+			warn "bye!\n";
+			exit;
+		}
+	}
+
+	#删除纯净系统的文件
+	warn "    [STEP] remove freeiris2 configure from current system.\n";
+	system("rm -rf /etc/my.cnf");
+	system("rm -rf /etc/asterisk/");
+	system("rm -rf /freeiris2/etc/");
+	system("rm -rf /var/lib/asterisk/");
+
+	#新文件恢复
+	warn "    [STEP] copying backup file to current system.\n";
+	system("cp -af etc/my.cnf /etc/");
+	system("cp -af etc/asterisk /etc/");
+	system("cp -af freeiris2/etc /freeiris2/");
+	system("cp -af var/lib/asterisk /var/lib/");
+
+	#数据库恢复
+	warn "    [STEP] drop and create new database.\n";
+	system("/usr/bin/mysql --execute=\"drop database freeiris2\"");
+	system("/usr/bin/mysql --execute=\"create database freeiris2\"");
+	warn "    [STEP] restoring database.\n";
+	system("/usr/bin/mysql --one-database freeiris2 < databasefull.sql");
+
+	chdir("$currentdir/") or die "$!";
+	system("rm -rf $currentdir/$mainname/");
+
+	#恢复进程
+	warn "    [STEP] starting asterisk service...\n";
+	system("/etc/init.d/asterisk start");
+	warn "    [STEP] starting fri2d service...\n";
+	system("/etc/init.d/fri2d start");
+	warn "    [STEP] starting httpd service...\n";
+	system("/etc/init.d/httpd start");
+
+	warn "done please reboot your system!\n";
+
+exit;
+}

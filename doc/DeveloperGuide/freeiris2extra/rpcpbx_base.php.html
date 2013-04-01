@@ -1,0 +1,362 @@
+<!--/***************************************************************************
+Don't remove this title!
+FRIPAPER
+@description
+        this module can read remark from program files in src directory, 
+        and create help files use html language in in dst directory
+@version 2009-06-22 1.0.1
+@author freeiris-安静 <yuzegao@163.com>
+@package Freeiris2 Package Fripaper
+Please submit bug reports, patches, etc to <yuzegao@163.com>
+www.voxen.cn
+ENDPAPER
+See http://www.freeiris.org for more information about
+the Freeiris project.
+Freeiris2 -- 开源通信系统
+本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+请查阅LICENSE文件。
+***************************************************************************/-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> Base基本函数包 </TITLE>
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+<BODY>
+<div align="center">
+<H1>Base基本函数包</H1>
+<p>&nbsp;</p>
+</div>
+
+<div align="left">
+<p><b>作者</b> : <link src="mailto:hoowa.sun AT gmail DOT com">Sun bing</link><br>
+<b>版本</b> : 1.0<br>
+<b>文件</b> : rpcpbx_base.php<br>
+<b>说明 : </b><br>
+	&nbsp;&nbsp;基本函数
+
+<br>
+<b>函数</b> :
+<UL>
+<LI><a href="#base_version">base_version</a>
+<LI><a href="#base_release">base_release</a>
+<LI><a href="#base_dbquery">base_dbquery</a>
+<LI><a href="#admin_profile_edit">admin_profile_edit</a>
+<LI><a href="#base_readconf">base_readconf</a>
+<LI><a href="#base_updateconf">base_updateconf</a>
+<LI><a href="#localnumber_get">localnumber_get</a>
+<LI><a href="#ami">ami</a>
+<LI><a href="#ami_command">ami_command</a>
+<LI><a href="#ami_originate">ami_originate</a>
+<LI><a href="#ami_event">ami_event</a>
+<LI><a href="#stat_cpu_usage">stat_cpu_usage</a>
+<LI><a href="#stat_system_uptime">stat_system_uptime</a>
+<LI><a href="#system_restart">system_restart</a>
+<LI><a href="#base_registration_get">base_registration_get</a>
+<LI><a href="#base_license_get">base_license_get</a>
+<LI><a href="#base_registration_set">base_registration_set</a>
+<LI><a href="#stat_memory_usage">stat_memory_usage</a>
+</UL>
+
+<p>&nbsp;</p>
+<h2><a name="base_version">base_version</a></h2>
+<p><b><br>获得系统的版本号
+		<pre id='code'>	
+  $retrun = base_version()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'rpcpbx' : rpcpbx的版本</li>
+		 <li>string 'freeiris2' : freeiris2的版本</li>
+		 <li>string 'buildver' : buildver的版本</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="base_release">base_release</a></h2>
+<p><b><br>发行版本
+		<pre id='code'>	
+  $retrun = base_release()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'release' : 版本类型</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="base_dbquery">base_dbquery</a></h2>
+<p><b><br>数据库原始查询接口,该接口直接连接数据库.
+		<pre id='code'>	
+  $retrun = base_dbquery($sql)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'result_array' : 执行数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="admin_profile_edit">admin_profile_edit</a></h2>
+<p><b><br>编辑管理员的信息
+		<pre id='code'>	
+  $retrun = admin_profile_edit($adminid,$newprofile)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$adminid		管理员的ID号
+</b><br>
+	 <b>$newprofile		编辑的数据信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="base_readconf">base_readconf</a></h2>
+<p><b><br>读取指定的配置文件信息结构
+		<pre id='code'>	
+  $retrun = base_readconf($folder,$filename)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$folder		<li>'freeiris' 表示/etc/freeiris/目录下.</li>
+		<li>'asterisk' 表示/etc/asterisk目录下.</li>
+		<li>除了以上两个目录不能读取和编辑其他目录.</li>
+</b><br>
+	 <b>$filename		文件名称
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 该文件经过asteriskconf处理之后的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="base_updateconf">base_updateconf</a></h2>
+<p><b><br>编辑配置文件的value
+		<pre id='code'>	
+  $retrun = base_updateconf($folder,$filename,$section,$key,$newvalue)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$folder		<li>'freeiris' 表示/etc/freeiris/目录下.</li>
+		<li>'asterisk' 表示/etc/asterisk目录下.</li>
+		<li>除了以上两个目录不能读取和编辑其他目录.</li>
+</b><br>
+	 <b>$filename		文件名称
+</b><br>
+	 <b>$section		section块名称,比如[general]就是general
+</b><br>
+	 <b>$key		键名
+</b><br>
+	 <b>$newvalue		新的值名
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="localnumber_get">localnumber_get</a></h2>
+<p><b><br>获得本地号码信息,如果返回为空表示不是本地号码
+		<pre id='code'>	
+  $retrun = localnumber_get($number)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$number		号码
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 该号码的信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ami">ami</a></h2>
+<p><b><br>执行任何AMI的标准指令.
+		指令请参考http://www.voip-info.org/wiki/view/Asterisk+manager+API
+		<pre id='code'>	
+  $retrun = ami($actionid,$action,$parameter)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$actionid		AMI指令的编号
+</b><br>
+	 <b>$action		AMI指令动作
+</b><br>
+	 <b>$parameter		指令参数,数据采用'key'=>'value'格式
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'ami' : AMI返回信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ami_command">ami_command</a></h2>
+<p><b><br>获得本地号码信息,如果返回为空表示不是本地号码
+		<pre id='code'>	
+  $retrun = ami_command($actionid,$command)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$actionid		AMI指令的编号
+</b><br>
+	 <b>$command		AMI指令内容
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'ami' : AMI返回信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ami_originate">ami_originate</a></h2>
+<p><b><br>ami发起asterisk动作
+		<pre id='code'>	
+  $retrun = ami_originate($actionid,$parameter)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$actionid		AMI指令的编号
+</b><br>
+	 <b>$parameter		动作内容参数
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'ami' : AMI返回信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ami_event">ami_event</a></h2>
+<p><b><br>Freeiris2的基于Proxy模式的AMI EVENT接口,该接口可以提高EVENT数据输出可靠性.
+		<pre id='code'>	
+  $retrun = ami_event($limit=100,$fromid=null)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$limit		数据量,系统只保留3分钟内的数据.每次默认取100条
+</b><br>
+	 <b>$fromid		从编号id之后开始,可选参数
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'event' : EVENT数据列表,其中包括event1..event4每个保存240个字符</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="stat_cpu_usage">stat_cpu_usage</a></h2>
+<p><b><br>CPU处理器的负载状况
+		<pre id='code'>	
+  $retrun = stat_cpu_usage()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'usage' : 负载比率</li>
+		 <li>string 'loadavg' : loadavage</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="stat_system_uptime">stat_system_uptime</a></h2>
+<p><b><br>系统工作时长
+		<pre id='code'>	
+  $retrun = stat_system_uptime()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'uptime' : 工作时长秒</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="system_restart">system_restart</a></h2>
+<p><b><br>系统重新启动
+		<pre id='code'>	
+  $retrun = system_restart($area)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$area		<li>'fri2d' 重新启动fri2d主管理进程</li>
+		<li>'reboot' 将服务器设备重新启动</li>
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="base_registration_get">base_registration_get</a></h2>
+<p><b><br>向服务端获得注册信息
+		<pre id='code'>	
+  $retrun = base_registration_get()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'registration' : 信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="base_license_get">base_license_get</a></h2>
+<p><b><br>获得注册信息
+		<pre id='code'>	
+  $retrun = base_license_get()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'license' : 工作时长秒</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="base_registration_set">base_registration_set</a></h2>
+<p><b><br>注册信息添写
+		<pre id='code'>	
+  $retrun = base_registration_set($systemid,$register_name)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$area		<li>'systemid' 序列号</li>
+		<li>'register_name' 注册人姓名</li>
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="stat_memory_usage">stat_memory_usage</a></h2>
+<p><b><br>物理内存负载状况
+		<pre id='code'>	
+  $retrun = stat_memory_usage()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'percent' : 物理内存负载数(百分比)</li>
+		 <li>string 'total'   : 物理内存总计(KB)</li>
+		 <li>string 'used'    : 物理内存使用(KB)</li>
+		 <li>string 'free'    : 物理内存空余(KB)</li>
+		 <li>string 'cached'  : 已Cached的数量(KB)</li>
+		 <li>string 'buffers' : 已buffers的数量(KB)</li>
+	</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+</BODY>
+</HTML>

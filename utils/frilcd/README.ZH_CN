@@ -1,0 +1,46 @@
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@freeiris.org>
+#
+#  frilcd 是一个LCD的监视程序,可以将Freeiris2信息实时汇报到LCD上.
+#  作者hoowa sun
+#
+
+预先准备:
+1. 您需要一片采用USB2LCD开源硬件方案所设计的液晶屏,最好是20x2规格的.
+
+   如果你要制作可以参考开源硬件项目USB2LCD http://www.harbaum.org/till/lcd2usb/
+
+   如果你要购买现有的,可以在TAOBAO中搜索,只要卖家是采用的LCD2USB项目制作的都可以.
+
+2. 您需要安装LCD4Linux这个是USB2LCD的驱动程序, 访问http://lcd4linux.bulix.org/下载安装驱动.
+
+安装:
+cp lcd4linux.conf /etc/lcd4linux.conf
+chmod 600 /etc/lcd4linux.conf
+chown root:root /etc/lcd4linux.conf
+
+测试屏幕:
+lcd4linux -Fvvq
+如果屏幕有内容显示表示正常,按Ctrl+C结束
+
+设置LCD4Linux开机启动,编辑/etc/rc.local追加:
+/usr/local/bin/lcd4linux -q
+
+设置frilcd的fri2d进程,编辑/etc/freeiris2/fri2d.conf追加:
+;
+[frilcd]
+enable=yes
+per=30
+startup=yes
+check_type=daemon
+daemon=frilcd
+script_start=$IRISROOT/utils/frilcd/frilcd &
+
+重新启动fri2d
+/etc/init.d/fri2d stop
+/etc/init.d/fri2d start
+
+如果看到屏幕显示:
+Loading...

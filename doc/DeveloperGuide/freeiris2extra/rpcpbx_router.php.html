@@ -1,0 +1,161 @@
+<!--/***************************************************************************
+Don't remove this title!
+FRIPAPER
+@description
+        this module can read remark from program files in src directory, 
+        and create help files use html language in in dst directory
+@version 2009-06-22 1.0.1
+@author freeiris-安静 <yuzegao@163.com>
+@package Freeiris2 Package Fripaper
+Please submit bug reports, patches, etc to <yuzegao@163.com>
+www.voxen.cn
+ENDPAPER
+See http://www.freeiris.org for more information about
+the Freeiris project.
+Freeiris2 -- 开源通信系统
+本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+请查阅LICENSE文件。
+***************************************************************************/-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> ROUTER呼叫规则函数包 </TITLE>
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+<BODY>
+<div align="center">
+<H1>ROUTER呼叫规则函数包</H1>
+<p>&nbsp;</p>
+</div>
+
+<div align="left">
+<p><b>作者</b> : <link src="mailto:hoowa.sun AT gmail DOT com">Sun bing</link><br>
+<b>版本</b> : 1.0<br>
+<b>文件</b> : rpcpbx_router.php<br>
+<b>说明 : </b><br>
+	&nbsp;&nbsp;ROUTER呼叫规则函数包
+
+<br>
+<b>函数</b> :
+<UL>
+<LI><a href="#router_list">router_list</a>
+<LI><a href="#router_get">router_get</a>
+<LI><a href="#router_add">router_add</a>
+<LI><a href="#router_edit">router_edit</a>
+<LI><a href="#router_delete">router_delete</a>
+<LI><a href="#router_recall">router_recall</a>
+</UL>
+
+<p>&nbsp;</p>
+<h2><a name="router_list">router_list</a></h2>
+<p><b><br>呼叫规则列表
+		<pre id='code'>	
+  $retrun = router_list($routerline)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$routerline		呼叫规则类型,1分机,2中继
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'rules' : 呼叫规则列表结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="router_get">router_get</a></h2>
+<p><b><br>取得指定一条呼叫规则信息
+		<pre id='code'>	
+  $retrun = router_get($routerid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$routerid		呼叫规则编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 呼叫规则信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="router_add">router_add</a></h2>
+<p><b><br>增加一条呼叫规则
+		<pre id='code'>	
+  $retrun = router_add($proirety,$createmode,$routerline,$routerdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$proirety		优先级别
+</b><br>
+	 <b>$createmode		0表示自动创建,1表示人工创建,2表示无法手动删除(优先级别是最低的)
+</b><br>
+	 <b>$routerline		0未分配,1内线路由,2外线路由
+</b><br>
+	 <b>$routerdata		路由其他数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="router_edit">router_edit</a></h2>
+<p><b><br>编辑呼叫规则
+		<pre id='code'>	
+  $retrun = router_edit($routerid,$routerdata,$routerline)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$routerid		呼叫规则编号
+</b><br>
+	 <b>$routerdata		路由被编辑数据结构
+</b><br>
+	 <b>$routerline		0未分配,1内线路由,2外线路由
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="router_delete">router_delete</a></h2>
+<p><b><br>删除一条规则
+		<pre id='code'>	
+  $retrun = router_delete($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		规则编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="router_recall">router_recall</a></h2>
+<p><b><br>更新IVR菜单动作的优先级别
+		<pre id='code'>	
+  $retrun = router_recall($routerid,$proirety)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$routerid		路由规则编号
+</b><br>
+	 <b>$proirety		新优先级别
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+</BODY>
+</HTML>

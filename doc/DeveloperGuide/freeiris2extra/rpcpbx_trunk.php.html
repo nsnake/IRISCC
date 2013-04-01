@@ -1,0 +1,456 @@
+<!--/***************************************************************************
+Don't remove this title!
+FRIPAPER
+@description
+        this module can read remark from program files in src directory, 
+        and create help files use html language in in dst directory
+@version 2009-06-22 1.0.1
+@author freeiris-安静 <yuzegao@163.com>
+@package Freeiris2 Package Fripaper
+Please submit bug reports, patches, etc to <yuzegao@163.com>
+www.voxen.cn
+ENDPAPER
+See http://www.freeiris.org for more information about
+the Freeiris project.
+Freeiris2 -- 开源通信系统
+本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+请查阅LICENSE文件。
+***************************************************************************/-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> 中继函数包 </TITLE>
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+<BODY>
+<div align="center">
+<H1>中继函数包</H1>
+<p>&nbsp;</p>
+</div>
+
+<div align="left">
+<p><b>作者</b> : <link src="mailto:hoowa.sun AT gmail DOT com">Sun bing</link><br>
+<b>版本</b> : 1.0<br>
+<b>文件</b> : rpcpbx_trunk.php<br>
+<b>说明 : </b><br>
+	&nbsp;&nbsp;中继函数包
+
+<br>
+<b>函数</b> :
+<UL>
+<LI><a href="#trunk_list">trunk_list</a>
+<LI><a href="#trunk_get_sip">trunk_get_sip</a>
+<LI><a href="#trunk_add_sip">trunk_add_sip</a>
+<LI><a href="#trunk_edit_sip">trunk_edit_sip</a>
+<LI><a href="#trunk_delete_sip">trunk_delete_sip</a>
+<LI><a href="#trunk_add_iax2">trunk_add_iax2</a>
+<LI><a href="#trunk_get_iax2">trunk_get_iax2</a>
+<LI><a href="#trunk_edit_iax2">trunk_edit_iax2</a>
+<LI><a href="#trunk_delete_iax2">trunk_delete_iax2</a>
+<LI><a href="#trunk_add_custom">trunk_add_custom</a>
+<LI><a href="#trunk_get_custom">trunk_get_custom</a>
+<LI><a href="#trunk_edit_custom">trunk_edit_custom</a>
+<LI><a href="#trunk_delete_custom">trunk_delete_custom</a>
+<LI><a href="#trunk_freegroup_dahdi">trunk_freegroup_dahdi</a>
+<LI><a href="#trunk_freechan_isdnpri">trunk_freechan_isdnpri</a>
+<LI><a href="#trunk_get_isdnpri">trunk_get_isdnpri</a>
+<LI><a href="#trunk_add_isdnpri">trunk_add_isdnpri</a>
+<LI><a href="#trunk_edit_isdnpri">trunk_edit_isdnpri</a>
+<LI><a href="#trunk_delete_isdnpri">trunk_delete_isdnpri</a>
+<LI><a href="#trunk_freechan_fxo">trunk_freechan_fxo</a>
+<LI><a href="#trunk_get_fxo">trunk_get_fxo</a>
+<LI><a href="#trunk_add_fxo">trunk_add_fxo</a>
+<LI><a href="#trunk_edit_fxo">trunk_edit_fxo</a>
+<LI><a href="#trunk_delete_fxo">trunk_delete_fxo</a>
+</UL>
+
+<p>&nbsp;</p>
+<h2><a name="trunk_list">trunk_list</a></h2>
+<p><b><br>全部中继列表
+		<pre id='code'>	
+  $retrun = trunk_list($order,$limitfrom,$limitoffset)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$order		排序方式,比如填写'order by '
+</b><br>
+	 <b>$limitfrom		取得记录结果的开始位置
+</b><br>
+	 <b>$limitoffset		取得记录结果的结束位置
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'trunks' : 中继列表显示所有中继的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_get_sip">trunk_get_sip</a></h2>
+<p><b><br>取出SIP协议中继
+		<pre id='code'>	
+  $retrun = trunk_get_sip($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个中继的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_add_sip">trunk_add_sip</a></h2>
+<p><b><br>增加一个新的SIP中继
+		<pre id='code'>	
+  $retrun = trunk_add_sip($devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$devdata		增加的中继信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_edit_sip">trunk_edit_sip</a></h2>
+<p><b><br>编辑SIP中继
+		<pre id='code'>	
+  $retrun = trunk_edit_sip($trunkid,$devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	 <b>$devdata		中继编辑的数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_delete_sip">trunk_delete_sip</a></h2>
+<p><b><br>删除SIP中继
+		<pre id='code'>	
+  $retrun = trunk_delete_sip($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_add_iax2">trunk_add_iax2</a></h2>
+<p><b><br>增加一个新的IAX2中继
+		<pre id='code'>	
+  $retrun = trunk_add_iax2($devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$devdata		增加的中继信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_get_iax2">trunk_get_iax2</a></h2>
+<p><b><br>取出IAX2协议中继
+		<pre id='code'>	
+  $retrun = trunk_get_iax2($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个中继的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_edit_iax2">trunk_edit_iax2</a></h2>
+<p><b><br>编辑IAX2中继
+		<pre id='code'>	
+  $retrun = trunk_edit_iax2($trunkid,$devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	 <b>$devdata		中继编辑的数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_delete_iax2">trunk_delete_iax2</a></h2>
+<p><b><br>删除IAX2中继
+		<pre id='code'>	
+  $retrun = trunk_delete_iax2($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_add_custom">trunk_add_custom</a></h2>
+<p><b><br>增加一个新的自定义中继
+		<pre id='code'>	
+  $retrun = trunk_add_custom($devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$devdata		增加的中继信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_get_custom">trunk_get_custom</a></h2>
+<p><b><br>取出自定义中继
+		<pre id='code'>	
+  $retrun = trunk_get_custom($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个中继的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_edit_custom">trunk_edit_custom</a></h2>
+<p><b><br>编辑自定义中继
+		<pre id='code'>	
+  $retrun = trunk_edit_custom($trunkid,$devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	 <b>$devdata		中继编辑的数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_delete_custom">trunk_delete_custom</a></h2>
+<p><b><br>删除自定义中继
+		<pre id='code'>	
+  $retrun = trunk_delete_custom($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_freegroup_dahdi">trunk_freegroup_dahdi</a></h2>
+<p><b><br>可用的chan_dahdi分组编号,整个chan_dahdi只能用0-63共64个分组
+		<pre id='code'>	
+  $retrun = trunk_freegroup_dahdi()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'freegroup' : 可用分组编号</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_freechan_isdnpri">trunk_freechan_isdnpri</a></h2>
+<p><b><br>取出可用的ISDNPRI数字中继 B信道
+		<pre id='code'>	
+  $retrun = trunk_freechan_isdnpri()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'freechan' : b信道记录</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_get_isdnpri">trunk_get_isdnpri</a></h2>
+<p><b><br>取出ISDN-PRI数字中继信息
+		<pre id='code'>	
+  $retrun = trunk_get_isdnpri($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个中继的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_add_isdnpri">trunk_add_isdnpri</a></h2>
+<p><b><br>增加一个新的ISDN-PRI数字中继
+		<pre id='code'>	
+  $retrun = trunk_add_isdnpri($devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$devdata		增加的中继信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_edit_isdnpri">trunk_edit_isdnpri</a></h2>
+<p><b><br>编辑ISDN-PRI 数字中继
+		<pre id='code'>	
+  $retrun = trunk_edit_isdnpri($trunkid,$devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	 <b>$devdata		中继编辑的数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_delete_isdnpri">trunk_delete_isdnpri</a></h2>
+<p><b><br>删除ISDN-PRI 数字中继的记录(同时释放了B信道的使用)
+		<pre id='code'>	
+  $retrun = trunk_delete_isdnpri($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_freechan_fxo">trunk_freechan_fxo</a></h2>
+<p><b><br>取出可用的FXO模拟中继 信道
+		<pre id='code'>	
+  $retrun = trunk_freechan_fxo()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>array 'freechan' : b信道记录</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_get_fxo">trunk_get_fxo</a></h2>
+<p><b><br>取出模拟中继续FXO的记录
+		<pre id='code'>	
+  $retrun = trunk_get_fxo($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 这个中继的数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_add_fxo">trunk_add_fxo</a></h2>
+<p><b><br>增加一个新的模拟中继FXO
+		<pre id='code'>	
+  $retrun = trunk_add_fxo($devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$devdata		增加的中继信息
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_edit_fxo">trunk_edit_fxo</a></h2>
+<p><b><br>编辑模拟中继FXO的信息
+		<pre id='code'>	
+  $retrun = trunk_edit_fxo($trunkid,$devdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	 <b>$devdata		中继编辑的数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="trunk_delete_fxo">trunk_delete_fxo</a></h2>
+<p><b><br>删除模拟中继FXO
+		<pre id='code'>	
+  $retrun = trunk_delete_fxo($trunkid)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$trunkid		中继编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+</BODY>
+</HTML>

@@ -1,0 +1,4 @@
+#Defaults    requiretty
+apache  ALL=(root) NOPASSWD: /etc/init.d/fri2d
+apache  ALL=(root) NOPASSWD: /sbin/reboot
+

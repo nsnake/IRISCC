@@ -1,0 +1,11 @@
+accountcode=$accountcode
+callerid=$callerid
+callgroup=$callgroup
+pickupgroup=$pickupgroup
+group=60
+channel=$channel
+callerid=
+callgroup=
+pickupgroup=
+group=
+;friautocreate=$accountcode

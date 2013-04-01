@@ -1,0 +1,115 @@
+<html>
+
+<head>
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
+<link rel="stylesheet" title="" type="text/css" href="style.css">
+<title>menu</title>
+<base target="main">
+</head>
+
+<body>
+
+<p align="center">&nbsp;</p>
+<h1>
+<p align="center">Freeiris2 Extra Interface</p>
+<p align="center">扩展接口手册</p>
+</h1>
+<p align="center">&nbsp;</p>
+<p align="center">&nbsp;本手册讲述了Freeiris2所有的功能函数接口通过远程访问技术RPC如何进行访问处理.</p>
+<OL>
+	<LI><a href="#接口类型">接口类型</a>
+	<LI><a href="#接口名称">接口名称</a>
+	<LI><a href="#向服务器发出请求的操作流程">向服务器发出请求的操作流程</a>
+	<LI><a href="#收到的数据和内容">收到的数据和内容</a>
+</OL>
+<p align="center">&nbsp;</p>
+ <H2><a name="接口类型">接口类型</a></H2>
+<pre>
+Freeiris2在访问控制接口部分，采用了PHPRPC来完成，关于PHPRPC的项目介绍和各语言的接口函数库下载，请访问(http://www.phprpc.org)。
+
+PHPRPC 是一个轻型的、安全的、跨网际的、跨语言的、跨平台的、跨环境的、跨域的、支持复杂对象传输的、支持引用参数传递的、支持内容输出重定向的、支持分级错误处理的、支持会话的、面向服务的高性能远程过程调用协议。
+
+目前该协议的最新版本为 3.0。该版本目前已有以下几种语言的实现：
+
+	ASP：提供 JScript 和 VBScript 两种语言的支持。 
+	ActionScript：提供 ActionScript 2.0 和 ActionScript 3.0 两个版本的支持。 
+	Delphi/Kylix：提供 Delphi 7.0 和 Kylix 客户端的支持，不但可以支持 Win32 原生程序开发，而且还支持 Linux 程序开发。最新版本还支持 Delphi 2009 Windows 原生程序开发。 
+	Java：支持 JDK 1.4 以上的所有版本，它还支持 Google Android 开发包。另外，它还有单独的 J2ME 版本，支持 CLDC-1.1 和 MIDP-1.0。 
+	JavaScript：提供两个版本的实现，一个使用纯 Javascript 实现，另一个需要调用一个 swf 文件，两个版本都支持跨域的远程过程调用，但是使用 swf 的版本不限制参数长度，并且有更好的安全控制机制。这两个版本已经通过完整测试的浏览器包括 IE 5+，Netscape 7+，Firefox，Mozilla，Opera，Safari，Epiphany，Camino 与 Konqueror。并且纯 JavaScript 版本还通过了 Pocket IE、Opera Mini、Opera Mobile、iPhone、Android 等手持设备浏览器的测试。 
+	.NET：支持 .NET 框架下所有的语言（如 C#、VB.NET、VC.NET、Delphi.NET 等），并且支持目前所有版本的 .NET Framework 和 .NET Compact Framework，当然它也支持 Mono。最新版本增加了对 SilverLight 2.0 的支持。 
+	PHP：支持 PHP4 与 PHP5，同样支持正处于开发阶段的 PHP6。 
+	Python：支持 Python 2.5 与 Python 2.6，而且支持在 Google App Engine 上应用。 
+	Ruby：该版本支持 Ruby 1.8.5 及其更高版本。服务器除了支持以 cgi、fcgi、scgi、lsapi 方式运行外，还支持以独立服务器 ( mongrel、thin、ebb 或 webrick ) 方式运行。 
+	Perl：目前该版本尚不成熟，有待完善。 
+	Lazarus(Free Pascal)：移植自 Delphi 版本, 需要 Indy for Lazarus 支持。 
+其中 ASP、.NET、Java、Ruby、Python 和 PHP 版本除了提供客户端实现外，还提供了服务器端实现。
+</pre>
+
+ <H2><a name="接口名称">接口名称</a></H2>
+<pre>
+  Freeiris2的接口文件存放在，服务器的(默认情况下如此)：
+</pre>
+<pre id="code">
+
+  http://freeiris2服务器/friextra
+
+</pre>
+ <H3>rpcpbx_xxx.php</H3>
+<pre>
+	任何文件存放在friextra目录中并且以rpcpbx_xxx.php命名都会被加载进入接口.
+	注意: 访问接口的唯一入口点为rpcpbx.php其他自动加载的rpcpbx_xxx.php不能直接被访问.
+</pre>
+
+ <H2><a name="向服务器发出请求的流程和方法">向服务器发出请求的流程和方法</a></H2>
+<pre>
+以下的说明均以PHP语言为例子，其他语言函数库相同，语法结构请参考phprpc
+</pre>
+ <H3>初始化请求</H3>
+<pre>
+	基本功能和系统主功能的RPC接口
+</pre>
+ <H3>验证身份</H3>
+<pre>
+	通信功能的控制接口
+</pre>
+ <H3>发出请求</H3>
+<pre>
+	通信功能的控制接口
+</pre>
+
+ <H2><a name="收到的数据和内容">收到的数据和内容</a></H2>
+
+ <H3>基本结构</H3>
+<pre>
+	Freeiris2 Extra Interface的返回数据结构和内容，可以自己定义。但是其中包括，必须保留的数据结构：
+</pre>
+<pre id="code">
+
+  $result=array(
+		'response'=>array(
+				'statcode'=>200,
+				'message'=>null,
+				'msgcode'=>100,
+				'reload'=>true, 
+				),
+	);
+
+</pre>
+<pre>
+任何一个返回必须包括response数据结构：
+	statcode    返回编码
+		200    正确
+		401    验证失败
+		403    禁止访问
+		500    内部错误
+	message    返回的消息体
+		'string'|null    可以为空或不返回
+	msgcode    返回的消息体编码版
+		int    当statcode为200的时候不返回，为500的时候返回100错误，为401、403的时候返回实际错误
+	reload    提醒客户端或用户这个操作需要重置asterisk
+		true|false    可以为空或不返回
+</pre>
+
+</body>
+
+</html>

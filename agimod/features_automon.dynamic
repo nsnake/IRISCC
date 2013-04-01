@@ -1,0 +1,139 @@
+#-----------------------------------------------------------------
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@gmail.com>
+#
+#	See http://www.freeiris.org for more information about
+#	the Freeiris project.
+#
+#	This program is free software, distributed under the terms of
+#	the GNU General Public License Version 2. See the LICENSE file
+#	at the top of the source tree.
+#
+#	Freeiris2 -- 开源通信系统
+#	本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+#	请查阅LICENSE文件。
+#
+#-----------------------------------------------------------------
+#
+#  freeiris2
+#
+#  Sun bing <hoowa.sun@gmail.com>
+#
+# syntax: agi://127.0.0.1/automon
+#
+#-----------------------------------------------------------------
+
+# 说明主函数
+sub features_automon_gpl_license(){return("freeiris2 ivr menu system");}
+
+
+# 主函数
+#
+# Features 一键录音
+#
+sub features_automon
+{
+my	$self = shift;
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+my	$INPUT = $self->{server}{input};			#Extension input
+my	$PARAM = $self->{server}{params};			#Call params
+my	$FRI2CONF = $self->{server}->{fri2conf};	#Freeiris2 general conf
+my	$DBH = $self->database_pconnect();			#DBI object
+
+	#当前用户是主叫还是被叫
+my	($currentis,$chandev,$recorder);
+	if ($INPUT->{extension} eq '') {
+		$currentis='callee';
+
+		($chandev,$recorder)=split(/\//,$INPUT->{channel});
+		($recorder,undef)=split(/\-/,$recorder);
+
+		#查找FXS口分机,如果是E1线的被叫则目前不支持,因为不知道是什么样子
+		if ($chandev eq 'DAHDI') {
+		my	$sth = $DBH->prepare("select accountcode from extension where devicestring = '".$recorder."' and deviceproto = 'fxs'");
+			$sth->execute;
+		my	$row = $sth->fetchrow_arrayref();
+			$sth->finish;
+			$recorder=$row->[0];
+		}
+
+	} else {
+		$currentis='caller';
+		$recorder = $INPUT->{callerid};
+	}
+	#如果没找到录音者的ID
+	exit if ($recorder eq '');
+
+	#1表示允许主被叫,2表示允许主叫,3表示允许被叫
+my	$FRI2_EFET_ONETOUCHMONITOR = $AGI->get_variable('FRI2_EFET_ONETOUCHMONITOR');
+	if (!defined $FRI2_EFET_ONETOUCHMONITOR) {
+		exit;
+	}
+	if (($FRI2_EFET_ONETOUCHMONITOR == 1) || 
+		($FRI2_EFET_ONETOUCHMONITOR == 2 && $currentis eq 'caller') || 
+		($FRI2_EFET_ONETOUCHMONITOR == 3 && $currentis eq 'callee')) {
+
+		#get asterisk conf
+	my	(%ast_conf);
+		tie %ast_conf, 'Config::IniFiles', ( -file => $FRI2CONF->{general}{asterisketc}.'/asterisk.conf' );
+
+
+		#检测目录是否存在
+	my	$vmfpath = $ast_conf{directories}{astspooldir}.'/voicemail/freeiris/'.$recorder;
+		if (!-d$vmfpath) {
+			mkdir($vmfpath);
+			chmod(0777,$vmfpath);
+		}
+
+		#检测文件是否超量,如果超量就删除掉最旧的
+	my	$sth = $DBH->prepare("select count(*) from voicefiles where folder = '".$recorder."' and label = 'onetouch'");
+		$sth->execute;
+	my	$row = $sth->fetchrow_arrayref();
+		$sth->finish;
+		if ($row->[0] >= $FRI2CONF->{voicemail}{usermax}) {
+
+			$sth = $DBH->prepare("select * from voicefiles where folder = '".$recorder.
+				"' and label = 'onetouch' order by cretime asc limit ".($row->[0] - $FRI2CONF->{voicemail}{usermax}));
+			$sth->execute;
+			while (my $eachrow = $sth->fetchrow_hashref()) {
+				$DBH->do("delete from voicefiles where id = '".$eachrow->{'id'}."'") 
+					or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+				unlink("$vmfpath/".$eachrow->{'filename'}.'.'.$eachrow->{'extname'});
+			}
+
+		}
+
+		#create and get sessionid and set action
+	#my	$FRI2_SESSIONID = $self->_callsession('action=automon');
+	my	$MYSESS = $self->_callsession('automon');
+	my	$FRI2_SESSIONID = $MYSESS->{'FRI2_SESSIONID'};
+
+		#create filename
+	my	$filename = 'OT_'.$FRI2_SESSIONID.'_'.time.'_'.$INPUT->{extension};
+		#$self->_callsession(undef,'automon='.$filename);
+		$self->_callsession_set($MYSESS->{ACTID},'filename',$filename);
+
+		#创建数据库记录
+		$DBH->do("insert into voicefiles set ".
+			"filename = '".$filename."',".
+			"extname = 'WAV',".
+			"folder = '".$recorder."',".
+			"cretime = now(),".
+			"description = '',".
+			"label = 'onetouch',".
+			"associate = '".$FRI2_SESSIONID."',".
+			"args = '',".
+			"readonly = '0'")
+			or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+
+		#when we started recording
+		$AGI->exec('Background',"beep");
+
+		#Monitoring
+		$AGI->exec('MixMonitor',"$vmfpath/$filename\.WAV|ab|chmod 777 $vmfpath/$filename\.WAV");
+	}
+
+exit;
+}

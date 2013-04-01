@@ -1,0 +1,17 @@
+#==============================================#
+# G.729 G.723.1 LICENSE WARNNING!!!            #
+#==============================================#
+# 1. This Codec G.729 and G.723.1 used only in #
+#    education purposes.                       #
+# 2. Files from http://asterisk.hosting.lv/    #
+# 3. In Commerce you may need to pay a royalty #
+#    fee. Please see http://www.sipro.com for  #
+#    details. if a patent exists in you country#
+#    for G.729 or G.723.1 then you should      #
+#    contact the owner of that patent and      #
+#    request their permission before excuting  #
+#    the code.                                 #
+# 4. if you don't agree this license please    #
+#    remove files from                         #
+#    /usr/lib/asterisk/modules/                #
+#==============================================#

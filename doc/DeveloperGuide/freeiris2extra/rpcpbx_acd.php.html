@@ -1,0 +1,645 @@
+<!--/***************************************************************************
+Don't remove this title!
+FRIPAPER
+@description
+        this module can read remark from program files in src directory, 
+        and create help files use html language in in dst directory
+@version 2009-06-22 1.0.1
+@author freeiris-安静 <yuzegao@163.com>
+@package Freeiris2 Package Fripaper
+Please submit bug reports, patches, etc to <yuzegao@163.com>
+www.voxen.cn
+ENDPAPER
+See http://www.freeiris.org for more information about
+the Freeiris project.
+Freeiris2 -- 开源通信系统
+本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+请查阅LICENSE文件。
+***************************************************************************/-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> ACD函数包 </TITLE>
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+<BODY>
+<div align="center">
+<H1>ACD函数包</H1>
+<p>&nbsp;</p>
+</div>
+
+<div align="left">
+<p><b>作者</b> : <link src="mailto:hoowa.sun AT gmail DOT com">Sun bing</link><br>
+<b>版本</b> : 1.0<br>
+<b>文件</b> : rpcpbx_acd.php<br>
+<b>说明 : </b><br>
+	&nbsp;&nbsp;ACD类函数接口
+
+<br>
+<b>函数</b> :
+<UL>
+<LI><a href="#conference_list">conference_list</a>
+<LI><a href="#conference_get">conference_get</a>
+<LI><a href="#conference_add">conference_add</a>
+<LI><a href="#conference_edit">conference_edit</a>
+<LI><a href="#conference_delete">conference_delete</a>
+<LI><a href="#queue_list">queue_list</a>
+<LI><a href="#queue_get">queue_get</a>
+<LI><a href="#queue_add">queue_add</a>
+<LI><a href="#queue_edit">queue_edit</a>
+<LI><a href="#queue_delete">queue_delete</a>
+<LI><a href="#ivrmenu_list">ivrmenu_list</a>
+<LI><a href="#ivrmenu_get_menu">ivrmenu_get_menu</a>
+<LI><a href="#ivrmenu_add_menu">ivrmenu_add_menu</a>
+<LI><a href="#ivrmenu_edit_menu">ivrmenu_edit_menu</a>
+<LI><a href="#ivrmenu_delete_menu">ivrmenu_delete_menu</a>
+<LI><a href="#ivrmenu_list_action">ivrmenu_list_action</a>
+<LI><a href="#ivrmenu_get_action">ivrmenu_get_action</a>
+<LI><a href="#ivrmenu_add_action">ivrmenu_add_action</a>
+<LI><a href="#ivrmenu_edit_action">ivrmenu_edit_action</a>
+<LI><a href="#ivrmenu_delete_action">ivrmenu_delete_action</a>
+<LI><a href="#ivrmenu_recall_action">ivrmenu_recall_action</a>
+<LI><a href="#ivrmenu_list_ivruserinput">ivrmenu_list_ivruserinput</a>
+<LI><a href="#ivrmenu_get_ivruserinput">ivrmenu_get_ivruserinput</a>
+<LI><a href="#ivrmenu_edit_ivruserinput">ivrmenu_edit_ivruserinput</a>
+<LI><a href="#ivrmenu_add_ivruserinput">ivrmenu_add_ivruserinput</a>
+<LI><a href="#ivrmenu_delete_ivruserinput">ivrmenu_delete_ivruserinput</a>
+<LI><a href="#sysautomon_list_trigger">sysautomon_list_trigger</a>
+<LI><a href="#sysautomon_get_trigger">sysautomon_get_trigger</a>
+<LI><a href="#sysautomon_add_trigger">sysautomon_add_trigger</a>
+<LI><a href="#sysautomon_delete_trigger">sysautomon_delete_trigger</a>
+<LI><a href="#sysautomon_edit_trigger">sysautomon_edit_trigger</a>
+<LI><a href="#outgoing_list">outgoing_list</a>
+<LI><a href="#outgoing_add">outgoing_add</a>
+<LI><a href="#outgoing_delete">outgoing_delete</a>
+</UL>
+
+<p>&nbsp;</p>
+<h2><a name="conference_list">conference_list</a></h2>
+<p><b><br>列表电话会议室
+		<pre id='code'>	
+  $retrun = conference_list($order,$limitfrom,$limitoffset)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$order		排序方式,比如填写'order by '
+</b><br>
+	 <b>$limitfrom		取得记录结果的开始位置
+</b><br>
+	 <b>$limitoffset		取得记录结果的结束位置
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'conferences' : 会议室信息结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="conference_get">conference_get</a></h2>
+<p><b><br>获得指定会议室的信息
+		<pre id='code'>	
+  $retrun = conference_list($confno)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$confno		会议室编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 该会议室的信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="conference_add">conference_add</a></h2>
+<p><b><br>增加一个新会议室
+		<pre id='code'>	
+  $retrun = conference_list($confdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$confdata		会议室数据结构
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="conference_edit">conference_edit</a></h2>
+<p><b><br>编辑现有的会议室
+		<pre id='code'>	
+  $retrun = conference_edit($confno,$confdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$confno		会议室的编号
+</b><br>
+	 <b>$confdata		会议室数据结构
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="conference_delete">conference_delete</a></h2>
+<p><b><br>删除会议室
+		<pre id='code'>	
+  $retrun = conference_delete($confno)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$confno		会议室的编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="queue_list">queue_list</a></h2>
+<p><b><br>显示呼叫队列
+		<pre id='code'>	
+  $retrun = queue_list($order,$limitfrom,$limitoffset)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$order		排序方式,比如填写'order by '
+</b><br>
+	 <b>$limitfrom		取得记录结果的开始位置
+</b><br>
+	 <b>$limitoffset		取得记录结果的结束位置
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'queues' : 呼叫队列列表数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="queue_get">queue_get</a></h2>
+<p><b><br>获得指定呼叫队列的信息
+		<pre id='code'>	
+  $retrun = queue_get($queuenumber)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$queuenumber		呼叫队列编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 该呼叫队列的数据库信息</li>
+		 <li> array 'confdata' : 该呼叫队列的配置文件信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="queue_add">queue_add</a></h2>
+<p><b><br>增加一个新呼叫队列
+		<pre id='code'>	
+  $retrun = queue_add($queuedata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$queuedata		呼叫队列数据结构
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="queue_edit">queue_edit</a></h2>
+<p><b><br>编辑呼叫队列
+		<pre id='code'>	
+  $retrun = queue_edit($queuenumber,$queuedata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$queuenumber		呼叫队列号码
+</b><br>
+	 <b>$queuedata		编辑用数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="queue_delete">queue_delete</a></h2>
+<p><b><br>删除呼叫队列
+		<pre id='code'>	
+  $retrun = queue_delete($queuenumber)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$queuenumber		呼叫队列的编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_list">ivrmenu_list</a></h2>
+<p><b><br>显示IVR菜单列表
+		<pre id='code'>	
+  $retrun = ivrmenu_list()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'ivrmenu' : IVR菜单数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_get_menu">ivrmenu_get_menu</a></h2>
+<p><b><br>获得指定IVR菜单的信息
+		<pre id='code'>	
+  $retrun = ivrmenu_get_menu($ivrnumber)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$queuenumber		呼叫队列编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 该IVR菜单的信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_add_menu">ivrmenu_add_menu</a></h2>
+<p><b><br>增加IVR菜单
+		<pre id='code'>	
+  $retrun = ivrmenu_add_menu($ivrdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$ivrdata		IVR菜单数据结构
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_edit_menu">ivrmenu_edit_menu</a></h2>
+<p><b><br>编辑IVR菜单
+		<pre id='code'>	
+  $retrun = ivrmenu_edit_menu($ivrnumber,$ivrdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$ivrnumber		IVR菜单编号
+</b><br>
+	 <b>$ivrdata		编辑用数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_delete_menu">ivrmenu_delete_menu</a></h2>
+<p><b><br>删除IVR菜单
+		<pre id='code'>	
+  $retrun = ivrmenu_delete_menu($ivrnumber)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$ivrnumber		IVR菜单编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_list_action">ivrmenu_list_action</a></h2>
+<p><b><br>IVR菜单动作列表
+		<pre id='code'>	
+  $retrun = ivrmenu_list_action($ivrnumber)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$ivrnumber		IVR菜单编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'actions' : 动作数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_get_action">ivrmenu_get_action</a></h2>
+<p><b><br>获得IVR菜单的动作
+		<pre id='code'>	
+  $retrun = ivrmenu_get_action($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		 动作的编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 该IVR菜单动作的信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_add_action">ivrmenu_add_action</a></h2>
+<p><b><br>增加IVR菜单的动作
+		<pre id='code'>	
+  $retrun = ivrmenu_add_action($ordinal,$ivrnumber,$actmode,$args)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$ordinal		优先顺序编号
+</b><br>
+	 <b>$ivrnumber		IVR菜单编号
+</b><br>
+	 <b>$actmode		动作类型
+</b><br>
+	 <b>$args		动作参数
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_edit_action">ivrmenu_edit_action</a></h2>
+<p><b><br>编辑IVR菜单的动作
+		<pre id='code'>	
+  $retrun = ivrmenu_edit_action($actid,$args)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$actid		动作编号
+</b><br>
+	 <b>$args		参数
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_delete_action">ivrmenu_delete_action</a></h2>
+<p><b><br>删除IVR菜单的动作
+		<pre id='code'>	
+  $retrun = ivrmenu_delete_action($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		动作编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_recall_action">ivrmenu_recall_action</a></h2>
+<p><b><br>更新IVR菜单动作的优先级别
+		<pre id='code'>	
+  $retrun = ivrmenu_recall_action($actid,$ordinal)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$actid		动作编号
+</b><br>
+	 <b>$ordinal		新的优先级别编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_list_ivruserinput">ivrmenu_list_ivruserinput</a></h2>
+<p><b><br>IVR菜单用户输入列表
+		<pre id='code'>	
+  $retrun = ivrmenu_list_ivruserinput($ivrnumber,$general)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$ivrnumber		IVR菜单编号
+</b><br>
+	 <b>$general		标准动作参数,如果没有应该是空
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'ivruserinputs' : 动作数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_get_ivruserinput">ivrmenu_get_ivruserinput</a></h2>
+<p><b><br>获得IVR菜单的用户输入
+		<pre id='code'>	
+  $retrun = ivrmenu_get_ivruserinput($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		 用户输入编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 该IVR菜单用户输入的信息</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_edit_ivruserinput">ivrmenu_edit_ivruserinput</a></h2>
+<p><b><br>编辑IVR菜单的用户输入
+		<pre id='code'>	
+  $retrun = ivrmenu_edit_ivruserinput($ivruserinputid,$iuidata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$ivruserinputid		用户输入编号
+</b><br>
+	 <b>$iuidata		编辑数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_add_ivruserinput">ivrmenu_add_ivruserinput</a></h2>
+<p><b><br>增加IVR菜单的用户输入
+		<pre id='code'>	
+  $retrun = ivrmenu_add_ivruserinput($ivrnumber,$data)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$ivrnumber		IVR菜单编号
+</b><br>
+	 <b>$data		数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="ivrmenu_delete_ivruserinput">ivrmenu_delete_ivruserinput</a></h2>
+<p><b><br>删除IVR菜单的用户输入
+		<pre id='code'>	
+  $retrun = ivrmenu_delete_ivruserinput($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		用户输入编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="sysautomon_list_trigger">sysautomon_list_trigger</a></h2>
+<p><b><br>自动录音触发器列表
+		<pre id='code'>	
+  $retrun = sysautomon_list_trigger($limitfrom,$limitoffset)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$limitfrom		取得记录结果的开始位置
+</b><br>
+	 <b>$limitoffset		取得记录结果的结束位置
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 自动录音触发器列表数据结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="sysautomon_get_trigger">sysautomon_get_trigger</a></h2>
+<p><b><br>获得指定的自动录音触发器信息
+		<pre id='code'>	
+  $retrun = sysautomon_get_trigger($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		 触发器编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 数据信息结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="sysautomon_add_trigger">sysautomon_add_trigger</a></h2>
+<p><b><br>增加自动录音触发器信息
+		<pre id='code'>	
+  $retrun = sysautomon_add_trigger($data)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$data		数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="sysautomon_delete_trigger">sysautomon_delete_trigger</a></h2>
+<p><b><br>删除自动录音触发器信息
+		<pre id='code'>	
+  $retrun = sysautomon_delete_trigger($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		用户输入编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="sysautomon_edit_trigger">sysautomon_edit_trigger</a></h2>
+<p><b><br>编辑自动录音触发器信息
+		<pre id='code'>	
+  $retrun = sysautomon_edit_trigger($id,$data)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		触发器编号
+</b><br>
+	 <b>$data		编辑数据
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="outgoing_list">outgoing_list</a></h2>
+<p><b><br>列表计划(已作废,请使用base_dbquery直接访问相关表)
+		<pre id='code'>	
+  $retrun = outgoing_list()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'outgoing' : 会议室信息结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="outgoing_add">outgoing_add</a></h2>
+<p><b><br>增加一个新的外呼计划
+		<pre id='code'>	
+  $retrun = outgoing_add($confdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$confdata		外呼数据结构
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="outgoing_delete">outgoing_delete</a></h2>
+<p><b><br>删除计划任务(已作废,请使用base_dbquery直接访问相关表)
+		<pre id='code'>	
+  $retrun = outgoing_delete($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+</BODY>
+</HTML>

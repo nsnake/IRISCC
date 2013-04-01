@@ -1,0 +1,12 @@
+[$devicenumber]
+type=friend
+accountcode=$accountcode
+secret=$secret
+context=from-exten-iax
+host=$host
+port=$port
+transfer=$transfer
+callgroup=$callgroup
+pickupgroup=$pickupgroup
+requirecalltoken=auto 
+qualify=yes

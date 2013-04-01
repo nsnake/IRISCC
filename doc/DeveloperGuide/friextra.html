@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> Freeiris2开发人员指南 HTML </TITLE>
+  <META NAME="Author" CONTENT="hoowa.sun">
+  <META NAME="Keywords" CONTENT="Freeiris2 development guide">
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+ <BODY>
+ <div align="left">
+<H1>Freeiris2 Extra Interface 扩展开发</H1>
+ </div>
+ <div align="center">
+ <p>&nbsp;<img src="./friextra.png"></p>
+	<p align="left">&nbsp; &quot;Freeiris2 Extra Interface扩展接口&quot;, 
+	是用于实现freeiris2整个系统控制和管理的核心接口. freeiris2自己的程序也是由此接口实现的管理. 我们这个接口采用的是PHPRPC技术实现的。关于接口的实现技术，这里就不做过多的讲解查看<a href="http://www.phprpc.org了解更多的情况">http://www.phprpc.org了解更多的情况</a>。</p>
+	<p align="left"><b>friextra有啥</b></p>
+	<p align="left">&nbsp; friextra目录,既是freeiris2的核心,也是所有接口所在.里面有很多文件，但是其中有一个文件是主文件。叫rpcpbx.php这个主文件，实现引导其他rpcpbx_xxx.php文件.所以,freeiris2的接口也可以称为rpcpbx.php.</p>
+	<p align="left">访问的资源名称为http://hostipaddress/friextra/rpcpbx.php</p>
+	<p align="left">经过向该资源请求,从而访问和控制整个freeiris2</p>
+	<p align="left"><b>freeiris2 kiang web客户端</b></p>
+	<p align="left">&nbsp; 我们所看到的freeiris2的那个控制界面,实际上是一个客户端程序，他通过PHPRPC协议的接口访问friextra. 
+	也就是说其实他可以安装在windows下而不需要跟freeiris2一起运行的。</p>
+	<p align="left"><b>如何编写服务端程序</b></p>
+	<p align="left">将你的代码命名为rpcpbx_你的名字.php并且存放在/freeiris2/friextra/目录中，rpcpbx会自动加载这个代码.</p>
+	<p align="left">服务端代码由于相对比较复杂,我们这里不做讲解，请你查看代码自身的注释说明.(谁来为此部分写一份说明)</p>
+	<p align="left"><b>如何编写客户端程序</b></p>
+	<p align="left">&nbsp; 由于PHPRPC协议支持10几种语言，我们暂时还不能一一讲解.(谁来为此部分写一份说明)</p>
+	<p align="left"><b>我想看friextra都有什么接口</b></p>
+	<p align="left">&nbsp; friextra的接口都在 <a href="freeiris2extra/index.html">
+	Freeiris2 Extra Interface 接口开发手册</a> 已经说明, 可以去查看</p>
+	<p align="left"><b>关于fripaper项目说明</b></p>
+	<p align="left">&nbsp;freeiris2有一个子项目在utils/fripaper目录下，这个项目主要是完成根据friextra的注释生成接口开发手册. 
+	所以在编写friextra服务端接口的时候请参考fripaper里的注释写发. 如果想重新生成整个接口开发手册，请执行cd /freeiris2/utils/fripaper再执行./mkfriextra</p>
+ <p><a href="agispeedy.html">上一页</a>&nbsp;<a href="menu.html">目录导航</a>&nbsp;<a href="reportbug.html">下一页</a></p>
+ </div>
+ </BODY>
+</HTML>

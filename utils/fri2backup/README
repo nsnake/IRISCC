@@ -1,0 +1,9 @@
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@gmail.com>
+#
+#  本程序可以完成在同版本的freeiris2系统上的备份和恢复工作.
+#  帮助:
+#  ./fri2backup --help
+#

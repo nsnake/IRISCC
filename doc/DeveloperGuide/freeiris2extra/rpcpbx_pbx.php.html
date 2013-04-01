@@ -1,0 +1,321 @@
+<!--/***************************************************************************
+Don't remove this title!
+FRIPAPER
+@description
+        this module can read remark from program files in src directory, 
+        and create help files use html language in in dst directory
+@version 2009-06-22 1.0.1
+@author freeiris-安静 <yuzegao@163.com>
+@package Freeiris2 Package Fripaper
+Please submit bug reports, patches, etc to <yuzegao@163.com>
+www.voxen.cn
+ENDPAPER
+See http://www.freeiris.org for more information about
+the Freeiris project.
+Freeiris2 -- 开源通信系统
+本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+请查阅LICENSE文件。
+***************************************************************************/-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> PBX函数包 </TITLE>
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+<BODY>
+<div align="center">
+<H1>PBX函数包</H1>
+<p>&nbsp;</p>
+</div>
+
+<div align="left">
+<p><b>作者</b> : <link src="mailto:hoowa.sun AT gmail DOT com">Sun bing</link><br>
+<b>版本</b> : 1.0<br>
+<b>文件</b> : rpcpbx_pbx.php<br>
+<b>说明 : </b><br>
+	&nbsp;&nbsp;PBX类函数接口
+
+<br>
+<b>函数</b> :
+<UL>
+<LI><a href="#features_hotkey_get">features_hotkey_get</a>
+<LI><a href="#features_hotkey_set">features_hotkey_set</a>
+<LI><a href="#billing_var_get">billing_var_get</a>
+<LI><a href="#billing_var_set">billing_var_set</a>
+<LI><a href="#billing_rule_list">billing_rule_list</a>
+<LI><a href="#billing_rule_add">billing_rule_add</a>
+<LI><a href="#billing_rule_delete">billing_rule_delete</a>
+<LI><a href="#billing_invoice_list">billing_invoice_list</a>
+<LI><a href="#voicefiles_list">voicefiles_list</a>
+<LI><a href="#voicefiles_diskfree">voicefiles_diskfree</a>
+<LI><a href="#voicefiles_get">voicefiles_get</a>
+<LI><a href="#voicefiles_add">voicefiles_add</a>
+<LI><a href="#voicefiles_edit">voicefiles_edit</a>
+<LI><a href="#voicefiles_getstream">voicefiles_getstream</a>
+<LI><a href="#voicefiles_delete">voicefiles_delete</a>
+</UL>
+
+<p>&nbsp;</p>
+<h2><a name="features_hotkey_get">features_hotkey_get</a></h2>
+<p><b><br>取得功能热键,热键来自asterisk的features.conf中
+		<pre id='code'>	
+  $retrun = features_hotkey_get($key)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$key		热键名称
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> $key : 热键值</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="features_hotkey_set">features_hotkey_set</a></h2>
+<p><b><br>设置功能热键,热键来自asterisk的features.conf中
+		<pre id='code'>	
+  $retrun = features_hotkey_set($key,$hotkey)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$key		热键名称
+</b><br>
+	 <b>$hotkey		热键值
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="billing_var_get">billing_var_get</a></h2>
+<p><b><br>取得billing的启动配置变量(已作废,已改变)
+		<pre id='code'>	
+  $retrun = billing_var_get($key)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$key		变量键名称
+</b><br>
+	 <b>$hotkey		键值
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="billing_var_set">billing_var_set</a></h2>
+<p><b><br>取得billing的启动配置变量(已作废)
+		<pre id='code'>	
+  $retrun = billing_var_set($key,$value)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$key		变量键名称
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> $key : 键值</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="billing_rule_list">billing_rule_list</a></h2>
+<p><b><br>列表计费规则
+		<pre id='code'>	
+  $retrun = billing_rule_list()
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'rules' : 规则列表结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="billing_rule_add">billing_rule_add</a></h2>
+<p><b><br>新增一条计费规则
+		<pre id='code'>	
+  $retrun = billing_rule_add($ruledata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="billing_rule_delete">billing_rule_delete</a></h2>
+<p><b><br>删除billing的计费规则
+		<pre id='code'>	
+  $retrun = billing_rule_delete($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		规则编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="billing_invoice_list">billing_invoice_list</a></h2>
+<p><b><br>取得计费结果话单(已作废)
+		<pre id='code'>	
+  $retrun = billing_invoice_list($startdate,$enddate,$accountcode)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$startdate		开始时间
+</b><br>
+	 <b>$enddate		结束时间
+</b><br>
+	 <b>$accountcode		帐号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'invoice' : 计费结果话单</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="voicefiles_list">voicefiles_list</a></h2>
+<p><b><br>语音文件列表
+		<pre id='code'>	
+  $retrun = voicefiles_list($label=null,$limitfrom=null,$limitoffset=null,$folder=null)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$label		可以为空,语音文件标签,可以填写'sound','moh','voicemail','onetouch','ivrmenu','sysautomon'
+</b><br>
+	 <b>$limitfrom		可以为空,开始数据
+</b><br>
+	 <b>$limitoffset		可以为空,数据量
+</b><br>
+	 <b>$folder		可以为空,目录
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 语音文件列表</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="voicefiles_diskfree">voicefiles_diskfree</a></h2>
+<p><b><br>取得指定磁盘的容量
+		<pre id='code'>	
+  $retrun = voicefiles_diskfree($label)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$label		 可选'sound','moh','voicemail','onetouch','ivrmenu','sysautomon'
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li>string 'diskfree' : 磁盘剩余空间</li>
+		 <li>string 'disktotal' : 磁盘总容量</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="voicefiles_get">voicefiles_get</a></h2>
+<p><b><br>取得指定语音文件信息
+		<pre id='code'>	
+  $retrun = voicefiles_get($id=null,$label=null,$filename=null,$folder=null)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		可以为空,语音文件编号
+</b><br>
+	 <b>$label		可以为空,语音文件标签,可以填写'sound','moh','voicemail','onetouch','ivrmenu','sysautomon'
+</b><br>
+	 <b>$filename		可以为空,文件名称
+</b><br>
+	 <b>$folder		可以为空,目录
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> array 'resdata' : 数据信息结构</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="voicefiles_add">voicefiles_add</a></h2>
+<p><b><br>增加语音文件(数据记录)
+		<pre id='code'>	
+  $retrun = voicefiles_add($label,$newrecord)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$label		可选'sound','moh','voicemail','onetouch','ivrmenu','sysautomon'
+</b><br>
+	 <b>$newrecord		语音文件数据部分
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="voicefiles_edit">voicefiles_edit</a></h2>
+<p><b><br>编辑语音文件(包括在线语音上传)
+		<pre id='code'>	
+  $retrun = voicefiles_edit($label,$id,$smdata)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$label		可选'sound','moh','voicemail','onetouch','ivrmenu','sysautomon'
+</b><br>
+	 <b>$id		语音文件编号
+</b><br>
+	 <b>$smdata		语音文件数据结构
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="voicefiles_getstream">voicefiles_getstream</a></h2>
+<p><b><br>取得指定语音文件数据流
+		<pre id='code'>	
+  $retrun = voicefiles_getstream($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		语音文件编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun </b>
+		 <li> binarystring 'filestream' : 语音二进制数据</li>
+		 <li> string 'filename' : 文件名称</li>
+		 <li> string 'extname' : 文件扩展名</li>
+	</p>
+<p>&nbsp;</p>
+<h2><a name="voicefiles_delete">voicefiles_delete</a></h2>
+<p><b><br>删除语音文件
+		<pre id='code'>	
+  $retrun = voicefiles_delete($id)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$id		语音文件编号
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		fri2标准返回
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+</BODY>
+</HTML>

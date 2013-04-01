@@ -1,0 +1,776 @@
+#--------------------------------------------------------------
+#
+#	FreeIris2 -- Opensource Telephony Project
+#
+#	Copyright (C) 2005 - 2009, Sun bing.
+#
+#	Sun bing <hoowa.sun@freeiris.org>
+#
+#	See http://www.freeiris.org for more information about
+#	the FreeIris project.
+#
+#   License
+#   The FreeIris project is licensed under the GNU 2.0 GPL. 
+#   FreeIris carries no restrictions on re-branding and 
+#   people are free to commercially re-distribute it.
+#   file LICENSE under source folder for more details.
+#
+#--------------------------------------------------------------
+
+本文档仅在设计阶段使用到正式发布阶段下一步进度和计划由bug tracker系统进行调度
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+设计流程:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1.分机
+2.中继
+3.路由
+4.PBX应用
+5.电脑话务
+6.高级设置
+7.硬件部分
+8.安装管理
+9.完成设计步骤 <---目前进行到这里
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+版本计划:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+early:    功能开发阶段
+alpha:    早期测试版
+beta:      测试版(此版本主要针对早期测试版的问题修改,并且调整设计不完善的代码结构)
+beta2:     较成熟的测试版
+beta3:     较成熟的测试版
+rc:        预选版 <---目前进行到这里
+stable:    正式版
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+设计原则:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+webclient不依赖服务器运行。
+其他部分代码以/etc/freeiris2/freeiris2.conf为主配置
+数据库的表名称都用小写,UTF8编码，所有的代码和文档资料全部是utf8
+
+号码分类:
+1.任何情况下分机的号码都必须是纯数字
+2.任何情况下中继的号码都不能是纯数字
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+文件权限:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+web/templates_c	777
+etc/		777
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+分机部分细节:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++增加分机的检测功能
++FXS分机重新启动实质执行的是dahdi restart
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+外线部分细节:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@SIP网络外线
+@IAX2网络外线
+@PSTN模拟电话线
+@PRI数字中继线
+@自定义外线
+
++所有的增加:"呼入规则顺序"
+
+DAHDI的限制:
+1. DAHDI可用的中继分组一共有64个0-63,以FXO和PRI的总量统计
+1. PRI跟FXO不可以混合分组
+2. PRI可以选择组合不同的PRI信道(使用过的信道不可以再使用)
+3. FXO可以选择组合不同的FXO信道(使用过的信道不可以再使用)
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+路由系统设计基础:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+O.路由不论如何匹配绝对禁止超过6次以上的循环避免死机
+O.路由的级别高于其他应用的级别
+
+1.首先进行路由表匹配
+2.识别处理方式,如果是本地处理再识别处理模型,根据不同的模型进行处理
+'extension'这个模型呼叫相关呼叫被叫的代码
+'meetme'这个模型呼叫电话会议
+'ivr'这个模型呼叫IVR系统
+3.如果是通路,就根据通路桥接的设备进行送号
+
+第一步:
+1,实现内线和外线的匹配
+2,实现跳转到内线(仅分机,转接中继或其他以后再说)，实现通路
+3,实现对callsession的初步控制,可以create callsession或keep callsession
+
+1、人工创建，正常。
+2、自动创建，正常，但是不能编辑。
+3、不能删除，最低，不能编辑和删除。
+
+会话期结构:
+当用户呼叫的时候产生callsession
+一直到这个呼叫结束。如果一个呼叫没有callsession表示非法
+FRI2_SESSIONID 存储在channel variables中
+
+Extensions变量特点:
+存在于Extensions的变量以大写这样的语法FRI2_
+
+FRI2_SESSIONID  sessionid
+FRI2_AGISTATUS  AGI状态,返回1表示正常
+
+匹配成功后输出
+FRI2_AGISTATUS
+FRI2_ROUTER_PROCESS_MODE
+FRI2_ROUTER_PROCESS_DEFINED
+FRI2_ROUTER_PROCESS_EXTENSION
+FRI2_ROUTER_PROCESS_CALLERIDNUM
+
+
+拨入规则的设计:
+
+1. 默认拨入处理:
+当外线送来一个没有被叫号码的呼叫请求时,将别叫号码设置为 : []
+
+2. 正常的路由规则
+优先、名称、来自中继、表达式、处理方式
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+PBX部分细节:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pickupexten = *8
+blindxfer=#
+disconnect=
+atxfer=*2
+parkcall=*7
+fri2automon=*1
+
+-----------------------------------------
+Freeiris Extensions Features Enable Table
+权限变量,
+
+FRI2_EFET_SRC_TRANSFER---->这个变量不需要，在呼叫dial参数里用T可以控制
+FRI2_EFET_SRC_PICKUP---->这个变量不需要，在呼叫dial参数里用K可以控制
+FRI2_EFET_SRC_PARKCALL---->无法实现
+FRI2_EFET_DST_TRANSFER---->这个变量不需要，在呼叫dial参数里用T可以控制
+FRI2_EFET_DST_PICKUP---->这个变量不需要，在呼叫dial参数里用K可以控制
+FRI2_EFET_DST_PARKCALL---->无法实现
+-------------------------------
+FRI2_EFET_ONETOUCHMONITOR---->允许当前用户使用AUTOMON,0表示不允许,1表示允许主被叫,2表示允许主叫,3表示允许被叫
+
+录音文件存储到:
+/var/spool/asterisk/voicemail/freeiris/发起者号码/
+文件名包括:OT_CALLSESSIONID_UNIXTIME_callee.WAV
+
+------------------------------
+计费部分:
+
+fri2的PBX级计费功能设计:
+1.计费根据呼叫前缀进行识别(前缀+是否应答)
+2.每个分机帐户和中继帐户都可以参与计费
+3.每种号码的单价,时长
+
+---
+是否启动计费进程
+计费执行周期10秒
+---
+
+计费费率表
+计费统计表
+
+-----------------------------------------------------------------
+语音文件
+-----------------------------------------------------------------
+提示语音文件:
+
++系统只有中文语音文件其他文件一律删除sounds/cn/
+语音文件分两种:
+1.系统级system用户不能删除但是可以修改,限定目录为sounds/cn/
+2.用户级user用户可以上传,删除,修改,限定目录为sounds/user_custom/
++在线收听语音文件
+
+所有文件由系统的统一的语音文件管理接口管理
+
+系统音乐文件:
+上载文件,查看,收听
+
+
+-----------------------------------------------------------------
+语音信箱
+-----------------------------------------------------------------
+web部分[用户名列表(只列表已有录音的用户)]:
+1.在线查看管理voicemail的文件:清空,收听,删除,下载
+2.在线查看管理一键录音的文件:清空,收听,删除,下载
+
+提示voicemail的语音:
+这个号码暂时无法接听您的电话,请在听到Beep的一声后留言,完成后请挂机.
+
+Voicemail文件存放路径:
+/var/spool/asterisk/voicemail/freeiris/分机号码/
+文件名包括:VM_CALLSESSIONID_UNIXTIME_CALLER.WAV
+
+Voicemail的管理界面,应该在PBX的热键设置部分,实际数据应该是localnumber里的一条记录
+
+-----------------------------------------------------------------
+Voicemail管理系统uservoicemain
+-----------------------------------------------------------------
+这是:特别IVR功能,接入号为500
+流程:
+a.请输入密码
+b.您输入的密码不正确,请重新输入.
+c.请选择功能: 1收听语音信箱留言  2收听一键录音
+d.您当前有xxx条记录,继续将播放最新一条,在任何时候按1表示播放上一条，2表示重新播放，3表示下一条
+e.4月11日 11点33分，来电123456  <内容>
+f.播放完毕,继续将播放下一条,在任何时候按1表示播放上一条，2表示重新播放，3表示下一条
+g.播放完毕,已全部播放完成,谢谢,请挂机-->执行hangup.
+
+如果开始播放的voicemail文件就在args中记录chilled=true
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+电脑话务部分细节:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-----------------------------------------------------------------
+电话会议
+-----------------------------------------------------------------
+创建会议室的时候参数:
+d-->动态创建
+F-->允许透传DTMF
+M-->如果只有一个人播放音乐
+q-->不播放进入和离开声音
+
+电话会议室属于本地资源,由router按照本地处理.
+
+-----------------------------------------------------------------
+呼叫队列
+-----------------------------------------------------------------
+成员接听前通知:,根据选择设置不同的aonnounceoverride
+队列的索引存储在数据库中,内容存储在文件中.
+
+呼叫队列属于本地资源,由router按照本地处理.
+
+如果队列超时,router负责根据队列设置选择下一步处理方法.
+
+队列一旦有成员接起电话就将记录在callsession的数据中.
+
+
+-----------------------------------------------------------------
+IVR菜单
+-----------------------------------------------------------------
+IVR 菜单 : 每个菜单有自己一个独立的号码,向分机一样,被本地资源处理.
+IVR菜单，分两部分：
+1、Action 动作 : 菜单中每个处理都叫做动作
+2、特殊动作 等待用户选择 : 动作表示接受用户按什么键并且跳转到哪个IVR,什么地方
+
+IVR的页面分两侧:
+左侧为当前IVR的tree(如果tree中有连接到其他ivr的则也允许其被编辑,但只允许两级)
+右侧为ivr的具体选择参数和页.
+
+example:
+IVR--->
+	ACTION1
+	ACTION2
+	(OPTIONS)
+
+IVR设置有：
+IVR的名字，IVR的号码，描述
+
+ACTION设置有：
+a.ACTION的优先可以上下调整
+b.特殊动作的操作处于所有action的最下侧
+
+播放语音:    播放指定的声音文件,可以是系统声音,也可以是自定义自己录的声音(播放时允许用户中断(如果用户输入的字符跟options要求的一致)),然后继续
+产生录音:    允许对这个呼叫者进行录音,要求用户填写这个录音变量名称(实际名称为FRI2_IVRRECORD_xxx),然后继续
+播放录音文件: 播放录音文件,录音文件的变量名称选择产生录音,然后继续
+-----------
+录制0-9字符:    在录制之前是否播放beep声音,录制长度,存储的变量名称,然后继续(这个录制同时被存储在数据库中)
+读出0-9字符:    可以选择读出录制的变量,也可以读出特定的字符,然后继续
+数字方式读出:    可以选择读出录制的变量,也可以读出特定的字符,然后继续
+读出日期时间:	读出当前日期和时间,读出指定的日期和时间,读出格式(年/月/日,时分秒| 年月日 | 月日时分 |  时分秒 | 时分),可以从变量中读出,然后继续
+拨打本地号码:    选择号码(任意类型,分机,呼叫队列,会议室),分机号码,或从录制的变量里读出,然后结束本ivr
+跳转到指定的voicemail:    跳转到一个指定分机的IVR上而不考虑这个分机是否在线,分机号码,或从录制的变量里读出,然后结束本ivr
+跳转到其他的IVR和ACTION:    指定新的IVR名字和跳到哪个action位置,,然后结束本ivr
+-----------
+检测时间范围:    检测时间范围,然后指定新的IVR名字和跳到哪个action位置,,然后结束本ivr
+修改主叫号码:    修改主叫为什么,或从输入的变量中修改,修改方式是替换还是增加
+-----------
+等待xx秒:    等待多少秒
+发送繁忙信号:    播放busy语音
+挂机:    挂机
+
+
+特殊动作 设置有:
+创建等待用户选择:
+1.等待用户选择 接收的号码
+2.等待用户选择跳转到IVR和哪个action
+
+无效的用户输入:
+播放什么语音,
+跳转到哪
+
+用户输入用户超时:
+最长允许option时间
+播放什么语音,
+跳转到哪
+
+用户输入重复尝试:
+允许几次
+条转到哪
+
+icon选择:
+播放语音:    xi66.png
+产生录音:    microphone.png
+播放录音文件: xi66.png
+-----------
+录制0-9字符:    pi401.png
+读出0-9字符:    19.png
+数字方式读出:    19-2.png
+读出日期时间:	pi126.png
+拨打本地号码:   11.png
+跳转到指定的voicemail:    pi447.png
+跳转到其他的IVR和ACTION:    43.png(如果连接到自己也显示这个)
+-----------
+检测时间范围:    pi125.png
+修改主叫号码:    xa38.png
+-----------
+等待xx秒:    pi237.png
+发送信号:    pi144.png
+挂机:    01.png
+
+可扩展 pi329.png
+
+
+产生变量
+FRI2_IVRMENU_ABT=  每次更换IVR这个都累加一，如果达到了14次就挂线
+FRI2_IVRACTION_ABT= 每次更换ACT就累加一，如果达到了42次就挂线
+FRI2_IVROPT_ADE= 用户输入累计错误计数，开始，
+用户累计错误说明:
+用户在任何ivr中的输入无效选择或超时都将产生一次累计错误。
+而不论跳转到哪个IVR这个累计错误是不消失的，除非挂机。
+但是每个IVR累计错误处理数量不同，如果你已经累计了6次。可能A IVR不会干你。
+但是如果B IVR只允许最大5次，那么到B IVR的时候，你就会被强行的跳转到一个新的IVR上。然后累计错误清零。
+
+用户自定义变量实际为
+FRI2_IVRRECORD_xxxx(语音文件)
+FRI2_IVRTEXT_xxxx(字符内容)
+
+IVR程序产生的录音处理方法:
+IVR程序产生的录音属于系统级录音,由"录音管理"进行文件管理.
+存储地址为/var/spool/astersk/ivrmenu/IVR号码/CALLER_callsessionid_unixtime_IVRnumber_IVRActionID.WAV
+
++修改router部分从而支持IVR
+
+
+-----------------------------------------------------------------
+录音统一系统
+-----------------------------------------------------------------
+目前系统所有录音包括:
+
+固定数据类: 系统语音/var/lib/asterisk/sounds,等待音乐/var/lib/asterisk/moh
+用户主导类: 一键录音/var/spool/voicemail/freeiris/,语音信箱/var/spool/voicemail/freeiris/
+系统主导类: IVR录音/var/spool/ivrmenu/ ,自动录音/var/spool/monitor/
+
+所有录音文件使用同一个表进行管理,同一组RPC函数负责管理这些文件,资源可以共享.
+
+
+-----------------------------------------------------------------
+自动录音
+-----------------------------------------------------------------
+
+自动录音存储地址为/var/spool/asterisk/monitor/triggerid/SAM_callsessionid_unixtime_randnumber.WAV
+
+录音触发规则:名称,录音对象,语音保存方式,录音文件管理页
+
+录音对象:分机号码
+
+录音方式:拨出录音,被叫录音,队列录音
+
+保存方式:保存xx文件数量,保存日期多少天,永久保存
+
+录音文件管理页:清空当前录音规则中所有录音,收听录音,删除录音
+
+由于自动录音是在桥接成功后才开始录音的,因此查看功能将后台清理掉所查看的这个动作的所有录音
+
+管理由IVR菜单产生的录音文件:IVR菜单名称,动作,发生时间,主叫号码,(清空,收听,删除)
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+系统选项
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++内部权限管理:
+系统选项里的功能,服务器端有权限管理设置。
+如果服务器端未开放权限，那么客户端既看不到这个功能也使用不到这个功能。
+这个是内部结构设计暂时不能通过web修改。
+
++改进fastagi的代码结构freeiris2 agispeedy:
+模块资源agi://127.0.0.1/modulename?key=value&key=value...
+
+modulename后程序将通过模块表查找代码.
+
+静态加载:
+/freeiris2/agimod/xxx.static
+
+静态模块在主进程启动时加载随程序一同运行,如果文件有变化不更新.
+
+/freeiris2/agimod/xxx.dynamic
+
+动态模块在用户请求时加载,请求结束后随进程一同销毁.
+
+每个模块的入口函数既是他的主函数名称.内部子函数以"_入口函数_子函数"方式命名.
+
+
++通话参数:
+所有现在freeiris.conf中跟通话有关系的参数
+
+SIP协议:
+IAX2协议:
+RTP:
+协议的基本设置
+
+统计:
+通话记录CDR
+
+高级设置:
+webclient部分参数
+rpcserver的配置:服务端数据库、服务端其他参数
+配置文件访问器: 配置文件浏览，创建，修改，删除(onwer必须跟web服务器一样才能删除)
+	只能访问freeiris(/etc/freeiris)和asterisk(/etc/asterisk)两个目录下的文件
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+当前帐户
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++重启系统
+重置软件
+重启系统
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+硬件相关
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+硬件驱动使用的是商业系统hardware telephony detect专门为freeiris2所
+提供的免费版.
+/freeiris2/bin/hardware  驱动系统
+
+驱动启动系统:
+/freeiris2/contrib/init.d/hardware  
+执行/freeiris2/bin/hardware
+检测如果没有驱动启动ztdummy,同时修改/etc/asterisk/asterisk.conf的internal_timing=yes
+执行dahdi_cfg硬件设置
+
+
+启动顺序:
+S26dahdi
+S64mysqld
+S80hardware
+S85httpd
+S90asterisk
+S95fri2d
+关闭顺序:
+K15httpd
+K20fri2d
+K36mysqld
+K60asterisk
+K70hardware
+K92dahdi
+
+
+web部分的功能:
+
+可设置三种板卡模式的属性.
+
+配置管理硬件驱动部分/freeiris2/etc/hardwaretel_info.conf
+配置管理硬件驱动部分/etc/dahdi/system.conf
+配置管理硬件驱动部分/tmp/hardwaretel.map
+
+web管理的,配置管理通道信息:
+/etc/asterisk/chan_dahdi.conf     通道主数据
+/etc/asterisk/chan_dahdi_fxo.conf 生成的通道数据
+/etc/asterisk/chan_dahdi_fxs.conf 生成的通道数据
+/etc/asterisk/chan_dahdi_digital.conf 生成的通道数据
+template文件:
+/etc/freeiris2/chan_dahdi_fxo.conf.tpl template
+/etc/freeiris2/chan_dahdi_fxs.conf.tpl template
+/etc/freeiris2/chan_dahdi_digital.tpl template
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+后台系统
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+系统命令
+contrib/init.d/fri2d是一个控制启动fri2d的脚本:
+在init.d中工作
+---------------------------------------
+contrib/init.d/fri2d.pl是一个管理启动顺序顺序的脚本
+
+--verbose 显示详细信息用于debug
+如果启动发现自己已经在内存了先杀死自己然后再启动
+
+---------------------------------------
+bin/agispeedy freeiris2的fastagi服务进程
+
+--verbose 表示显示详细的信息用于debug
+--silence 表示正常启动进程
+如果启动发现自己已经在内存了先杀死自己然后再启动
+
+---------------------------------------
+bin/fri2bill.pl 是freeiris2 billinglite的进程
+---------------------------------------
+bin/famp.pl 是freeiris2 ami event proxy
+
+--verbose 显示信息
+---------------------------------------
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+安装管理
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++登陆页
+
+自动Location到后台登陆页
+
++登陆后的首页
+
+紧急通告部分[一般隐藏]: 当收到服务器端信息时发出警告.关闭接口在主配置中
+
+信息显示部分:
+1. 工作时间: xxx小时
+2. 分机总数: 1231部
+3. 中继总数: 21组
+4. 24小时内通话 xxxx次 [总量xxx次]
+5. 系统负载：40%
+
+广告部分:.关闭接口在主配置中
+通过RPC接口获得广告图片和连接地址,如果无法获得不显示.
+
+
++系统安装程序install.pl
+--noask  不询问模式安装,该模式将从contrib/install.noask.pl中得到配置参数
+
+开始安装系统.
+安装完成后提示用户是否初始化.如果是执行setup.pl
+
++系统设置程序setup.pl
+执行初始化安装过程.
+执行完毕后提示完成.
+
+
+
+=================================================================
+VERSION alpha
+=================================================================
++第一次整理文件目录和文档
+README
+使用说明.txt-->安装说明.html
+
+=================================================================
+VERSION beta版
+=================================================================
+安装说明.html
++G729和G723的安装部分
+
++friextra说明
++开发人员指南
++CREDITS
++LICENSE
++PROTECT
++新logo
+
+=================================================================
+VERSION beta2
+=================================================================
++新用户引导:
+网站注册登记、使用需知(包括LICENSE和CREDITS和PROTECT的显示)
+
+打开控制界面登陆后,向服务端请求取得用户信息.如果取得的为新用户就在页面显示尚未注册.
+
+显示注册向导页(这个页的内容通过RPC接口向远端服务器请求).
+
++更换语音
+花钱买的一个
+
++修改bug
+1. FXO trunk的地方显示错误
+2. 有两个语音文件被忘记了
+
+=================================================================
+VERSION beta3
+=================================================================
++修改安装结构更适合光盘版
+
+install.pl
+将需要复制和设置文件所有权和文件修改的部分设置为独立部分
+将需要初始化的部分分离成为独立的参数.
+./install.pl --install  执行安装流程
+./install.pl --setup 用于rpm版执行交互流程(source版自动执行)
+./install.pl --autosetup 自动安装流程,用于光盘版
+
+[0000122] +IVR菜单中的转接号码部分增加一个功能
+[0000125] +当分机无人接听的时候转入IVR菜单提示服务.(只有当直拨分机时候才提供这个功能):
+[0000126] +voicemail调整
+[0000127] +简单外呼
+重新生成friextra手册
+用户手册
+
+=================================================================
+VERSION rc
+=================================================================
++进行bug修正,系统微调
+[0000128]
+[0000129]
+[0000130]
+[0000131]
+[0000132]
+[0000134]
+
+=================================================================
+VERSION stable
+=================================================================
++修正BUG
+[0000135]
+[0000133]
++将后续的开发管理移交给Mantis系统维护
+
+
+
+=====================================================================================
+部署安装开发系统[以下说明截止到alpha版]:
+=====================================================================================
+基本系统环境要求是Centos 5.2 httpd mysql mysql-devel php php-mysql perl-libwww-perl.noarch
+
+chkconfig --level 345 httpd on
+chkconfig --level 345 mysql on
+
+安装asterisk部分
+wget http://downloads.digium.com/pub/telephony/dahdi-linux/releases/dahdi-linux-2.1.0.4.tar.gz &
+wget http://downloads.digium.com/pub/telephony/dahdi-tools/releases/dahdi-tools-2.1.0.2.tar.gz &
+wget http://downloads.digium.com/pub/asterisk/releases/asterisk-1.4.25.tar.gz &
+wget http://downloads.digium.com/pub/libpri/releases/libpri-1.4.9.tar.gz &
+wget http://downloads.digium.com/pub/asterisk/releases/asterisk-addons-1.4.8.tar.gz &
+
+tar zxvf dahdi-linux-2.1.0.4.tar.gz
+cd dahdi-linux-2.1.0.4
+make
+make install
+cd ..
+
+tar zxvf dahdi-tools-2.1.0.2.tar.gz
+cd dahdi-tools-2.1.0.2
+./configure
+make
+make install
+make config
+/etc/init.d/dahdi start
+/etc/init.d/dahdi stop
+cd ..
+
+tar zxvf libpri-1.4.9.tar.gz
+cd libpri-1.4.9
+make
+make install
+cd ..
+
+tar zxvf asterisk-1.4.25.tar.gz
+cd asterisk-1.4.25
+./configure
+make
+make install
+make samples
+make config
+cd ..
+
+tar zxvf asterisk-addons-1.4.8.tar.gz
+cd asterisk-addons-1.4.8
+./configure
+make cdr
+cp cdr/cdr_addon_mysql.so /usr/lib/asterisk/modules/
+cd ..
+
+加载CODEC
+wget http://asterisk.hosting.lv/bin/codec_g723-ast14-gcc4-glibc-pentium3.so &
+wget http://asterisk.hosting.lv/bin/codec_g729-ast14-gcc4-glibc-pentium3.so &
+cp -avf codec_g72*.so /usr/lib/asterisk/modules/
+
+测试
+asterisk -vvvvvvvvvvvvc
+CLI> show modules like cdr_addon_mysql
+CLI> show translation
+CLI> stop now
+
+
+调试设置部分:
+=====================================================================================
+
+警告:Freeiris2目前不适合在WIN下安装和开发,如果你希望能在WIN下安装,调试和使用,你可能需要手动修改一些
+源文件
+目前尚未发布alpha版，安装需要手工执行:
+
+大概的步骤为
+1.获取源码
+svn checkout http://opensource.0420.com/svn/freeiris2/trunk /freeiris2
+
+2.设置超链接
+cd /etc
+ln -s /freeiris2/etc freeiris2
+
+2-1搞定配置
+rm -rf /etc/asterisk/*
+cp -avf /freeiris2/contrib/astetc/*.* /etc/asterisk/
+rm -rf /var/lib/asterisk/sounds/*
+cp -avf /freeiris2/var/lib/sounds/cn /var/lib/asterisk/sounds/
+mkdir /var/spool/asterisk/voicemail/freeiris/
+mkdir /var/spool/asterisk/ivrmenu/
+
+3.添加权限
+chmod -R 777 /etc/asterisk/
+cd /freeiris2/
+chmod -R 777 etc/
+chmod -R 777 webclient/templates_c
+chmod -R 777 logs/
+chmod -R 777 /var/lib/asterisk/sounds/
+chmod -R 777 /var/lib/asterisk/moh/
+chmod -R 777 /var/spool/asterisk/
+chmod 755 /freeiris2/bin/
+
+3-1设置启动
+cd /freeiris2/contrib/init.d/
+cp -avf fri2d /etc/init.d/
+chkconfig --add fri2d
+cp -avf hardware /etc/init.d/
+chkconfig --add hardware
+
+4.设置apache参数
+cd /etc/httpd/conf.d/
+ln -s /freeiris2/etc/freeiris.httpd.conf
+/etc/init.d/httpd restart
+*如果apache使用的用户是nobody（通常情况下）,需要让web/templates_c有写入和执行的权限
+
+5.添加数据库(以下为默认的数据库,如果你要更改要和etc/freeiris.conf和/etc/asterisk/cdr_mysql.conf一致)
+cd /freeiris2/
+mysql -u root --one-database test < contrib/createdb.sql
+mysql -u root --one-database test < contrib/initdb.sql
+这将创建一个用户名和密码都为admin的用户
+
+6.安装演示文件
+cd /freeiris2/
+mysql -u root --one-database test < contrib/example/example.sql
+rm -f /etc/asterisk/queues_list.conf
+rm -f /etc/asterisk/sip_exten.conf
+cp -avf contrib/example/example.queues_list.conf /etc/asterisk/queues_list.conf
+cp -avf contrib/example/example.sip_exten.conf /etc/asterisk/sip_exten.conf
+chmod -R 777 /etc/asterisk/
+
+7.编辑/etc/suoders
+visudo
+注释掉这句: #Defaults    requiretty
+然后:
+cd /freeiris2/contrib/
+cat sudoers.append >> /etc/sudoers

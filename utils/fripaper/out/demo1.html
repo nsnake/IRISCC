@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> Freeiris2 Extra Interface </TITLE>
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+ <BODY>
+ <div align="center">
+
+ <H1>Freeiris2 Extra Interface</H1>
+ <p>&nbsp;</p>
+ </div>
+ <div align="left">
+ <p><b>作者</b> : Sun bing <hoowa.sun@gmail.com></p>
+ <p><b>版本</b> : $Id: demo1.html 89 2009-03-20 02:43:15Z hoowa $</p>
+ <p><b>文件</b> : demo1.php</p>
+ <p><b>菜单</b> :</p>
+<UL>
+	<LI><a href="#extension_list">extension_list</a>
+	<LI><a href="#test2">test2</a>
+</UL>
+ <p>说明 : </p>
+ <h3>你已经在测试了</h3>
+ <p>
+    当前为一个说明,<a name="关键字">关键字</a>和<b>粗体</b><b>斜体</b><u>下线</u>
+	已经被支持了.官方网站<a href="http://www.freeiris.org">fri2</a>
+ </p>
+ <p>&nbsp;</p>
+ <p>&nbsp;</p>
+ <h2><a name="extension_list">extension_list</a></h2>
+ <p>$fri2struct extension_list (string $order,int $limitfrom,int $limitoffset)</p>
+
+ <p><a>参数: <b>$order</b></a></p>
+ <p>排序方式设置</p>
+<UL>
+	<LI>'order by xxxx'<br>其中xxx部分表示为数据库中extension表的字段
+</UL>
+ <p><a>参数: $limitfrom</a></p>
+ <p>数据开始的位置</p>
+ <p><a>参数: $limitoffset</a></p>
+ <p>数据数量</p>
+ <p><a>返回数据:<b> $fri2struct</b></a> </p>
+ <p>freeiris2的字符串数组标准返回数据格式</p>
+<UL>
+	<LI>array 'extensions'<br>自定义部分,数据结构体<pre id='code'>
+extensions = array(
+	'hello'=>'abc',		#XX数据
+);
+</pre>
+	<li>hello 名称</li>
+	<li>xxx 密码</li>
+</UL>
+ <p>&nbsp;</p>
+ <p>&nbsp;</p>
+ <h2><a name="test2">test2</a></h2>
+ <p>$fri2struct test2</p>
+ <p>&nbsp;</p>
+ <p>&nbsp;</p>
+ </div>
+ </BODY>
+</HTML>

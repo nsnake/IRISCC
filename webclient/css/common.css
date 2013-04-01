@@ -1,0 +1,303 @@
+/* html { filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); } */
+
+* {
+	margin: 0;
+	padding: 0;
+}
+body { 
+	background: #ACA8A1 repeat-x;
+	font-family: 微软雅黑, Trebuchet MS, Verdana, Arial, Helvetica, Lucida, sans-serif;
+	color: #555555;
+	font-size: 10pt;
+}
+table { 
+	font-family: 微软雅黑, Trebuchet MS, Verdana, Arial, Helvetica, Lucida, sans-serif;
+	font-size: 10pt;
+}
+input text{
+	font-size: 100pt;
+	border: 1px solid #ACA8A1
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: 微软雅黑, Arial, sans-serif;
+	font: bold;
+	color: #062F51;
+}
+hr {
+	color: #BD0F25;
+}
+a {
+	font-weight: bold;
+	text-decoration: none;
+	color: #26549A
+}
+a:hover {
+	text-decoration: underline;
+	color: #D6184A
+}
+
+/*- wrap --------------------------- */
+
+#wrap {
+	background: #A6A29B url("../images/wrap_bg.gif") repeat-y 0 0;
+	width: 910px;
+	margin: 0 auto;
+}
+
+#wrap-header {
+	background: url("../images/wrap_header_bg.gif") repeat-x 0 0;
+	height: 100px;
+	/*height: 120px;
+	clear: both;*/
+}
+#wrap-header-body {
+	background-repeat: no-repeat;
+	width: 850px;
+	height: auto;
+	float: left;
+	margin-top: 21px;
+	margin-left: 8px;
+}
+#wrap-header-left {
+	display: block;
+	width: 21px;
+	height: 100px;
+	background: url("../images/wrap_tl.gif") no-repeat;
+	background-position: 0 0;
+	float: left;
+}
+#wrap-header-right {
+	display: block;
+	width: 21px;
+	height: 101px;
+	background: url("../images/wrap_tr.gif") no-repeat;
+	background-position: 100% 0;
+	float: right;
+}
+
+#body-menu {
+	background-repeat: no-repeat;
+	width: 850px;
+	height: auto;
+	float: left;
+	margin-left: 29px;
+	margin-top: 2px;
+}
+
+#body-body {
+	background-repeat: no-repeat;
+	display: block;
+	width: 850px;
+	color: #333333;
+	float: left;
+	padding: 20px 45px;
+/*	margin: 5px 15px;*/
+}
+
+#wrap-footer {
+	background: url("../images/wrap_footer_bg.gif") repeat-x 0 100%;
+	clear: both;
+	height: 20px;
+/*	padding-top: 35px;*/
+}
+#wrap-footer-body {
+	background-repeat: no-repeat;
+	width: 850px;
+	height: 20px;
+	float: left;
+}
+#wrap-footer-left {
+	display: block;
+	width: 20px;
+	height: 20px;
+	background: url("../images/wrap_bl.gif") no-repeat;
+	background-position: 0 0;
+	float: left;
+}
+#wrap-footer-right {
+	display: block;
+	width: 20px;
+	height: 20px;
+	background: url("../images/wrap_br.gif") no-repeat;
+	background-position: 100% 0;
+	float: right;
+}
+
+/*- logo header--------------------------- */
+
+#tabfull {
+	background: url("../images/tabfull_bg.png") repeat-x 0 0;
+	height: 80px;
+	clear: both;
+}
+#tabfull #left {
+	background: url("../images/tabfull_l.png") no-repeat;
+	width: 8px;
+	height: 80px;
+	background-position: 0 0;
+	float: left;
+	display: block;
+}
+#tabfull #right {
+	background: url("../images/tabfull_r.png") no-repeat;
+	width: 8px;
+	height: 80px;
+	background-position: 0 0;
+	float: right;
+	display: block;
+}
+#tabfull #logo {
+	background: url("../images/logo_cn1.png") no-repeat;
+	width: 350px;
+	height: 80px;
+	float: left;
+	display: block;
+}
+
+/*---------customed style----------------*/
+#header_leftbutton {
+	margin: 5px 5px;
+	float: right;
+	line-height: 130%;
+}
+#header_leftbutton a {
+	color: #FFFFFF;
+}
+#header_leftbutton a:hover {
+	color: #26549A;
+}
+#btn1 {
+	color: #FFFFFF; 
+	position: relative; 
+	font-family: 微软雅黑, Trebuchet MS;
+	font-size: 12.5px;
+	font-weight:bold;
+	border: 1px solid #000000; 
+	padding-left: 8px; 
+	padding-right: 8px; 
+	padding-top: 1px; 
+	padding-bottom: 1px; 
+	background-color: #37678D
+}
+#btn2 {
+	color: #FFFFFF; 
+	position: relative; 
+	font-family: 微软雅黑, Trebuchet MS; 
+	font-size: 12.5px;
+	font-weight:bold;
+	border: 1px solid #000000; 
+	padding-left: 8px; 
+	padding-right: 8px; 
+	padding-top: 1px; 
+	padding-bottom: 1px; 
+	background-color: #BD0F25
+}
+#btn3 {
+	color: #FFFFFF; 
+	position: relative; 
+	font-family: 微软雅黑, Trebuchet MS; 
+	font-size: 12.5px;
+	font-weight:bold;
+	border: 1px solid #000000; 
+	padding-left: 8px; 
+	padding-right: 8px; 
+	padding-top: 1px; 
+	padding-bottom: 1px; 
+	background-color: #0C8AD6
+}
+#popup_ok {
+	color: #FFFFFF; 
+	position: relative; 
+	font-family: 微软雅黑, Trebuchet MS;
+	font-size: 12.5px;
+	font-weight:bold;
+	border: 1px solid #000000; 
+	padding-left: 8px; 
+	padding-right: 8px; 
+	padding-top: 1px; 
+	padding-bottom: 1px; 
+	background-color: #37678D
+}
+#popup_cancel{
+	color: #FFFFFF;
+	position: relative;
+	font-family: 微软雅黑, Trebuchet MS;
+	font-size: 12.5px;
+	font-weight:bold;
+	border: 1px solid #000000;
+	padding-left: 8px;
+	padding-right: 8px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	background-color: #BD0F25;
+}
+#iptext1 {
+	border: 1px solid #ACA8A1;
+}
+
+#code {
+	font: normal;
+	border: 1px solid #CC3300;
+	background-color: #F4F8C7;
+	font-family: Fixedsys;
+}
+
+
+/* ---------->>> Tooltipmsg <<<---------------------------------------------------------------*/
+#tooltip {
+    position: absolute;
+    width: auto;
+    border: 1px solid #666;
+    background: #FFFFE1;
+    color: #FFF;
+    padding: 5px;
+}
+#tooltip h3, #tooltip div {
+    text-align: left;
+    font-size: 13px;
+    font-weight: normal;
+    margin: 0;
+}
+
+/*------------------------------------------------------------
+	freeiris popup dialog
+------------------------------------------------------------*/
+#popBgDialog{
+	display:none;
+	position:fixed;
+	_position:absolute; /* hack for internet explorer 6*/
+	height:100%;
+	width:100%;
+	top:0;
+	left:0;
+	background:#000000;
+	border:1px solid #cecece;
+	z-index:100;
+}
+#popDialog{
+	display:none;
+	position:fixed;
+	_position:absolute; /* hack for internet explorer 6*/
+	height:440px;
+	width:600px;
+	background:#FFFFFF;
+	border:4px solid #cecece;
+	z-index:101;
+	padding:10px;
+	font-size:13px;
+}
+/*------------------------------------------------------------
+	drop drag
+------------------------------------------------------------*/
+
+.tDnD_whileDrag {
+	background-color: #0C8AD6;
+}
+
+td.showDragHandle {
+	background-image: url(../images/icon/p24.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+	cursor: move;
+}
+

@@ -1,0 +1,61 @@
+#-----------------------------------------------------------------
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@gmail.com>
+#
+#	See http://www.freeiris.org for more information about
+#	the Freeiris project.
+#
+#	This program is free software, distributed under the terms of
+#	the GNU General Public License Version 2. See the LICENSE file
+#	at the top of the source tree.
+#
+#	Freeiris2 -- 开源通信系统
+#	本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+#	请查阅LICENSE文件。
+#
+#-----------------------------------------------------------------
+#
+#  freeiris2
+#
+#  Xu Hao <root@sakuras.cn>
+#
+# AMI 通信接口ACTION
+#
+#-----------------------------------------------------------------
+
+# 说明主函数
+sub originate_listenoverphone_gpl_license(){return("ami port run this function listen over phone");}
+
+
+# 主函数
+#
+# 发起录音
+#
+sub originate_listenoverphone()
+{
+my	$self = shift;
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+my	$INPUT = $self->{server}{input};			#Extension input
+my	$PARAM = $self->{server}{params};			#Call params
+my	$FRI2CONF = $self->{server}->{fri2conf};	#Freeiris2 general conf
+my	$DBH = $self->database_pconnect();			#DBI object
+
+	#get asterisk conf
+my	(%ast_conf);
+	tie %ast_conf, 'Config::IniFiles', ( -file => $FRI2CONF->{general}{asterisketc}.'/asterisk.conf' );
+
+my	$sth = $DBH->prepare("select * from voicefiles where id = '".$PARAM->{'soundfileid'}."'");
+	$sth->execute;
+my	$row = $sth->fetchrow_hashref();
+	$sth->finish;
+
+	#如果当前不是语音文件就拒绝录音
+	exit if ($row->{'label'} ne 'sound');
+
+	#文件
+my	$filepath = $ast_conf{'directories'}{'astvarlibdir'}.'/sounds/'.$row->{'associate'}.'/'.$row->{'folder'}.'/'.$row->{'filename'};
+        $AGI->exec('Playback',$filepath);
+exit;
+}

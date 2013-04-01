@@ -1,0 +1,29 @@
+#!/usr/bin/php -q
+<?php
+/***************************************************************************
+fripaper.php: remark to html module core
+description:
+	this module can read remark from program files in src directory, 
+	and create help files use html language in in dst directory
+version:	2009-06-22 1.0.1
+author:		freeiris-安静 <yuzegao@163.com>
+Please submit bug reports、patches、etc to <yuzegao@163.com>
+My homepage: www.asterisk-r.cn
+
+See http://www.freeiris.org for more information about
+the Freeiris project.
+Freeiris2 -- 开源通信系统
+本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+请查阅LICENSE文件。
+
+***************************************************************************/
+include(dirname(__FILE__)."/fripaper.inc.php");
+$fripaper=new fripaper();
+$status=$fripaper->init();
+if(!$status)
+{
+	exit;
+}
+$fripaper->parse_dir();
+$fripaper->parse_file();
+?>

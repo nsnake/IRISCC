@@ -1,0 +1,217 @@
+#-----------------------------------------------------------------
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@gmail.com>
+#
+#	See http://www.freeiris.org for more information about
+#	the Freeiris project.
+#
+#	This program is free software, distributed under the terms of
+#	the GNU General Public License Version 2. See the LICENSE file
+#	at the top of the source tree.
+#
+#	Freeiris2 -- 开源通信系统
+#	本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+#	请查阅LICENSE文件。
+#
+#-----------------------------------------------------------------
+#
+#  freeiris2 router
+#
+#  Sun bing <hoowa.sun@gmail.com>
+#
+#  syntax: agi://127.0.0.1/fax?mode=[?][&faxid=]
+#
+#-----------------------------------------------------------------
+
+# 说明主函数
+sub fax_gpl_license(){return("fax send and receive function");}
+
+
+# 主函数
+sub fax
+{
+my	$self = shift;
+
+	# 从agispeedy中读出对象参数
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+my	$INPUT = $self->{server}{input};			#AGI参数
+my	$PARAM = $self->{server}{params};			#提交参数
+my	$FRI2CONF = $self->{server}->{fri2conf};	#Freeiris2配置
+my	$DBH = $self->database_pconnect();			#数据库资源
+
+	#create and get sessionid and set action
+#my	$FRI2_SESSIONID = $self->_callsession('action='.$PARAM->{mode});
+my	$MYSESS = $self->_callsession($PARAM->{mode});
+my	$FRI2_SESSIONID = $MYSESS->{'FRI2_SESSIONID'};
+
+	#get asterisk conf
+my	(%ast_conf);
+	tie %ast_conf, 'Config::IniFiles', ( -file => $FRI2CONF->{general}{asterisketc}.'/asterisk.conf' );
+
+	#发送传真处理流程
+	if ($PARAM->{mode} eq 'sendfax') {
+
+	my	$faxid = $PARAM->{faxid};
+	my	$sth = $DBH->prepare("select * from faxqueue where id = '".$faxid."'");
+		$sth->execute;
+	my	$faxrow = $sth->fetchrow_hashref();
+		if (!defined $faxrow || $faxrow->{'status'} ne '1') {
+			exit;
+		}
+
+	my	$filename = $ast_conf{directories}{astspooldir}."/fax/".$faxrow->{'accountcode'}."/".$faxrow->{'filename'};
+		if (!-e$filename) {
+			exit;
+		}
+
+		#$self->_callsession(undef,'faxid='.$faxid);
+		$self->_callsession_set($MYSESS->{ACTID},'faxid',$faxid);
+
+		#处理发送参数
+		$DBH->do("update faxqueue set status = 2 where id = '".$faxid."'");
+		$AGI->exec('set','FAXOPT(ecm)='.$FRI2CONF->{fax}{ecm});
+		$AGI->exec('set','FAXOPT(maxrate)='.$FRI2CONF->{fax}{maxrate});
+		$AGI->exec('set','FAXOPT(minrate)='.$FRI2CONF->{fax}{minrate});
+		$FRI2CONF->{fax}{modem}=~s/\|/\,/g;
+		$AGI->exec('set','FAXOPT(modem)='.$FRI2CONF->{fax}{modem});
+	my	@localtime = localtime();
+		$localtime[5] += 1900;
+		$localtime[4]++;
+		$AGI->exec('set','FAXOPT(headerinfo)=DigitalFax from '.$FRI2CONF->{fax}{faxtitle}." at $localtime[5]-$localtime[4]-$localtime[3] $localtime[2]:$localtime[1]:$localtime[0]".$tim);
+		$AGI->exec('set','FAXOPT(localstationid)='.$FRI2CONF->{fax}{localstationid});
+		$AGI->exec('SendFAX',$filename);
+
+		exit;
+
+
+	#发送传真成功后处理流程
+	} elsif ($PARAM->{mode} eq 'sendover' || $PARAM->{mode} eq 'receiveover') {
+
+	my	($faxid,$status);
+		$faxid = $PARAM->{faxid};
+	my	$sth = $DBH->prepare("select * from faxqueue where id = '".$faxid."'");
+		$sth->execute;
+	my	$faxrow = $sth->fetchrow_hashref();
+		if (!defined $faxrow) {
+			exit;
+		}
+
+		if ($AGI->get_variable('FAXSTATUS') eq 'SUCCESS') {
+			$status=3;
+		} else {
+			$status=4;
+		}
+
+		#修改数据库记录状态
+		$DBH->do("update faxqueue set status = ".$status.", fax_status = '".$AGI->get_variable('FAXOPT(status)').
+				"',fax_statusstr = '".$AGI->get_variable('FAXOPT(statusstr)').
+				"',fax_error = '".$AGI->get_variable('FAXOPT(error)').
+				"',fax_pages = '".$AGI->get_variable('FAXOPT(pages)').
+				"',fax_bitrate = '".$AGI->get_variable('FAXOPT(rate)').
+				"',fax_remotestationid = '".$AGI->get_variable('FAXOPT(remotestationid)').
+				"',fax_resolution = '".$AGI->get_variable('FAXOPT(resolution)').
+				"',fax_ecm = '".$AGI->get_variable('FAXOPT(ecm)').
+				"' where id = '".$faxid."'");
+
+		#从发送队列中删除掉文件
+		if ($PARAM->{mode} eq 'sendover') {
+			unlink($ast_conf{directories}{astspooldir}."/fax/".$faxrow->{'accountcode'}."/".$faxrow->{'filename'});
+		}
+
+		exit;
+
+
+	#接收传真处理流程
+	} elsif ($PARAM->{mode} eq 'receivefax') {
+
+		#CONNECT AMI
+	my	$freeiris_utils = new freeiris::utils();
+		if (!$freeiris_utils->astmanager_conn(host=>'localhost',port=>'5038',user=>'freeiris',secret=>'freeiris')) {
+			exit;
+		}
+	my	@response = $freeiris_utils->astmanager_cmd("Action: Command\r\nCommand: fax show stats\r\n\r\n","--END COMMAND--\r\n");
+	my	($currentfax,$licensedfax,$enabledfax);
+		foreach (@response) {
+			if ($_ =~ /Current\sSessions\s+:\s([0-9]+)/) {
+				$currentfax=$1;
+			}
+			if ($_ =~ /Licensed\sChannels\s+:\s([0-9]+)/) {
+				$licensedfax=$1;
+			}
+		}
+
+		if (!defined$currentfax || !defined$licensedfax) { #取出参数失败但是程序继续执行
+
+			#再检测一下是否有sendfax指令
+		my	@response = $freeiris_utils->astmanager_cmd("Action: Command\r\nCommand: show application SendFax\r\n\r\n","--END COMMAND--\r\n");
+			foreach (@response) {
+				if ($_ =~ /not\sregistered/) {
+					$enabledfax='no';
+					last;
+				}
+			}
+			#如果没有FAX指令系统,如果有就继续运行表示采用其他方案实现的fax
+			if ($enabledfax eq 'no') {
+				$AGI->exec('playback','freeiris/faxbusy');
+				$AGI->exec('playback','freeiris/faxbusy');
+				$freeiris_utils->astmanager_discon();
+				exit;
+			}
+
+		} elsif ($currentfax == $licensedfax) { #已经达到并发量,提示用户
+			$AGI->exec('playback','freeiris/faxbusy');
+			$AGI->exec('playback','freeiris/faxbusy');
+			$freeiris_utils->astmanager_discon();
+			exit;
+		}
+		$freeiris_utils->astmanager_discon();
+
+
+		#准备接收传真
+		if (!-d$ast_conf{directories}{astspooldir}."/fax/") {
+			mkdir($ast_conf{directories}{astspooldir}."/fax/");
+			system("chmod 777 ".$ast_conf{directories}{astspooldir}."/fax/");
+		}
+		$folder = $ast_conf{directories}{astspooldir}."/fax/".$PARAM->{'receiver'}."/";
+		if (!-d$folder) {
+			mkdir($folder);
+			system("chmod 777 $folder");
+		}
+
+		#$self->_callsession(undef,'receiver='.$PARAM->{'receiver'});
+		$self->_callsession_set($MYSESS->{ACTID},'receiver',$PARAM->{'receiver'});
+
+		#产生存储文件名
+		$filename = $freeiris_utils->get_unique_id().'.tiff';
+
+		#产生数据库记录
+		$DBH->do("insert into faxqueue set cretime = now(),mode = 1,status = 0, ".
+			"accountcode = '".$PARAM->{'receiver'}."',".
+			"number = '".$INPUT->{callerid}."',".
+			"filename = '".$filename."'\n");
+
+		#获得FAXID
+	my	$sth = $DBH->prepare("select last_insert_id()");
+		$sth->execute;
+	my	$faxrow = $sth->fetchrow_arrayref();
+		$AGI->exec('set','FRI2_FAXQUEUEID='.$faxrow->[0]);
+
+		#处理发送参数
+		$AGI->exec('set','FAXOPT(ecm)='.$FRI2CONF->{fax}{ecm});
+		$AGI->exec('set','FAXOPT(maxrate)='.$FRI2CONF->{fax}{maxrate});
+		$AGI->exec('set','FAXOPT(minrate)='.$FRI2CONF->{fax}{minrate});
+		$FRI2CONF->{fax}{modem}=~s/\|/\,/g;
+		$AGI->exec('set','FAXOPT(modem)='.$FRI2CONF->{fax}{modem});
+#		$AGI->exec('set','FAXOPT(headerinfo)=DigitalFax from '.$FRI2CONF->{fax}{faxtitle}." at $localtime[5]-$localtime[4]-$localtime[3] $localtime[2]:$localtime[1]:$localtime[0]".$tim);
+		$AGI->exec('set','FAXOPT(localstationid)='.$FRI2CONF->{fax}{localstationid});
+
+		$AGI->exec('ReceiveFax',$folder.'/'.$filename);
+
+		exit;
+
+	}
+
+exit;
+}

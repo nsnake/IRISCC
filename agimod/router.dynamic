@@ -1,0 +1,286 @@
+#-----------------------------------------------------------------
+#
+#   Freeiris2 -- An Opensource telephony project.
+#   Copyright (C) 2005 - 2009, Sun bing.
+#   Sun bing <hoowa.sun@gmail.com>
+#
+#   See http://www.freeiris.org for more information about
+#   the Freeiris project.
+#
+#   This program is free software, distributed under the terms of
+#   the GNU General Public License Version 2. See the LICENSE file
+#   at the top of the source tree.
+#
+#   Freeiris2 -- 开源通信系统
+#   本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+#   请查阅LICENSE文件。
+#
+#-----------------------------------------------------------------
+#
+#  freeiris2 router
+#
+#  Sun bing <hoowa.sun@gmail.com>
+#
+#  syntax: agi://127.0.0.1/router?routerline=[?]&callednum=[?]
+#
+#-----------------------------------------------------------------
+
+# 说明主函数
+sub router_gpl_license(){return("little bits agi function");}
+
+
+# 主函数
+sub router
+{
+my  $self = shift;
+
+    # 从agispeedy中读出对象参数
+my  $AGI = $self->{server}{agi};                #Asterisk::AGI object
+my  $INPUT = $self->{server}{input};            #AGI参数
+my  $PARAM = $self->{server}{params};           #提交参数
+my  $FRI2CONF = $self->{server}->{fri2conf};    #Freeiris2配置
+my  $DBH = $self->database_pconnect();          #数据库资源
+
+    #create and get sessionid and set action
+#my $FRI2_SESSIONID = $self->_callsession('action=router');
+my  $MYSESS = $self->_callsession('router');
+my  $FRI2_SESSIONID = $MYSESS->{'FRI2_SESSIONID'};
+
+    #variable of require
+my  $calleridnum = $INPUT->{callerid};
+my  $accountcode = $INPUT->{accountcode};
+my  $callednum = $PARAM->{callednum};
+    $callednum =~ s/\#$//; # auto remove # followed number because fxs will be send #.
+
+    #路由条件分析
+my  (@combind_rule,@standard_rule,@addional_rule);
+my  $sth = $DBH->prepare("select * from router where routerline = '".$PARAM->{routerline}."' order by proirety desc");
+    $sth->execute;
+    while (my $eachrule = $sth->fetchrow_hashref()) {
+        if ($eachrule->{createmode} ne '2') {
+            push(@standard_rule,$eachrule);
+        } else {
+            push(@addional_rule,$eachrule);
+        }
+    }
+    $sth->finish;
+    push(@combind_rule,@standard_rule,@addional_rule);
+
+
+    #路由规则匹配
+my  ($matched_rule);
+    foreach my $rule (@combind_rule) {
+    my  ($matchresult);
+
+        ##主叫分组匹配(仅是主叫为内线用户时有效),当为外线的时候这个地方是主叫来自中继的中继trunkdevice匹配
+        if ($PARAM->{routerline} eq '1' && $rule->{match_callergroup} ne '') {
+
+            #取出这个用户当前所在的分组
+        my  $blmatchgroup=0;
+        my  $sth = $DBH->prepare("select groupid from extengroup_assign where accountcode = '".$accountcode."'");
+            $sth->execute;
+            while (my $row = $sth->fetchrow_arrayref()) {
+                if ($row->[0] eq $rule->{match_callergroup}) {
+                    $blmatchgroup=1;
+                    last;
+                }
+            }
+            $sth->finish;
+            if (!$blmatchgroup) {#如果不匹配就尝试下一条规则
+                $matchresult .= 'N';
+                next;
+            }
+            $matchresult .= 'M';
+
+        } elsif ($PARAM->{routerline} eq '2' && $rule->{match_callergroup} ne '') {
+            #取出这个外线是哪个外线的设置
+        my  $blmatchgroup=0;
+        my  $sth = $DBH->prepare("select id from trunk where trunkdevice = '".$accountcode."'");
+            $sth->execute;
+            while (my $row = $sth->fetchrow_arrayref()) {
+                if ($row->[0] eq $rule->{match_callergroup}) {
+                    $blmatchgroup=1;
+                    last;
+                }
+            }
+            $sth->finish;
+            if (!$blmatchgroup) {#如果不匹配就尝试下一条规则
+                $matchresult .= 'N';
+                next;
+            }
+            $matchresult .= 'M';
+
+        } else {
+            $matchresult .= 'I';
+        }
+
+        #主叫号码匹配
+        if ($rule->{match_callerid} ne '') {
+            my $tmp_type = 0;
+            foreach my $match_callerid (split /,/,$rule->{match_callerid}) 
+                   {if ($calleridnum =~ /^$match_callerid/) {$tmp_type = 1; last;}}
+            if  ($tmp_type){$matchresult .= 'M';}
+            else{$matchresult .= 'N'; next;}
+        } else {
+            $matchresult .= 'I';
+        }
+
+        #主叫号码长度匹配
+        if ($rule->{match_callerlen} ne '') {
+            if (length($calleridnum) == $rule->{match_callerlen}) {
+                $matchresult .= 'M';
+            } else {
+                $matchresult .= 'N';
+                next;
+            }
+        } else {
+            $matchresult .= 'I';
+        }
+
+        #被叫号码匹配
+        if ($rule->{match_callednum} ne '') {
+        my  $match_callednum = $rule->{match_callednum};
+            if ($callednum =~ /^$match_callednum/) {
+                $matchresult .= 'M';
+            } else {
+                $matchresult .= 'N';
+                next;
+            }
+        } else {
+            $matchresult .= 'I';
+        }
+
+        #被叫号码长度匹配
+        if ($rule->{match_calledlen} ne '') {
+            if (length($callednum) == $rule->{match_calledlen}) {
+                $matchresult .= 'M';
+            } else {
+                $matchresult .= 'N';
+                next;
+            }
+        } else {
+            $matchresult .= 'I';
+        }
+
+        #检测匹配结果
+        if ($matchresult =~ /M/ && $matchresult !~ /N/) {#包括M但不包括N表示成功
+            $matched_rule=$rule;
+            last;
+        }
+    }
+
+    #路由检测失败
+    if (!defined$matched_rule) {
+        #检测失败但是启动了拨出的默认规则
+        if ($PARAM->{routerline} eq '1' && $FRI2CONF->{fastagi}{router_extenrule_default} eq 'enable') {
+            #logger rule
+            $self->_callsession_set($MYSESS->{ACTID},'rule_id',$matched_rule->{id});
+            $self->_callsession_set($MYSESS->{ACTID},'default','enable');
+            
+            #setdata
+            $matched_rule = {
+                'lastwhendone' => '0',
+                'routername' => '',
+                'process_mode' => '1',
+                'match_callerlen' => '',
+                'match_calledlen' => '',
+                'id' => '',
+                'optextra' => undef,
+                'createmode' => '0',
+                'replace_calledappend' => '',
+                'match_callerid' => '',
+                'proirety' => '1',
+                'process_defined' => '',
+                'routerline' => $PARAM->{routerline},
+                'match_callednum' => '',
+                'replace_callerid' => '',
+                'replace_calledtrim' => '',
+                'match_callergroup' => ''
+            };
+        #检测失败但是启动了拨入的默认规则
+        } elsif ($PARAM->{routerline} eq '2' && $FRI2CONF->{fastagi}{router_trunkrule_default} eq 'enable') {
+            #logger rule
+            $self->_callsession_set($MYSESS->{ACTID},'rule_id',$matched_rule->{id});
+            $self->_callsession_set($MYSESS->{ACTID},'default','enable');
+            
+            #setdata
+            $matched_rule = {
+                'lastwhendone' => '0',
+                'routername' => '',
+                'process_mode' => '1',
+                'match_callerlen' => '',
+                'match_calledlen' => '',
+                'id' => '',
+                'optextra' => undef,
+                'createmode' => '0',
+                'replace_calledappend' => '',
+                'match_callerid' => '',
+                'proirety' => '1',
+                'process_defined' => '',
+                'routerline' => $PARAM->{routerline},
+                'match_callednum' => '',
+                'replace_callerid' => '',
+                'replace_calledtrim' => '',
+                'match_callergroup' => ''
+            };
+        }
+        
+    #彻底失败
+    } elsif (!defined$matched_rule) {
+        $AGI->exec('set','FRI2_AGISTATUS=0');
+        exit;
+    
+    #检测成功
+    } else {
+        #logger rule
+        $self->_callsession_set($MYSESS->{ACTID},'rule_id',$matched_rule->{id});
+    }
+
+    #路由后期处理
+my  $FRI2_ROUTER_PROCESS_EXTENSION = $callednum;
+my  $FRI2_ROUTER_PROCESS_CALLERIDNUM = $calleridnum;
+
+    #主叫自动录音检测
+    $AGI->exec('AGI','agi://127.0.0.1/sysautomon?type=caller&number='.$accountcode);
+
+    #匹配后主叫替换
+    if ($matched_rule->{replace_callerid} ne '') {
+        $FRI2_ROUTER_PROCESS_CALLERIDNUM = $matched_rule->{replace_callerid};
+	# replace when find match {N} to current Callerid Number
+        $FRI2_ROUTER_PROCESS_CALLERIDNUM =~ s/\{N\}/$calleridnum/;
+    }
+    #匹配后删除被叫前几位
+    if ($matched_rule->{replace_calledtrim} ne '') {
+        $FRI2_ROUTER_PROCESS_EXTENSION = substr($FRI2_ROUTER_PROCESS_EXTENSION,$matched_rule->{replace_calledtrim},length($FRI2_ROUTER_PROCESS_EXTENSION));
+    }
+    #匹配后补充被叫前几位
+    if ($matched_rule->{replace_calledappend} ne '') {
+        $FRI2_ROUTER_PROCESS_EXTENSION = $matched_rule->{replace_calledappend}.$FRI2_ROUTER_PROCESS_EXTENSION;
+    }
+
+    #本地处理
+    if ($matched_rule->{'process_mode'} eq '1') {
+
+        $AGI->exec('set','FRI2_AGISTATUS=1');
+        $AGI->exec('set','FRI2_ROUTER_PROCESS_MODE='.$matched_rule->{process_mode});
+        $AGI->exec('set','FRI2_ROUTER_PROCESS_DEFINED='.$matched_rule->{process_defined});
+        $AGI->exec('set','FRI2_ROUTER_PROCESS_EXTENSION='.$FRI2_ROUTER_PROCESS_EXTENSION);
+        $AGI->exec('set','FRI2_ROUTER_PROCESS_CALLERIDNUM='.$FRI2_ROUTER_PROCESS_CALLERIDNUM);
+
+    #通路
+    } elsif ($matched_rule->{'process_mode'} eq '2') {
+
+        $AGI->exec('set','FRI2_AGISTATUS=1');
+        $AGI->exec('set','FRI2_ROUTER_PROCESS_MODE='.$matched_rule->{process_mode});
+        $AGI->exec('set','FRI2_ROUTER_PROCESS_DEFINED='.$matched_rule->{process_defined});
+        $AGI->exec('set','FRI2_ROUTER_PROCESS_EXTENSION='.$FRI2_ROUTER_PROCESS_EXTENSION);
+        $AGI->exec('set','FRI2_ROUTER_PROCESS_CALLERIDNUM='.$FRI2_ROUTER_PROCESS_CALLERIDNUM);
+
+    #其他(禁止)
+    } else {
+        $AGI->exec('set','FRI2_AGISTATUS=0');
+    }
+
+
+exit;
+}

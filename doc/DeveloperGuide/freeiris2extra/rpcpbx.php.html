@@ -1,0 +1,68 @@
+<!--/***************************************************************************
+Don't remove this title!
+FRIPAPER
+@description
+        this module can read remark from program files in src directory, 
+        and create help files use html language in in dst directory
+@version 2009-06-22 1.0.1
+@author freeiris-安静 <yuzegao@163.com>
+@package Freeiris2 Package Fripaper
+Please submit bug reports, patches, etc to <yuzegao@163.com>
+www.voxen.cn
+ENDPAPER
+See http://www.freeiris.org for more information about
+the Freeiris project.
+Freeiris2 -- 开源通信系统
+本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+请查阅LICENSE文件。
+***************************************************************************/-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> rpcpbx </TITLE>
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+<BODY>
+<div align="center">
+<H1>rpcpbx</H1>
+<p>&nbsp;</p>
+</div>
+
+<div align="left">
+<p><b>作者</b> : <link src="mailto:hoowa.sun AT gmail DOT com">Sun bing</link><br>
+<b>版本</b> : 1.0<br>
+<b>文件</b> : rpcpbx.php<br>
+<b>说明 : </b><br>
+	&nbsp;&nbsp;RPC服务的主文件,由这个文件实现RPC服务接口,以及提供了基本的函数功能.<br>
+	其他文件由此文件动态加载,其他文件的文件格式需要遵守 rpcpbx_<i><b>xxx</b></i>.php 这种格式
+
+<br>
+<b>函数</b> :
+<UL>
+<LI><a href="#base_clientlogin">base_clientlogin</a>
+</UL>
+
+<p>&nbsp;</p>
+<h2><a name="base_clientlogin">base_clientlogin</a></h2>
+<p><b><br><pre id='code'>	
+  $retrun = base_clientlogin ($adminid,$passwd)
+		</pre></b></p>
+
+ <p><a>参数: </a><br>
+ <b>$adminid		登陆的帐户名称
+</b><br>
+	 <b>$passwd		该帐户密码(MD5加密格式)
+</b><br>
+	</p>
+<p>
+ <a>返回数据:</a> <b> $retrun<br>		这个帐户的信息数据库对象格式,或是fri2标准格式
+
+ </b>
+	</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</div>
+</BODY>
+</HTML>

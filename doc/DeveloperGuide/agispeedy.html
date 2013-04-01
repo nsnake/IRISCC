@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> Freeiris2开发人员指南 HTML </TITLE>
+  <META NAME="Author" CONTENT="hoowa.sun">
+  <META NAME="Keywords" CONTENT="Freeiris2 development guide">
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+ <BODY>
+ <div align="left">
+<H1>agispeedy高性能AGI引擎</H1>
+ </div>
+ <div align="center">
+ <p>&nbsp;<img src="./agispeedy.png"></p>
+	<p align="left"><b>agispeedy的原理</b></p>
+	<p align="left">&nbsp; AGI慢的主要原因，是由于Asterisk向系统发出请求,系统要启动一个新进程，解析PHP或Perl代码,解析完成后再将结果返回给Asterisk. 
+	如果有100个人访问这个程序, 系统就要同样的事情做100次, 这当然性能很慢了. AGI的优势是灵活,方便，随时编写，随时修改，又不需要重新调整Asterisk</p>
+	<p align="left">&nbsp; Asterisk App Module快的主要原因是, 
+	负责执行部分的代码跟Asterisk主进程一起进入内存, 等待请求,并且处理请求. 
+	App复杂在,你需要了解Asterisk内部结构，并且由于其跟Asterisk紧密的关系，你必须根据指定版本编译,不能跨版本运行，而且如果你的代码经过了修改,也必须重新启动Asterisk. 
+	驻留内存长期运行可能还会造成Memory Leak等问题.</p>
+	<p align="left">&nbsp; FastAGI技术, FastAGI技术临界在 AGI和&nbsp; APP之间。&nbsp; 
+	FastAGI利用独立的进程，来解决AGI每次都需要解析的问题. 利用AGI的特征来解决,对Asterisk版本和编译的依赖, 即使FastAGI程序出现问题，也不会影响Asterisk主进程。&nbsp; 
+	FastAGI同时也没有解决的一些问题是,&nbsp; FastAGI程序编写难度高,同样存在长期驻留内存可能造成Memory 
+	Leak的问题，并且你的程序如果经过修改，要重新启动FastAGI进程.</p>
+	<p align="left">&nbsp; agispeedy技术, agispeedy技术是由freeiris2独创的一个新的小引擎，为了补充以上三者造成的缺陷而设计的。agispeedy是基于perl语言的，因此目前只能使用perl语言开发扩展.&nbsp; 
+	agispeedy 利用 fastagi 的原理，来提升执行性能。&nbsp; 而agispeedy 使用动态加载技术，来解决fastagi带来的问题.&nbsp; 
+	agispeedy带来的好处有:</p>
+	<ol>
+		<li>
+		<p align="left">解决了AGI低性能的问题</p></li>
+		<li>
+		<p align="left">解决了FastAGI开发难度高的问题</p></li>
+		<li>
+		<p align="left">解决了APP对Asterisk版本依赖的问题</p></li>
+		<li>
+		<p align="left">随时变更代码无需重新启动agispeedy引擎或asterisk</p></li>
+		<li>
+		<p align="left">代码即使编写的有问题也不会导致整个agispeedy引擎出现问题或asterisk出现问题</p></li>
+		<li>
+		<p align="left">系统提供统一的数据库接口,访问数据库性能更高</p></li>
+		<li>
+		<p align="left">提供跟标准AGI一模一样的Perl访问函数接口</p></li>
+		<li>
+		<p align="left">比编写标准AGI还简单.</p></li>
+	</ol>
+	<p align="left">&nbsp; agispeedy的多用户访问引擎采用的是在linux下广泛被使用的PerFork(进程预创建),这是一种安全,可靠,廉价的多进程技术.</p>
+	<p align="left"><b>agispeedy实例讲解</b></p>
+	<p align="left">我们在这里,现在编写一个简单的agispeedy的程序. 这个程序功能是这样&quot;从 mysql中取得一个随机数,并且向asterisk发出指令让asterisk读出来&quot;.</p>
+	<p align="left"><b>首先我们编写agispeedy的程序</b></p>
+	<p align="left">agispeedy程序要存储在/freeiris2/agimod/目录中,程序分两种:</p>
+	<ul>
+		<li>
+		<p align="left">静态程序: 结尾为.static的程序，该程序在agispeedy引擎加载的时候直接被加载, 
+		如果程序有修改需要重新启动agispeedy引擎，该模式程序的性能更高,但是不够灵活</p></li>
+		<li>
+		<p align="left">动态程序: 结尾为.dynamic的程序, 该程序在需要请求的时候才加载, 灵活性高, 性能稍微差那么一丁点.</p>
+		</li>
+	</ul>
+	<p align="left">不用说，我们这里选择动态程序方式.</p>
+	<p align="left">我们的程序起名字叫/freeiris2/agimod/echo.dynamic代码如下:</p>
+	<p align="left">&nbsp;<div id="code">
+	<p align="left"># 我的测试程序<br>
+	# 说明主函数,必写<br>
+	sub echo_gpl_license(){return(&quot;my echo example&quot;);}<br>
+	<br>
+	# 入口函数，名字要与文件名相同.<br>
+	sub echo<br>
+	{<br>
+	my $self = shift; #agispeedy对象<br>
+	my $AGI = $self-&gt;{server}{agi}; #Asterisk::config AGI对象<br>
+	my $INPUT = $self-&gt;{server}{input}; #AGI参数<br>
+	my $PARAM = $self-&gt;{server}{params}; #URL提交参数<br>
+	my $FRI2CONF = $self-&gt;{server}-&gt;{fri2conf}; #Freeiris2配置<br>
+	my $DBH = $self-&gt;database_pconnect(); #数据库资源<br>
+	<br>
+	#从数据库中获得随机数<br>
+	my $sth = $DBH-&gt;prepare(&quot;SELECT FLOOR(1000 + (RAND() * 2000))&quot;);<br>
+	$sth-&gt;execute;<br>
+	my $randnumber = $sth-&gt;fetchrow_arrayref();<br>
+	<br>
+	#执行extension 指令应答用户<br>
+	$AGI-&gt;exec(&quot;answer&quot;);<br>
+	#播放这个数<br>
+	$AGI-&gt;say_digits($randnumber-&gt;[0]);<br>
+	#挂机<br>
+	$AGI-&gt;hangup();<br>
+	<br>
+	exit;<br>
+	}<br>
+&nbsp;</div></p>
+	<p align="left">对这个程序进行语法测试,看看有没有写错的地方.</p>
+	<p align="left"><div id='code'>
+	<p align="left">perl -t /freeiris2/agimod/echo.dynamic</p>
+	<p align="left">如果没有返回任何东西表示正确</div></p>
+	<p align="left"><b>让extensions能执行到这个程序</b></p>
+	<ol>
+		<li>
+		<p align="left">登入freeiris2管理平台</p></li>
+		<li>
+		<p align="left">系统选项--&gt;高级设置--&gt;检索主通信文件--&gt;点击&quot;extensions_dianplan.conf&quot;</p>
+		</li>
+		<li>
+		<p align="left">[from-exten-sip]下面增加两句:exten =&gt; 
+		1234,1,AGI(agi://127.0.0.1/echo)</p></li>
+		<li>
+		<p align="left">保存</p></li>
+		<li>
+		<p align="left">使修改生效: 当前帐户--&gt;重启系统--&gt;重置系统</p></li>
+	</ol>
+	<p align="left"><b>测试效果</b></p>
+	<p align="left">打开你的软电话,拨号1234你会听到随机数了吧. 这就表示你编写的agispeedy程序正确得到运行了。</p>
+	<p align="left"><b>agispeedy程序的编写规则</b></p>
+	<p align="left">agispeedy请求资源</p>
+	<div id='code'>
+		<p align="left">exten =&gt; 
+		1234,1,AGI(agi://127.0.0.1/echo)</p>
+		<p align="left">exten =&gt; <i>xxx</i>,<i>x</i>,AGI(agi://127.0.0.1/程序名称?参数1=值1&amp;参数2=值2&amp;.......)</div></p>
+	<p align="left">当你向asterisk请求这个资源后，asterisk会向agispeedy发出请求.</p>
+	<p align="left">agispeedy会查找是否有叫这个echo的static如果没有会到目录agimod里找有没有echo.dynamic</p>
+	<p align="left">如果找到echo.dynamic会先检查是否存在sub echo_gpl_license(){return(&quot;my echo example&quot;);}
+	</p>
+	<p align="left">再查找是否存在sub echo入口函数。如果存在就执行这个函数，否则报错.</p>
+	<p align="left"><b>agispeedy的资源</b></p>
+	<table border="1" width="660" id="table1">
+		<tr>
+			<td width="274"><font color="#0000FF">my $self = shift;</font></td>
+			<td width="382">agispeedy对象</td>
+		</tr>
+		<tr>
+			<td width="274" height="23"><font color="#0000FF">my $AGI = $self-&gt;{server}{agi};</font></td>
+			<td width="382" height="23">Asterisk::AGI一般AGI对象<p>参考http://search.cpan.org/~jamesgol/asterisk-perl-0.10/lib/Asterisk/AGI.pm</td>
+		</tr>
+		<tr>
+			<td width="274"><font color="#0000FF">my $INPUT = 
+			$self-&gt;{server}{input};</font></td>
+			<td width="382">AGI输入参数hash数组引用，数据来自asterisk</td>
+		</tr>
+		<tr>
+			<td width="274"><font color="#0000FF">my $PARAM = $self-&gt;{server}{params};</font></td>
+			<td width="382">请求参数hash数组引用，数据来自 程序名称?参数1=值1&amp;参数2=值2</td>
+		</tr>
+		<tr>
+			<td width="274"><font color="#0000FF">my $FRI2CONF = 
+			$self-&gt;{server}-&gt;{fri2conf};</font></td>
+			<td width="382">Freeiris2主配置文件hash数组引用</td>
+		</tr>
+		<tr>
+			<td width="274"><font color="#0000FF">my $DBH = $self-&gt;database_pconnect();</font></td>
+			<td width="382">数据库DBI对象</td>
+		</tr>
+	</table>
+	<p align="left"><b>agispeedy的调试</b></p>
+	<p align="left">如果你想看到更多的agispeedy的调试数据。要先停止内存中的fri2d监视进程。</p>
+	<p align="left">/etc/init.d/fri2d stop</p>
+	<p align="left">手动执行agispeedy并且加上调试参数</p>
+	<p align="left">/freeiris2/bin/agispeedy --verbose</p>
+	<p align="left">这个时候系统就会显示出相关调试参数.</p>
+	<p align="left">如果你要在asterisk cli下调试。在cli下输入agi debug就可以看到调试信息。如果关闭就是agi no 
+	debug</p>
+ <p><a href="subversion.html">上一页</a>&nbsp;<a href="menu.html">目录导航</a>&nbsp;<a href="friextra.html">下一页</a></p>
+ </div>
+ </BODY>
+</HTML>

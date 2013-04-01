@@ -1,0 +1,93 @@
+这个程序是专门用来将PHP代码中，指定格式的注释转换成为HTML格式的文档
+
+在注释中两个FRIPAPER之间为目标数据集
+以@xxx为开头，后面的内容作为数据内容。
+任何@xxx之前的空格或格式都忽略掉
+
+--------------------------------------
+/*
+FRIPAPER
+
+	@param getall(extension_list)
+
+	            以下是参数说明
+
+	@item extension_list
+
+	获得extension_list的参数数据
+
+ENDPAPER
+*/
+--------------------------------------
+@param则读取当前以下的内容作为说明
+@item读取当前行作为标题，而以下内容作为说明
+任何说明数据的前空格或tab都忽略掉
+
+
+基本格式:
+
+@xxxx  标签
+<xxx>  格式修正
+
+标签名称:
+@author 作者名称(每个文件只读一次)
+@version 版本号(每个文件只读一次)
+@package 项目名称(每个文件只读一次)
+@description 项目说明(每个文件只读一次)
+	如果有内容表示为说明
+
+@name   当前名称
+
+	如果有内容表示为说明
+
+@synopsis
+
+	语法题纲
+
+@param  参数
+
+	如果有内容表示为说明
+
+	@item  表示param的item内容
+
+	如果有内容表示为说明
+
+@return 返回数据
+
+	如果有内容表示为说明
+
+	@item  表示param的item内容
+
+	如果有内容表示为说明
+
+格式名称:
+<b></b> 粗体
+<i></i> 斜体
+<u></u> 斜体
+<li></li> 列表
+<h1></h1> 通用于HTML的H1 同时也包括h2 h3 h4 h5 h6...
+<link src="url"></link> 超连接
+<code></code> 代码部分(保持格式处理)
+<key></key> 关键字
+
+
+TEMPLATE文件:
+fripaper使用smarty作为替换数据源，依照默认的html.tpl来进行数据更替生成html数据
+
+生成语法
+commandline 下运行这个程序
+
+fripaper <options> <sourcefile> <targetfolder>
+
+fripaper -t template.tpl /source /output
+
+
+fripaper -t html /tmp/source /tmp/output
+
+-t template.tpl 转换所需的template文件
+/tmp/source 需要生成的源文件目录
+/tmp/output 需要生成的目标文件目录
+
+
+
+生成文件为<sourcefile>.html 每个文件都是一个对等的html

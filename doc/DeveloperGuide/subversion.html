@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <TITLE> Freeiris2开发人员指南 HTML </TITLE>
+  <META NAME="Author" CONTENT="hoowa.sun">
+  <META NAME="Keywords" CONTENT="Freeiris2 development guide">
+  <link rel="stylesheet" title="" type="text/css" href="style.css">
+ </HEAD>
+
+ <BODY>
+ <div align="left">
+<H1>获得最新的开发版</H1>
+ </div>
+ <div align="center">
+ <p align="left"><b>subversion知识</b></p>
+	<p align="left">&nbsp; 如果想开发freeiris2第一步,就是要了解freeiris2的代码管理方式.&nbsp; 
+	subversion在国外开发界几乎家喻户晓, 而在国内，对很多人来讲是一个新名词.这里我们引用一些别人的资料来说明下什么是subversion. </p>
+	<p align="left">&nbsp; subversion(简称svn)是近年来崛起的版本管理软件，是cvs的接班人。目前，绝大多数开源软件都使用svn作为代码版本管理软件。</p>
+	<p align="left">&nbsp; 
+	Subversion是一个自由/开源的版本控制系统。也就是说，在Subversion管理下，文件和目录可以超越时空。也就是Subversion允许你数据恢复到早期版本，或者是检查数据修改的历史。正因为如此，许多人将版本控制系统当作一种神奇的“时间机器”。<br>
+	<br>
+&nbsp; 
+	Subversion的版本库可以通过网络访问，从而使用户可以在不同的电脑上进行操作。从某种程度上来说，允许用户在各自的空间里修改和管理同一组数据可以促进团队协作。因为修改不再是单线进行，开发速度会更快。此外，由于所有的工作都已版本化，也就不必担心由于错误的更改而影响软件质量—如果出现不正确的更改，只要撤销那一次更改操作即可。<br>
+&nbsp;</p>
+	<p align="left"><b>subversion基本指令</b></p>
+	<ul>
+		<li>
+		<p align="left">svn checkout http://opensource.0420.com/svn/freeiris2/trunk&nbsp;&nbsp; 
+		获得版本库最新版本</p></li>
+		<li>
+		<p align="left">svn checkout -r 200 http://opensource.0420.com/svn/freeiris2/trunk 
+		获得版本库中第200版的内容</p></li>
+		<li>
+		<p align="left">svn export http://opensource.0420.com/svn/freeiris2/trunk 
+		输出最新版(这个输出表示不包括任何svn信息,可以用来做发布,而不是开发者使用)</p></li>
+		<li>
+		<p align="left">svn status&nbsp; 查看文件变更状态(看看自己从标准版中改了什么)</p></li>
+		<li>
+		<p align="left">svn commit -m &quot;how do you change&quot;&nbsp; 
+		如果你有我们分配给你的帐号和密码，你就可以直接修改了</p></li>
+	</ul>
+	<p align="left">&nbsp; 版本库中不一定是最稳定的freeiris2版本，但是一定是最新的,而且可以得到历史版本的版本.</p>
+	<p align="left"><b>freeiris2的仓库信息</b></p>
+	<p align="left">&nbsp; freeiris2的仓库基本位置在http://opensource.0420.com/svn/freeiris2/.但是你不必要将整个仓库拿下来.我们对仓库中的命名有一定规律.</p>
+	<ul>
+		<li>
+		<p align="left"><b>trunk/&nbsp; 该目录是最新的,旗舰版,任何获得认可的改动都存放在这里.</b></p>
+		</li>
+		<li>
+		<p align="left"><b>branches/&nbsp; 
+		分支版,如果我们以后可能发布另外一个系列的版本，基于当前版本，那么那个版本将放在这个目录中</b></p></li>
+		<li>
+		<p align="left"><b>tags/ 
+		标签版,如果我们发布了一个正式版,为了区别正式版和最新版本，这个正式版将会被安放在tags中。比如tags/2.0</b></p></li>
+		<li>
+		<p align="left"><b>team/ 这个目录下，都是我们开发组成员，自己的分支版或自己的一些东西。比如team/hoowa&nbsp;&nbsp; 
+		team/cgi.net等等</b></p></li>
+	</ul>
+	<p align="left"><b>实战freeiris2仓库</b></p>
+	<p align="left">&nbsp; 我们假设你使用的是Centos 5.X系列系统，因为这个系列系统的svn版本跟服务器端是一样的。</p>
+	<p align="left">获得仓库数据的方法:</p>
+	<ul>
+		<li>
+		<p align="left">svn checkout http://opensource.0420.com/svn/freeiris2/trunk 
+		./freeiris2svn</p></li>
+		<li>
+		<p align="left">等待,等待一段时间，你就获得了最新的开发版.</p></li>
+		<li>
+		<p align="left">这个版本，拥有所有svn属性和信息,版本信息，可以帮助你更好的做二次开发等工作. 
+		如果你希望成为我们的一员,一定要学会svn的使用。推荐你下载svn-book.pdf 这个中文版的svn书.</p></li>
+	</ul>
+ <p><a href="introduction.html">上一页</a>&nbsp;<a href="menu.html">目录导航</a>&nbsp;<a href="agispeedy.html">下一页</a></p>
+ </div>
+ </BODY>
+</HTML>

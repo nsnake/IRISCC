@@ -1,0 +1,102 @@
+#!/bin/sh
+# $Id$
+#
+# chkconfig: 345 95 20
+# description: freeiris2 daemon
+# processname: fri2d
+# pidfile: /freeiris2/log/fri2d.pid
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@gmail.com>
+#
+#	See http://www.freeiris.org for more information about
+#	the Freeiris project.
+#
+#	This program is free software, distributed under the terms of
+#	the GNU General Public License Version 2. See the LICENSE file
+#	at the top of the source tree.
+#
+#	Freeiris2 -- 开源通信系统
+#	本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+#	请查阅LICENSE文件。
+#
+#
+
+# Installation directory
+FRI_SBIN=/freeiris2/bin
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+if ! [ -x $FRI_SBIN/fri2d.pl ] ; then
+        echo "ERROR: $FRI_SBIN/fri2d.pl not found"
+        exit 0
+fi
+
+# Full path to fri2d.pl
+DAEMON=$FRI_SBIN/fri2d.pl
+PIDFILE=/freeiris2/logs/fri2d.pid
+
+RETVAL=0
+
+start() {
+#	#check exists pid
+#	if [ -f ${PIDFILE} ]
+#	  then PID=`cat ${PIDFILE}`
+#	       if [ "X${PID}" != "X" ]
+#	       then dpflag=`ps ax|awk '{print $1}'|grep ${PID}`
+#		    if [ "X${dpflag}" != "X" ]
+#		    then
+#	              echo "fri2d.pl is already running at pid ${dpflag}."
+#	              exit 1
+#		    fi
+#	       fi
+#	 fi
+
+        # Start daemons.
+        echo -n $"Starting fri2d: "
+        daemon $DAEMON > /dev/null 
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && touch /var/lock/subsys/fri2d
+        echo
+        return $RETVAL
+}
+
+
+stop() {
+        # Stop daemons.
+        echo -n $"Shutting down fri2d.pl: "
+        killproc fri2d.pl
+        RETVAL=$?
+        [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/fri2d
+        echo
+        return $RETVAL
+}
+
+
+
+restart() {
+        stop
+	sleep 1
+        start
+}
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+        restart
+        ;;
+  *)
+        echo "Usage: fri2d {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
+

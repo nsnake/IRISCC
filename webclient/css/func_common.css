@@ -1,0 +1,136 @@
+/* html { filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1); } */
+
+* {
+	margin: 0;
+	padding: 0;
+}
+body { 
+	font-family: 微软雅黑, Trebuchet MS, Verdana, Arial, Helvetica, Lucida, sans-serif;
+	font-size: 10pt;
+}
+table { 
+	font-family: 微软雅黑, Trebuchet MS, Verdana, Arial, Helvetica, Lucida, sans-serif;
+	font-size: 10pt;
+}
+input text{
+	font-size: 100pt;
+	border: 1px solid #ACA8A1
+}
+h1, h2, h3, h4, h5, h6 {
+	font-family: 微软雅黑, Arial, sans-serif;
+	font: bold;
+	color: #062F51;
+}
+hr {
+	color: #BD0F25;
+}
+a {
+	font-weight: bold;
+	text-decoration: none;
+	color: #26549A
+}
+a:hover {
+	text-decoration: underline;
+	color: #D6184A
+}
+
+
+/*---------customed style----------------*/
+#btn1 {
+	color: #FFFFFF; 
+	position: relative; 
+	font-family: 微软雅黑, Trebuchet MS;
+	font-size: 12.5px;
+	font-weight:bold;
+	border: 1px solid #000000; 
+	padding-left: 8px; 
+	padding-right: 8px; 
+	padding-top: 1px; 
+	padding-bottom: 1px; 
+	background-color: #37678D
+}
+#btn2 {
+	color: #FFFFFF; 
+	position: relative; 
+	font-family: 微软雅黑, Trebuchet MS; 
+	font-size: 12.5px;
+	font-weight:bold;
+	border: 1px solid #000000; 
+	padding-left: 8px; 
+	padding-right: 8px; 
+	padding-top: 1px; 
+	padding-bottom: 1px; 
+	background-color: #BD0F25
+}
+#iptext1 {
+	border: 1px solid #ACA8A1;
+}
+
+#code {
+	font: normal;
+	border: 1px solid #CC3300;
+	background-color: #F4F8C7;
+	font-family: Fixedsys;
+}
+
+/* ---------->>> Tooltipmsg <<<---------------------------------------------------------------*/
+#tooltip {
+    position: absolute;
+    width: auto;
+    border: 1px solid #666;
+    background: #FFFFE1;
+    color: #FFF;
+    padding: 5px;
+}
+#tooltip h3, #tooltip div {
+    text-align: left;
+    font-size: 13px;
+    font-weight: normal;
+    margin: 0;
+}
+
+/* ---------->>> treeview <<<---------------------------------------------------------------*/
+.treeview, .treeview ul { 
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+
+.treeview ul {
+	background-color: white;
+	margin-top: 4px;
+}
+
+.treeview .hitarea {
+	background: url(../images/treeview-default.gif) -64px -25px no-repeat;
+	height: 16px;
+	width: 16px;
+	margin-left: -16px;
+	float: left;
+	cursor: pointer;
+}
+/* fix for IE6 */
+* html .hitarea {
+	display: inline;
+	float:none;
+}
+
+.treeview li { 
+	margin: 0;
+	padding: 3px 0pt 3px 16px;
+}
+
+.treeview a.selected {
+	background-color: #eee;
+}
+.treeview .hover { color: red; cursor: pointer; }
+
+.treeview li { background: url(../images/treeview-default-line.gif) 0 0 no-repeat; }
+.treeview li.collapsable, .treeview li.expandable { background-position: 0 -176px; }
+
+.treeview li.last { background-position: 0 -1766px }
+.treeview li.lastCollapsable, .treeview li.lastExpandable { background-image: url(../images/treeview-default.gif); }  
+.treeview li.lastCollapsable { background-position: 0 -111px }
+.treeview li.lastExpandable { background-position: -32px -67px }
+
+.filetree li { padding: 3px 0 2px 16px; }
