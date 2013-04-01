@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 #
 #	Freeiris2 -- An Opensource telephony project.
+#       Copyright (C) 2013, CGI.NET <loveme1314@gmail.com>
 #	Copyright (C) 2005 - 2009, Sun bing.
 #	Sun bing <hoowa.sun@gmail.com>
 #
@@ -28,7 +29,7 @@ use FindBin qw($Bin);
 my	$INPUT = STDIN;
 my	$OUTPUT = STDOUT;
 my	$ERRPUT = STDERR;
-my	$VERSION = 2.4;
+my	$VERSION = 2.5;
 
 #=================================================================
 # call command args
@@ -54,7 +55,7 @@ exit;
 sub help
 {
 print qq~
-  Freeiris2 Install Stage by hoowa sun $VERSION
+  Freeiris2 Install Stage by CGI.NET $VERSION
 
 syntax:
   install freeiris2  :    ./install.pl --install
@@ -77,8 +78,8 @@ my	$type = shift;
 	#---------------------------------------------------------------------------------------------------------prerequest checking
 	&println('error',"Your are not root") if ($< ne '0');
 	&println(undef,qq~
- Freeiris2 Install Stage by hoowa sun $VERSION
-sun bing <hoowa.sun\@freeiris.org>
+ Freeiris2 Install Stage by CGI.NET $VERSION
+CGI.NET <loveme1314\@gmail.com>
 ----------------------------------------------------------
 WARNING:
   This is free Open Source software.
@@ -97,17 +98,8 @@ my	%instvar=&prequest();
 #	print `cat $instvar{'install_target'}/contrib/rpmversion/alert`;
 	print qq~
 #==============================================#
-#     ______             _      _     ___      #
-#    |  ____|           (_)    (_)   |__ \\     #
-#    | |__ _ __ ___  ___ _ _ __ _ ___   ) |    #
-#    |  __| '__/ _ \\/ _ \\ | '__| / __| / /     #
-#    | |  | | |  __/  __/ | |  | \\__ \\/ /_     #
-#    |_|  |_|  \\___|\\___|_|_|  |_|___/____|    #
-#                                              #
-#==============================================#
-#    sun bing <hoowa.sun\@freeiris.org>         #
+#    CGI.NET <loveme1314\@gmail.com>           #
 #    www.freeiris.org                          #
-#    Fonoirs Co.,Ltd.                          #
 #==============================================#
 ~;
 
@@ -128,7 +120,7 @@ my	%instvar;
 
 	#检测是否centos5系列
 	} else {
-		if (`cat /etc/redhat-release` =~ /^CentOS release 5/) {
+		if (`cat /etc/redhat-release` =~ /^CentOS Linux release 6.0/) {
 			$instvar{'os'}='c5x';
 		} else {
 			$instvar{'os'}='redhat';
@@ -138,7 +130,7 @@ my	%instvar;
 	#检测是否关闭selinux
 	foreach  (split(/\n/,`cat /etc/sysconfig/selinux`)) {
 		if ($_ =~ /^SELINUX\=enforcing/) {
-			&println('error',"Your need to disable selinux ---> \'setup\'");
+			&println('error',"Your need to disable selinux by manual operation");
 		} elsif ($_ =~ /^SELINUX\=permissive/) {
 			&println('error',"Your need to disable selinux ---> \'setup\'");
 		}
@@ -166,10 +158,10 @@ my	%instvar;
 	#测试asterisk是否安装
 	&println('error',"Your need to install asterisk.") if (!-e"/usr/sbin/asterisk");
 	#测试asterisk-addons是否安装
-	&println('error',"Your need to install asterisk-addons.") if (!-e"/usr/lib/asterisk/modules/cdr_addon_mysql.so");
+	&println('error',"Your need to install asterisk-cdr_mysql.") if (!-e"/usr/lib/asterisk/modules/cdr_mysql.so");
 
 	#测试是否已经安装了
-	&println('error',"Your need to remove your old install, try to use 'install.pl --uninstall'") if (-d "/freeiris2/" || -e "/etc/init.d/hardware" || -e "/etc/init.d/fri2d");
+	&println('error',"Your need to remove your old install, try to use 'install.pl --uninstall'") if (-d "/freeiris2/" || -e "/etc/init.d/fri2d");
 
 	#启动检测部分
 my	$checkisrun;
