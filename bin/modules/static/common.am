@@ -1,0 +1,416 @@
+#-----------------------------------------------------------------
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@gmail.com>
+#
+#	See http://www.freeiris.org for more information about
+#	the Freeiris project.
+#
+#	This program is free software, distributed under the terms of
+#	the GNU General Public License Version 2. See the LICENSE file
+#	at the top of the source tree.
+#
+#	Freeiris2 -- 开源通信系统
+#	本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+#	请查阅LICENSE文件。
+#
+#-----------------------------------------------------------------
+#
+#  common function of agispeedy
+#
+#  Sun bing <hoowa.sun@gmail.com>
+#
+#-----------------------------------------------------------------
+
+# tell agispeedy this function
+sub common_gpl_license(){return("Common Function of agispeedy");}
+
+# main function
+sub common()
+{
+return(1);
+}
+
+
+#
+# internal function of system
+#
+#sub _callsession
+#{
+#my	$self = shift;
+#my	$newact = shift;
+#my	$newreturn = shift;
+#
+#	#export agispeedy object
+#my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+#my	$INPUT = $self->{server}{input};			#Extension input
+#my	$DBH = $self->database_pconnect();			#DBI object
+#
+#my	$sessionid = $AGI->get_variable('FRI2_SESSIONID');
+#
+#	# if new session
+#	if (!defined$sessionid) {
+#	my	($seconds, $microseconds) = gettimeofday;
+#		$sessionid = $seconds.$microseconds;
+#
+#	my	$routerline = $AGI->get_variable('FRI2_ROUTERLINE');
+#
+#		#SAVE TO DB
+#		$DBH->do("insert into callsession set id = '".$sessionid."', accountcode = '".$INPUT->{accountcode}."', cretime = now(), routerline='".$routerline."'")
+#			or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+#
+#		#SAVE TO Channel variables
+#		$AGI->exec('set','FRI2_SESSIONID='.$sessionid);	#save to current channel
+#		$AGI->exec('set','__FRI2_SESSIONID='.$sessionid);	#save to local sub channel
+#		$AGI->exec('set','CDR(userfield)='.$sessionid);	#save to cdr
+#
+#	}
+#
+#	#keep session
+#my	$upsql;
+#	if (defined$newact && $newact ne '') {
+#		$upsql .= "actions=CONCAT_WS('&',actions,'".$newact."') ,";
+#	}
+#	if (defined$newreturn && $newreturn ne '') {
+#		$upsql .= "returns=CONCAT_WS('&',returns,'".$newreturn."') ,";
+#	}
+#	if (defined$upsql && $upsql ne '') {
+#		chop($upsql);
+#		$DBH->do("update callsession set $upsql where id = '".$sessionid."'")
+#			or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+#	}
+#
+##RETURN BACK ID
+#return($sessionid);
+#}
+# 发启CALLSESSION,如果当前流程已经发起了则直接返回发起号.
+#
+# my	$MYCALLSESSION = $self->_callsession_start('动作名称');
+# $MYCALLSESSION->{'FRI2_CALLSESSION'} SESSION标识编号
+# $MYCALLSESSION->{'ACTID'}           当前动作分配的编号
+#
+sub _callsession
+{
+my	$self = shift;
+my	$function = shift;
+
+	#Agispeedy object
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+my	$INPUT = $self->{server}{input};			#Extension input
+my	$DBH = $self->database_pconnect();			#DBI object
+
+my	$sessionid = $AGI->get_variable('FRI2_SESSIONID');
+my	$cdruniqueid = $AGI->get_variable('CDR(uniqueid)');
+my	$actid = undef;
+
+	# 如果是新会话
+	if (!defined$sessionid || $sessionid eq '') {
+	my	($seconds, $microseconds) = gettimeofday;
+		$sessionid = $seconds.$microseconds;
+		$MYCALLSESSION{'FRI2_SESSIONID'}=$sessionid;
+
+		#SAVE TO DB
+		$DBH->do("insert into callsession set id = '".$sessionid.
+			"', accountcode = '".$INPUT->{accountcode}.
+			"', extension = '".$INPUT->{extension}.
+			"', callernumber = '".$INPUT->{callerid}.
+			"', cretime = now(), routerline='".$AGI->get_variable('FRI2_ROUTERLINE').
+			"', frist_cdruniqueid = '".$cdruniqueid."'")
+			or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+	}
+
+	#创建当前这个动作的ACTION记录
+	if (defined$function && $function ne '') {
+		$DBH->do("insert into callsession_acts set callsessionid = '".$sessionid."', cdruniqueid = '".$cdruniqueid.
+			"', function = '".$function."', acttime = now()") or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+	my	$sth = $DBH->prepare("select last_insert_id()");
+		$sth->execute;
+	my	$actidrow = $sth->fetchrow_arrayref();
+		$actid = $actidrow->[0];
+	}
+
+	#UPDATE TO Channel variables
+	$AGI->exec('set','FRI2_SESSIONID='.$sessionid);	#save to current channel
+	$AGI->exec('set','__FRI2_SESSIONID='.$sessionid);	#save to local sub channel
+	$AGI->exec('set','CDR(userfield)='.$sessionid.','.$cdruniqueid);	#save to cdr
+
+#RETURN BACK ID
+return({'FRI2_SESSIONID'=>$sessionid,'ACTID'=>$actid});
+}
+
+#
+# 设置CALLSESSION的变量记录.
+# $return = $self->_callsession_set($actid,'keyname','value')
+#
+# 注册变量,每个ACTION前四个注册的将分别被存储在0 1 2 3档位
+# 如果注册的新变量在四个中都不存在就将存储在extradata字段中(不具备更新功能).
+# 如果注册的新变量在四个中存在默认将更新已经存在的部分.
+# 注意大小写敏感
+#
+# $return 中包含的是存储位置,如果是extradata位置就为空
+#
+sub _callsession_set
+{
+my	$self = shift;
+my	$actid = shift;
+my	$keyname = shift;
+my	$value = shift || '';
+
+	#actid不能为空,并且keyname不能为空
+	return if ($keyname eq '' || $actid eq '');
+
+	#Agispeedy object
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+my	$DBH = $self->database_pconnect();			#DBI object
+
+my	$sessionid = $AGI->get_variable('FRI2_SESSIONID');
+	#sessionid不能为空,如果为空表示非会话期内
+	return if (!$sessionid || $sessionid eq '');
+
+
+my	$sth = $DBH->prepare("select var0key,var1key,var2key,var3key,extradata from callsession_acts where actid = '".$actid."'");
+	$sth->execute;
+my	$rowhref = $sth->fetchrow_hashref();
+	return if (!$rowhref);
+
+	#如果key0是空的或key0跟这个相等,表示0位置可用. 也就是说数据是顺序插入的,如果 0 2 3有数据 1 没有,那么以下判断公式就是错误的，无法实现覆盖.
+my	$savepos=undef;
+	if ($rowhref->{'var0key'} eq '' || $rowhref->{'var0key'} eq $keyname) {
+		$savepos=0;
+	} elsif ($rowhref->{'var1key'} eq '' || $rowhref->{'var1key'} eq $keyname) {
+		$savepos=1;
+	} elsif ($rowhref->{'var2key'} eq '' || $rowhref->{'var2key'} eq $keyname) {
+		$savepos=2;
+	} elsif ($rowhref->{'var3key'} eq '' || $rowhref->{'var3key'} eq $keyname) {
+		$savepos=3;
+	}
+
+	#存储到extradata中
+	if (!defined$savepos) {
+		$DBH->do("update callsession_acts set extradata=CONCAT_WS('&',extradata,'".
+			$keyname.'\='.$value."') where actid = '".$actid."'")
+			or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+	#存储
+	} else {
+		$DBH->do("update callsession_acts set var".$savepos."key = '".$keyname.
+			"', var".$savepos."value = '".$value."' where actid = '".$actid."'")
+			or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+	}
+
+return($savepos);
+}
+
+
+sub voicemail
+{
+my	$self = shift;
+my	$vmnumber = shift;
+
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+my	$INPUT = $self->{server}{input};			#Extension input
+my	$PARAM = $self->{server}{params};			#Call params
+my	$FRI2CONF = $self->{server}->{fri2conf};	#Freeiris2 general conf
+my	$DBH = $self->database_pconnect();			#DBI object
+
+	#create and get sessionid and set action
+#my	$FRI2_SESSIONID = $self->_callsession('action=voicemail','voicemail='.$vmnumber);
+my	$MYSESS = $self->_callsession('voicemail');
+my	$FRI2_SESSIONID = $MYSESS->{'FRI2_SESSIONID'};
+	$self->_callsession_set($MYSESS->{ACTID},'number',$vmnumber);
+
+	#如果没有号码
+	exit if ($vmnumber eq '');
+
+	#get asterisk conf
+my	(%ast_conf);
+	tie %ast_conf, 'Config::IniFiles', ( -file => $FRI2CONF->{general}{asterisketc}.'/asterisk.conf' );
+
+	#播放欢迎声音
+	$AGI->exec('playback','freeiris/voicemail');
+
+	#检测目录是否存在
+my	$vmfpath = $ast_conf{directories}{astspooldir}.'/voicemail/freeiris/'.$vmnumber;
+	if (!-d$vmfpath) {
+		mkdir($vmfpath);
+		chmod(0777,$vmfpath);
+	}
+
+	#检测文件是否超量,如果超量就删除掉最旧的
+my	$sth = $DBH->prepare("select count(*) from voicefiles where folder = '".$vmnumber."' and label = 'voicemail'");
+	$sth->execute;
+my	$row = $sth->fetchrow_arrayref();
+	$sth->finish;
+	if ($row->[0] >= $FRI2CONF->{voicemail}{usermax}) {
+
+		$sth = $DBH->prepare("select * from voicefiles where folder = '".$vmnumber.
+			"' and label = 'voicemail' order by cretime asc limit ".($row->[0] - $FRI2CONF->{voicemail}{usermax}));
+		$sth->execute;
+		while (my $eachrow = $sth->fetchrow_hashref()) {
+			$DBH->do("delete from voicefiles where id = '".$eachrow->{'id'}."'") 
+				or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+			unlink("$vmfpath/".$eachrow->{'filename'}.'.'.$eachrow->{'extname'});
+		}
+
+	}
+
+my	$unixtime = time();
+
+	#创建数据库记录
+	$DBH->do("insert into voicefiles set ".
+		"filename = '".'VM_'.$FRI2_SESSIONID.'_'.$unixtime.'_'.$INPUT->{'callerid'}."',".
+		"extname = 'WAV',".
+		"folder = '".$vmnumber."',".
+		"cretime = now(),".
+		"description = '',".
+		"label = 'voicemail',".
+		"associate = '".$FRI2_SESSIONID."',".
+		"args = '',".
+		"readonly = '0'")
+		or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+
+
+	#创建一个录音空文件并且设置其为666权限
+	open(VMF,">$vmfpath/VM_".$FRI2_SESSIONID.'_'.$unixtime.'_'.$INPUT->{'callerid'}.'.WAV') 
+		or die $self->logfile(4, 'Error to create voicemail file');
+	close(VMF);
+	chmod(0777,$vmfpath.'/VM_'.$FRI2_SESSIONID.'_'.$unixtime.'_'.$INPUT->{'callerid'}.'.WAV');
+
+	#进行录音处理
+	$AGI->exec('Record',$vmfpath.'/VM_'.$FRI2_SESSIONID.'_'.$unixtime.'_'.$INPUT->{'callerid'}.
+		'.WAV|'.$FRI2CONF->{voicemail}{silence}.'|'.$FRI2CONF->{voicemail}{maxduration});
+
+	$AGI->exec('playback','freeiris/vm-thankyou');
+
+return(1);
+}
+
+sub say_digit
+{
+my	$self = shift;
+my	$digit = shift;
+
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+
+	for (my $i=0;$i<=(length($digit)-1) ;$i++) {
+	my	$bit = substr($digit,$i,1);
+		$AGI->exec('playback','digits/'.$bit);
+	}
+
+return(1);
+}
+
+sub say_datetime
+{
+my	$self = shift;
+my	$type = shift;
+my	$string = shift;
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+
+	#YYYYMMDD HHMM
+	if ($type eq 'datetime' && length($string) == 13) {
+
+	my	$year = substr($string,0,4);
+	my	$mon = substr($string,4,2);
+	my	$day = substr($string,6,2);
+
+	my	$hour = substr($string,9,2);
+	my	$min = substr($string,11,2);
+	
+		$self->say_digit($year);
+		$AGI->exec('playback','digits/year');
+		$mon=~s/^0//;
+		$self->say_number($mon);
+		$AGI->exec('playback','digits/mon');
+		$day=~s/^0//;
+		$self->say_number($day);
+		$AGI->exec('playback','digits/day');
+		$hour=~s/^0//;
+		$self->say_number($hour);
+		$AGI->exec('playback','digits/hour');
+		$min=~s/^0//;
+		$self->say_number($min);
+		$AGI->exec('playback','digits/min');
+
+
+	#YYYYMMDD
+	#YYYYMM
+	#MMDD
+	} elsif ($type eq 'date') {
+
+		if (length($string)==8) {
+
+		my	$year = substr($string,0,4);
+		my	$mon = substr($string,4,2);
+		my	$day = substr($string,6,2);
+			$self->say_digit($year);
+			$AGI->exec('playback','digits/year');
+			$mon=~s/^0//;
+			$self->say_number($mon);
+			$AGI->exec('playback','digits/mon');
+			$day=~s/^0//;
+			$self->say_number($day);
+			$AGI->exec('playback','digits/day');
+
+		} elsif (length($string)==6) {
+
+		my	$year = substr($string,0,4);
+		my	$mon = substr($string,4,2);
+			$self->say_digit($year);
+			$AGI->exec('playback','digits/year');
+			$mon=~s/^0//;
+			$self->say_number($mon);
+			$AGI->exec('playback','digits/mon');
+
+		} elsif (length($string)==4) {
+
+		my	$mon = substr($string,0,2);
+		my	$day = substr($string,2,2);
+			$mon=~s/^0//;
+			$self->say_number($mon);
+			$AGI->exec('playback','digits/mon');
+			$day=~s/^0//;
+			$self->say_number($day);
+			$AGI->exec('playback','digits/day');
+
+		}
+
+	#HHMMSS
+	#HHMM
+	} elsif ($type eq 'time') {
+
+		if (length($string)==6) {
+
+		my	$hour = substr($string,0,2);
+		my	$min = substr($string,2,2);
+		my	$sec = substr($string,4,2);
+
+			$hour=~s/^0//;
+			$self->say_number($hour);
+			$AGI->exec('playback','digits/hour');
+			$min=~s/^0//;
+			$self->say_number($min);
+			$AGI->exec('playback','digits/min');
+			$sec=~s/^0//;
+			$self->say_number($sec);
+			$AGI->exec('playback','digits/sec');
+
+		} elsif (length($string)==4) {
+
+		my	$hour = substr($string,0,2);
+		my	$min = substr($string,2,2);
+
+			$hour=~s/^0//;
+			$self->say_number($hour);
+			$AGI->exec('playback','digits/hour');
+			$min=~s/^0//;
+			$self->say_number($min);
+			$AGI->exec('playback','digits/min');
+
+		}
+
+	}
+
+return(1);
+}
+

@@ -1,0 +1,859 @@
+#-----------------------------------------------------------------
+#
+#	Freeiris2 -- An Opensource telephony project.
+#	Copyright (C) 2005 - 2009, Sun bing.
+#	Sun bing <hoowa.sun@gmail.com>
+#
+#	See http://www.freeiris.org for more information about
+#	the Freeiris project.
+#
+#	This program is free software, distributed under the terms of
+#	the GNU General Public License Version 2. See the LICENSE file
+#	at the top of the source tree.
+#
+#	Freeiris2 -- 开源通信系统
+#	本程序是自由软件，以GNU组织GPL协议第二版发布。关于授权协议内容
+#	请查阅LICENSE文件。
+#
+#-----------------------------------------------------------------
+#
+#  freeiris2
+#
+#  Sun bing <hoowa.sun@gmail.com>
+#
+# IVRMENU 菜单进入口
+# agi://127.0.0.1/ivrmenu?ivrnumber=${EXTEN}
+# args:
+# ivrnumber  be not null
+# actpoint action id if null will begin frist
+#
+#-----------------------------------------------------------------
+
+# 说明主函数
+sub ivrmenu_gpl_license(){return("freeiris2 ivr menu system");}
+
+
+# 主函数
+#
+#
+sub ivrmenu
+{
+my	$self = shift;
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+my	$INPUT = $self->{server}{input};			#Extension input
+my	$PARAM = $self->{server}{params};			#Call params
+my	$FRI2CONF = $self->{server}->{fri2conf};	#Freeiris2 general conf
+my	$DBH = $self->database_pconnect();			#DBI object
+
+	#进入IVR系统必须以answer模式工作
+	$AGI->exec('answer');
+
+	#create and get sessionid and set action
+#my	$FRI2_SESSIONID = $self->_callsession('action=ivrmenu','ivrmenu='.$PARAM->{'ivrnumber'});
+my	$MYSESS = $self->_callsession('ivrmenu');
+my	$FRI2_SESSIONID = $MYSESS->{'FRI2_SESSIONID'};
+	$self->_callsession_set($MYSESS->{ACTID},'number',$PARAM->{'ivrnumber'});
+
+	#IVRMENU计数器14个就停止
+my	$FRI2_IVRMENU_ABT = $AGI->get_variable('FRI2_IVRMENU_ABT');
+	if (!defined$FRI2_IVRMENU_ABT) {
+		$AGI->exec('set','FRI2_IVRMENU_ABT=1');
+	} elsif ($FRI2_IVRMENU_ABT >= 14) {
+		#$self->_callsession(undef,'FRI2_IVRMENU_ABT='.$FRI2_IVRMENU_ABT);
+		$self->_callsession_set($MYSESS->{ACTID},'FRI2_IVRMENU_ABT',$FRI2_IVRMENU_ABT);
+		exit;
+	} else {
+		$AGI->exec('set','FRI2_IVRMENU_ABT='.($FRI2_IVRMENU_ABT+1));
+	}
+
+my	($sth);
+
+
+
+	#-------------------------------------------------------------查找本IVRMENU是否存在
+	$sth = $DBH->prepare("select * from ivrmenu where ivrnumber = '".$PARAM->{'ivrnumber'}."'");
+	$sth->execute;
+my	$ivrmenu_row = $sth->fetchrow_hashref();
+	$sth->finish;
+
+	#不存在这个IVRMENU
+	exit if (!$ivrmenu_row);
+
+
+
+	#-------------------------------------------------------------读出此IVRMENU的全部OPTMENU
+my	%OPTMENU;
+	$sth = $DBH->prepare("select * from ivruserinput where ivrnumber = '".$PARAM->{'ivrnumber'}."'");
+	$sth->execute;
+	while (my $row = $sth->fetchrow_hashref()) {
+		if ($row->{'general'} eq '1') {
+			#parser
+		my	%opt_args;
+			foreach  (split(/\&/,$row->{'general_args'})) {
+			my	($key,$value)=split(/\=/,$_);
+				$opt_args{$key}=$value;
+			}
+			$OPTMENU{$row->{'general_type'}}={
+					general_args=>\%opt_args,
+					gotoivrnumber=>$row->{'gotoivrnumber'},
+					gotoivractid=>$row->{'gotoivractid'}
+				};
+		} else {
+			$OPTMENU{$row->{'input'}}={
+					gotoivrnumber=>$row->{'gotoivrnumber'},
+					gotoivractid=>$row->{'gotoivractid'}
+				};
+		}
+	}
+	$sth->finish;
+
+
+	#查找处理FRI2_IVROPT_ADE累计错误数据
+my	$FRI2_IVROPT_ADE = $AGI->get_variable('FRI2_IVROPT_ADE');
+	if (!defined$FRI2_IVROPT_ADE) {#如果是新的
+		$AGI->exec('set','FRI2_IVROPT_ADE=1');
+
+	} elsif ($FRI2_IVROPT_ADE >= $OPTMENU{'retry'}{'general_args'}{'numberofretry'}) {#如果超过最大允许数量就跳转到指定IVR上并且停止当前
+		#$self->_callsession(undef,'FRI2_IVROPT_ADE='.$FRI2_IVROPT_ADE);
+		$self->_callsession_set($MYSESS->{ACTID},'FRI2_IVROPT_ADE',$FRI2_IVROPT_ADE);
+
+		$AGI->exec('set','FRI2_IVROPT_ADE=0');
+		$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$OPTMENU{'retry'}{'gotoivrnumber'}.'&actpoint='.$OPTMENU{'retry'}{'gotoivractid'});
+		exit;
+
+	} else {#如果没超过当前限制
+		$AGI->exec('set','FRI2_IVROPT_ADE='.($FRI2_IVROPT_ADE+1));
+	}
+
+
+
+	#-------------------------------------------------------------读出此IVRMENU的所有ACTION并且根据指定顺序进行执行
+my	$startDo=0;
+	$startDo=1 if (!defined$PARAM->{'actpoint'} || $PARAM->{'actpoint'} eq '');#从头开始
+
+	$sth = $DBH->prepare("select * from ivraction where ivrnumber = '".$PARAM->{'ivrnumber'}."' order by ordinal asc");
+	$sth->execute;
+	while (my $row = $sth->fetchrow_hashref()) {
+
+		#检测是否由此处开始
+		if ($startDo != 1 && $PARAM->{'actpoint'} == $row->{'id'}) {
+			$startDo=1;
+		}
+
+		#处理流程
+		if ($startDo == 1) {
+			$self->_ivrmenu_action_run($row,\%OPTMENU);
+		}
+
+	}
+	$sth->finish;
+
+
+
+	#-------------------------------------------------------------进入等待用户输入按键阶段
+	$self->_ivrmenu_userinput_run(\%OPTMENU);
+
+exit;
+}
+
+
+# 内部函数调用
+# IVR菜单动作处理
+sub _ivrmenu_action_run
+{
+my	$self = shift;
+my	$ACTION_REF = shift;
+my	$OPTMENU_REF = shift;
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+my	$FRI2CONF = $self->{server}->{fri2conf};	#Freeiris2 general conf
+my	$INPUT = $self->{server}{input};			#Extension input
+my	$DBH = $self->database_pconnect();			#DBI object
+
+	#invalid action
+	return() if (!defined$ACTION_REF || !$OPTMENU_REF || !$ACTION_REF->{'actmode'});
+
+	#create and get sessionid and set action
+#my	$FRI2_SESSIONID = $self->_callsession(undef,'ivraction='.$ACTION_REF->{'id'});
+my	$MYSESS = $self->_callsession('ivraction');
+my	$FRI2_SESSIONID = $MYSESS->{'FRI2_SESSIONID'};
+	$self->_callsession_set($MYSESS->{ACTID},'id',$ACTION_REF->{'id'});
+	$self->_callsession_set($MYSESS->{ACTID},'actmode',$ACTION_REF->{'actmode'});
+
+	#处理访问次数检测
+my	$FRI2_IVRACTION_ABT = $AGI->get_variable('FRI2_IVRACTION_ABT');
+	if (!defined$FRI2_IVRACTION_ABT) {
+		$AGI->exec('set','FRI2_IVRACTION_ABT=1');
+	} elsif ($FRI2_IVRACTION_ABT >= 42) {
+		#$self->_callsession(undef,'FRI2_IVRACTION_ABT='.$FRI2_IVRACTION_ABT);
+		$self->_callsession_set($MYSESS->{ACTID},'FRI2_IVRACTION_ABT',$FRI2_IVRACTION_ABT);
+		exit;
+	} else {
+		$AGI->exec('set','FRI2_IVRACTION_ABT='.($FRI2_IVRACTION_ABT+1));
+	}
+
+
+
+	#ACT的参数分析
+my	%act_args;
+	foreach  (split(/\&/,$ACTION_REF->{'args'})) {
+	my	($key,$value)=split(/\=/,$_);
+		$act_args{$key}=$value;
+	}
+
+	#get asterisk conf
+my	(%ast_conf);
+	tie %ast_conf, 'Config::IniFiles', ( -file => $FRI2CONF->{general}{asterisketc}.'/asterisk.conf' );
+
+# 动作分两类,一类动作执行完成后可以继续执行其他动作
+# 第二类动作执行完成后不可以继续执行其他动作
+
+#------------------------------------------------------------------------10    播放语音
+	if ($ACTION_REF->{'actmode'} eq '10') {
+		
+		#如果不interruptible模式
+		if ($act_args{'interruptible'} ne 'true') {
+
+			#START CALLSESSION RECORD
+			$self->_callsession_set($MYSESS->{ACTID},'playback','./'.$act_args{'folder'}.'/'.$act_args{'filename'});
+			#END CALLSESSION RECORD
+
+			$AGI->exec('playback','./'.$act_args{'folder'}.'/'.$act_args{'filename'});
+
+			return();
+
+		#如果是interruptible模式,连接到OPTMENU
+		} else {
+
+			#START CALLSESSION RECORD
+			$self->_callsession_set($MYSESS->{ACTID},'playback','./'.$act_args{'folder'}.'/'.$act_args{'filename'});
+			#END CALLSESSION RECORD
+
+		my	$currentinput = $AGI->get_data($act_args{'folder'}.'/'.$act_args{'filename'}, 1000, 1);
+
+			if (defined$currentinput && $currentinput ne '') {#如果用户进行了选择
+
+				#START CALLSESSION RECORD
+				$self->_callsession_set($MYSESS->{ACTID},'dtmf',$currentinput);
+				#END CALLSESSION RECORD
+
+				$self->_ivrmenu_userinput_run($OPTMENU_REF,$currentinput);
+				exit;
+			}
+
+			return();
+
+		}
+
+
+#------------------------------------------------------------------------11    发起录音
+	} elsif ($ACTION_REF->{'actmode'} eq '11') {
+		
+		#录音文件全称
+	my	$recordfilename = $INPUT->{'callerid'}.'_'.$FRI2_SESSIONID.'_'.time.'_'.$ACTION_REF->{'ivrnumber'}.'_'.$ACTION_REF->{'id'};
+
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'filename',$recordfilename);
+		#END CALLSESSION RECORD
+
+		#设置环境变量
+		$AGI->exec('set','FRI2_IVRRECORD_'.$act_args{'recordvarname'}.'='.$recordfilename);
+
+		#检测目录是否存在
+	my	$savepath = $ast_conf{directories}{astspooldir}."/ivrmenu/".$ACTION_REF->{'ivrnumber'};
+		if (!-d$savepath) {
+			mkdir($savepath);
+			chmod(0777,$savepath);
+		}
+
+		#检测文件是否超量,如果超量就删除掉最旧的
+	my	$sth = $DBH->prepare("select count(*) from voicefiles where folder = '".$ACTION_REF->{'ivrnumber'}."' and label = 'ivrmenu'");
+		$sth->execute;
+	my	$row = $sth->fetchrow_arrayref();
+		$sth->finish;
+		if ($row->[0] >= $FRI2CONF->{ivrmenu}{maxrecord}) {
+
+			$sth = $DBH->prepare("select * from voicefiles where folder = '".$ACTION_REF->{'ivrnumber'}.
+				"' and label = 'ivrmenu' order by cretime asc limit ".($row->[0] - $FRI2CONF->{ivrmenu}{maxrecord}));
+			$sth->execute;
+			while (my $eachrow = $sth->fetchrow_hashref()) {
+				$DBH->do("delete from voicefiles where id = '".$eachrow->{'id'}."'") 
+					or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+				unlink("$savepath/".$eachrow->{'filename'}.'.'.$eachrow->{'extname'});
+			}
+
+		}
+
+		#创建数据库记录
+		$DBH->do("insert into voicefiles set ".
+			"filename = '".$recordfilename."',".
+			"extname = 'WAV',".
+			"folder = '".$ACTION_REF->{'ivrnumber'}."',".
+			"cretime = now(),".
+			"description = '',".
+			"label = 'ivrmenu',".
+			"associate = '".$FRI2_SESSIONID."',".
+			"args = 'actpoint=".$ACTION_REF->{'id'}."',".
+			"readonly = '0'")
+			or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
+
+		#产生文件
+		open(VMF,">".$savepath.'/'.$recordfilename.'.WAV') or die $self->logfile(4, 'Error to create ivrmenu record voice file');
+		close(VMF);
+		chmod(0777,$savepath."/".$recordfilename.'.WAV');
+
+		#进行录音处理
+		$AGI->exec('Record',$savepath."/".$recordfilename.'.WAV|'.$FRI2CONF->{ivrmenu}{silence}.','.$FRI2CONF->{ivrmenu}{maxduration});
+
+		return();
+
+
+#------------------------------------------------------------------------12    播放录音
+	} elsif ($ACTION_REF->{'actmode'} eq '12') {
+
+	my	$recordfilename = $AGI->get_variable('FRI2_IVRRECORD_'.$act_args{'playbackvarname'});
+
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'filename',$recordfilename);
+		#END CALLSESSION RECORD
+
+		#找出文件路径
+	my	$sth = $DBH->prepare("select * from voicefiles where filename = '".$recordfilename."'");
+		$sth->execute;
+	my	$row = $sth->fetchrow_hashref();
+		$sth->finish;
+
+		if ($recordfilename && $recordfilename ne '') {
+			$AGI->exec('playback',$ast_conf{directories}{astspooldir}.'/ivrmenu/'.$row->{'folder'}.'/'.$recordfilename);
+		}
+
+		return();
+
+#------------------------------------------------------------------------20    录制0-9字符
+	} elsif ($ACTION_REF->{'actmode'} eq '20') {
+
+		#发生错误,maxdigits不能<=0
+		exit if ($act_args{'maxdigits'} <= 0);
+
+		#playback beep
+		$AGI->exec('playback',"beep") if ($act_args{'beepbeforereceive'} eq 'true');
+
+		#receive input
+	my	($receive);
+		# modify by hotplum
+		for (my $i=0;$i<=100 ;$i++) {
+		my	$char = $AGI->wait_for_digit(6000);
+		   #发现没有按键,认为超时,跳出循环 add by hotplum
+			unless ($char) {
+				last;
+			}
+			#发现输入#就表示终止输入
+			if ($char == 35) {
+				last;
+			}
+			#输入内容是否合法
+			if ($char > 0) {
+				$receive .= pack("C",$char);
+			}
+
+			last if (length($receive) == $act_args{'maxdigits'});
+		} 
+
+		if ($receive && length($receive) > 0) {
+			# add by hotplum
+			if ($act_args{'addbeforeuserinput'} eq 'true'){
+			my	$dtmfchar = $AGI->get_variable('FRI2_IVRTEXT_CHANNEL_DTMFCHAR');
+				$receive = $dtmfchar.$receive if (defined$dtmfchar);
+			}
+			# end add by hotplum
+			$AGI->exec('set','FRI2_IVRTEXT_'.$act_args{'receivevarname'}.'='.$receive);
+
+			#START CALLSESSION RECORD
+			$self->_callsession_set($MYSESS->{ACTID},'receivedtmf',$receive);
+			#END CALLSESSION RECORD
+		}
+
+		return();
+
+#------------------------------------------------------------------------21    读出0-9字符
+	} elsif ($ACTION_REF->{'actmode'} eq '21') {
+
+	my	$playback = $AGI->get_variable('FRI2_IVRTEXT_'.$act_args{'playbackvarname'});
+
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'say_digit',$playback);
+		#END CALLSESSION RECORD
+
+		if ($playback && $playback ne '') {#读出变量中的
+
+			$self->say_digit($playback);
+
+		} elsif ($act_args{'saydigits'} && $act_args{'saydigits'} ne '') {#读出设置的
+
+			$self->say_digit($act_args{'saydigits'});
+
+		}
+
+		return();
+
+#------------------------------------------------------------------------22    数字方式读出
+	} elsif ($ACTION_REF->{'actmode'} eq '22') {
+
+	my	$playback = $AGI->get_variable('FRI2_IVRTEXT_'.$act_args{'playbackvarname'});
+
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'say_number',$playback);
+		#END CALLSESSION RECORD
+
+		if ($playback && $playback ne '') {#读出变量中的
+
+			$self->say_number($playback);
+
+		} elsif ($act_args{'saydigits'} && $act_args{'saydigits'} ne '') {#读出设置的
+
+			$self->say_number($act_args{'saydigits'});
+
+		}
+
+		return();
+
+
+#------------------------------------------------------------------------30    读出日期时间
+	} elsif ($ACTION_REF->{'actmode'} eq '30') {
+	
+
+		#读出当前时间
+		if ($act_args{'saydatetime'} eq 'true') {
+
+		my	@localtime=localtime();
+			$localtime[5]+=1900;
+			$localtime[4]++;
+			$localtime[4]='0'.$localtime[4] if (length($localtime[4]) == 1);
+			$localtime[3]='0'.$localtime[3] if (length($localtime[3]) == 1);
+			$localtime[2]='0'.$localtime[2] if (length($localtime[2]) == 1);
+			$localtime[1]='0'.$localtime[1] if (length($localtime[1]) == 1);
+
+			$self->say_datetime('datetime',"$localtime[5]$localtime[4]$localtime[3] $localtime[2]$localtime[1]");
+
+			return();
+
+		#从变量中读出日期
+		} elsif ($act_args{'saydatefromvar'} ne '') {
+
+		my	$playback = $AGI->get_variable('FRI2_IVRTEXT_'.$act_args{'saydatefromvar'});
+
+			$self->say_datetime('date',$playback);
+
+			return();
+
+		#从变量中读出读出时间
+		} elsif ($act_args{'saytimefromvar'} ne '') {
+
+		my	$playback = $AGI->get_variable('FRI2_IVRTEXT_'.$act_args{'saytimefromvar'});
+
+			$self->say_datetime('time',$playback);
+
+			return();
+
+		#中读出日期
+		} elsif ($act_args{'saydatestring'} ne '') {
+
+			$self->say_datetime('date',$act_args{'saydatestring'});
+
+			return();
+
+		#读出指定时间
+		} elsif ($act_args{'saytimestring'} ne '') {
+
+			$self->say_datetime('time',$act_args{'saytimestring'});
+
+			return();
+
+		}
+
+		return();
+
+
+#------------------------------------------------------------------------31    检测日期
+	} elsif ($ACTION_REF->{'actmode'} eq '31') {
+
+	my	@localtime=localtime();
+		$localtime[5]+=1900;
+		$localtime[4]++;
+	my	($match);
+
+		#时间范围
+		if ($act_args{'timeall'} eq 'true') {
+			$match .= 'Y';
+		} else {
+
+			#如果跟开始时间是同一小时，并且跟结束时间是同一小时
+			if ($localtime[2] == $act_args{'from_hour'} && $localtime[2] == $act_args{'to_hour'}) {
+				#并且大于开始分钟小于结束分钟
+				if ($localtime[1] >= $act_args{'from_min'} && $localtime[1] <= $act_args{'to_min'}) {
+					$match .= 'Y';
+				}
+
+			#如果跟开始时间是同一小时
+			} elsif ($localtime[2] == $act_args{'from_hour'}) {
+				#并且大于开始分钟
+				if ($localtime[1] >= $act_args{'from_min'}) {
+					$match .= 'Y';
+				}
+
+			#如果跟结束时间是同一小时
+			} elsif ($localtime[2] == $act_args{'to_hour'}) {
+				#并且小于结束分钟
+				if ($localtime[1] <= $act_args{'to_min'}) {
+					$match .= 'Y';
+				}
+
+			#如果大于开始小时，小于结束小时
+			} elsif ($localtime[2] > $act_args{'from_hour'} && $localtime[2] < $act_args{'to_hour'}) {
+				$match .= 'Y';
+			}
+		}
+
+		#周期范围
+		if ($act_args{'weekall'} eq 'true') {
+			$match .= 'Y';
+
+		} else {
+			if ($localtime[6] >= $act_args{'from_week'} && $localtime[6] <= $act_args{'to_week'}) {
+				$match .= 'Y';
+			}
+		}
+
+		#日期范围
+		if ($act_args{'dayall'} eq 'true') {
+			$match .= 'Y';
+		} else {
+			if ($localtime[3] >= $act_args{'from_day'} && $localtime[3] <= $act_args{'to_day'}) {
+				$match .= 'Y';
+			}
+		}
+
+		#月份范围
+		if ($act_args{'monthall'} eq 'true') {
+			$match .= 'Y';
+		} else {
+			if ($localtime[4] >= $act_args{'from_month'} && $localtime[4] <= $act_args{'to_month'}) {
+				$match .= 'Y';
+			}
+		}
+
+		if ($match eq 'YYYY') {
+			$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$act_args{'gotoivr'}.'&actpoint='.$act_args{'actpoint'});
+			exit;
+		}
+
+		return();
+
+
+#------------------------------------------------------------------------40    主叫变换
+	} elsif ($ACTION_REF->{'actmode'} eq '40') {
+
+		#替换主叫号码
+		if ($act_args{'modify'} eq 'replace') {
+			$AGI->exec('set',"CALLERID(all)='$act_args{'altercallerid'}' <$act_args{'altercallerid'}>");
+
+		} elsif ($act_args{'modify'} eq 'append') {
+		my	$new = $INPUT->{'callerid'}.$act_args{'altercallerid'};
+			$AGI->exec('set',"CALLERID(all)='$new' <$new>");
+
+		} elsif ($act_args{'modify'} eq 'prepend') {
+		my	$new = $act_args{'altercallerid'}.$INPUT->{'callerid'};
+			$AGI->exec('set',"CALLERID(all)='$new' <$new>");
+
+		}
+
+		return();
+
+
+#------------------------------------------------------------------------41    拨打号码
+	} elsif ($ACTION_REF->{'actmode'} eq '41') {
+
+		#取得被叫
+	my	$dialvar = $AGI->get_variable('FRI2_IVRTEXT_'.$act_args{'dialvarname'});
+		$dialvar = $act_args{'dialdigits'} if ($act_args{'dialdigits'} && $act_args{'dialdigits'} ne '');
+
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'typeof',$act_args{'typeof'});
+		#END CALLSESSION RECORD
+
+		if ($dialvar && $dialvar ne '' && $act_args{'typeof'} ne 'extenrouter') {
+			#拨号前先分析这个号码是否本地号码.如果不是就进入条转IVR
+		my	$sth = $DBH->prepare("select * from localnumber where number = '".$dialvar."'");
+			$sth->execute;
+		my	$row = $sth->fetchrow_hashref();
+			$sth->finish;
+			#号码存在
+			if ($row->{'number'} && $row->{'number'} ne '') {
+
+				#START CALLSESSION RECORD
+				$self->_callsession_set($MYSESS->{ACTID},'number',$row->{'number'});
+				#END CALLSESSION RECORD
+
+				$AGI->exec('AGI','agi://127.0.0.1/dial_local?&typeof='.$act_args{'typeof'}.'&callednum='.$dialvar);
+				exit;
+
+			}
+			
+			#提示号码不存在
+			if ($act_args{'playbackinvalid'} && $act_args{'playbackinvalid'} eq 'true') {
+				$AGI->exec('playback','freeiris/invalid');
+			}
+
+			#号码不存在根据IVR跳转处理
+			if ($act_args{'gotoivr'} && $act_args{'gotoivr'} ne '') {
+				$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$act_args{'gotoivr'}.'&actpoint='.$act_args{'actpoint'});
+				exit;
+			}
+
+			exit;
+		
+		#直接送入拨出规则处理
+		} elsif ($dialvar && $dialvar ne '') {
+			$AGI->exec('GOTO','app-exten|'.$dialvar.'|1');
+			exit;
+		}
+
+		return();
+
+
+#------------------------------------------------------------------------42    跳转到语音信箱
+	} elsif ($ACTION_REF->{'actmode'} eq '42') {
+
+	my	$dialvar = $AGI->get_variable('FRI2_IVRTEXT_'.$act_args{'dialvarname'});
+		if ($act_args{'dialdigits'} && $act_args{'dialdigits'} ne '') {
+			$dialvar = $act_args{'dialdigits'};
+		}
+
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'typeof',$act_args{'typeof'});
+		$self->_callsession_set($MYSESS->{ACTID},'number',$dialvar);
+		#END CALLSESSION RECORD
+
+		if ($act_args{'typeof'} eq 'voicemail') {
+			$self->voicemail($dialvar);
+		} elsif ($act_args{'typeof'} eq 'digitalfax') {
+			$AGI->exec('goto','app-receivefax|'.$dialvar.'|1');
+			exit;
+		}
+
+		return();
+
+
+#------------------------------------------------------------------------43    跳转到IVR菜单
+	} elsif ($ACTION_REF->{'actmode'} eq '43') {
+
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'ivrnumber',$act_args{'gotoivr'});
+		$self->_callsession_set($MYSESS->{ACTID},'actpoint',$act_args{'actpoint'});
+		#END CALLSESSION RECORD
+
+		if ($act_args{'gotoivr'} && $act_args{'gotoivr'} ne '') {
+			$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$act_args{'gotoivr'}.'&actpoint='.$act_args{'actpoint'});
+			exit;
+		}
+
+		return();
+
+#------------------------------------------------------------------------44    WEB交互接口
+	} elsif ($ACTION_REF->{'actmode'} eq '44') {
+
+		#构造web http request对象
+		require LWP::UserAgent;
+		require URI::Escape;
+	my	$ua = LWP::UserAgent->new;
+
+		#timeout
+		if ($act_args{'urltimeout'} <= 10 || $act_args{'urltimeout'} =~ /[^0-9]/) {
+			$ua->timeout(10);
+		} else {
+			$ua->timeout($act_args{'urltimeout'});
+		}
+
+		#构造访问地址{包括设置变量}
+		$act_args{'urlargs'} = &URI::Escape::uri_unescape($act_args{'urlargs'});
+		foreach  (($act_args{'urlargs'} =~ /\$([a-zA-Z0-9]+)/g)) {
+			#AGI环境变量
+			if ($INPUT->{$_}) {	
+				$act_args{'urlargs'} =~ s/\$$_/$INPUT->{$_}/;
+			#CALLSESSIONID专用变量
+			} elsif ($_ eq 'callsessionid') {
+				$act_args{'urlargs'} =~ s/\$$_/$FRI2_SESSIONID/;
+			#自定义变量(TEXT模式)
+			} elsif ($_ ne '') {
+				my	$userdefined = $AGI->get_variable('FRI2_IVRTEXT_'.$_);
+				$act_args{'urlargs'} =~ s/\$$_/$userdefined/ if (defined$userdefined);
+			}
+		}
+	my	$url = &URI::Escape::uri_unescape($act_args{'urlvar'}).'?'.$act_args{'urlargs'};
+
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'url',$url);
+		#END CALLSESSION RECORD
+
+		#发去请求(#如果请求成功)
+	my	$response = $ua->get($url);
+		if ($response->is_success) {
+
+		my	%response_var;
+			foreach  (split(/\&/,$response->content)) {
+			my	($key,$value)=split(/\=/,$_);
+				chomp($key);
+				chomp($value);
+				$key = &URI::Escape::uri_unescape($key);
+				$value = &URI::Escape::uri_unescape($value);
+				next if (!$key || $key eq '');
+				$response_var{$key}=$value;
+				#设置变量传入
+				if ($key ne 'status') {
+					$AGI->exec('set','FRI2_IVRTEXT_'.$key.'='.$value);
+				}
+			}
+
+			#返回内容不符合规范
+			if (!$response_var{'status'} || ($response_var{'status'} ne 'done' && $response_var{'status'} ne 'failed')) {
+				$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$act_args{'other_gotoivr'}.'&actpoint='.$act_args{'other_actpoint'});
+				exit;
+			
+			#返回失败
+			} elsif ($response_var{'status'} eq 'failed') {
+				$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$act_args{'failed_gotoivr'}.'&actpoint='.$act_args{'failed_actpoint'});
+				exit;
+		
+			#返回成功
+			} else {
+				$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$act_args{'done_gotoivr'}.'&actpoint='.$act_args{'done_actpoint'});
+				exit;
+			}
+
+		#请求失败
+		} else {
+			if ($act_args{'other_gotoivr'} && $act_args{'other_gotoivr'} ne '') {
+				$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$act_args{'other_gotoivr'}.'&actpoint='.$act_args{'other_actpoint'});
+				exit;
+			}
+		}
+
+#------------------------------------------------------------------------45    AGI扩展接口
+	} elsif ($ACTION_REF->{'actmode'} eq '45') {
+
+		require URI::Escape;
+	 my	$uri = &URI::Escape::uri_unescape($act_args{'agi'});
+	        
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'agi',$act_args{'agi'});
+		#END CALLSESSION RECORD
+
+		if ($uri =~ /^agi/i){
+		    $uri .= '?' if $uri !~ /\?/;
+		    $AGI->exec('AGI',$uri.'&ordinal='.$ACTION_REF->{'ordinal'}.'&ivrnumber='.$ACTION_REF->{'ivrnumber'}.'&id='.$ACTION_REF->{'id'});
+		}
+		else{$uri =~ s/\+$//; 
+		     $AGI->exec('AGI',$uri);
+		    }
+
+	 exit;
+
+#------------------------------------------------------------------------80    等待几秒
+	} elsif ($ACTION_REF->{'actmode'} eq '80') {
+
+		return() if ($act_args{'wait'} =~ /[^0-9]/ || $act_args{'wait'} < 1);
+
+		#START CALLSESSION RECORD
+		$self->_callsession_set($MYSESS->{ACTID},'wait',$act_args{'wait'});
+		#END CALLSESSION RECORD
+
+		#如果不interruptible模式
+		if ($act_args{'interruptible'} ne 'true') {
+
+			$AGI->exec('wait',$act_args{'wait'});
+
+			return();
+
+		#如果是interruptible模式,连接到OPTMENU
+		} else {
+
+		my	$char = $AGI->wait_for_digit($act_args{'wait'}.'000');
+			if ($char && $char > 0) {
+				$self->_ivrmenu_userinput_run($OPTMENU_REF,pack("C",$char));
+				exit;
+			}
+
+			return();
+
+		}
+
+		return();
+
+#------------------------------------------------------------------------81    播放音调
+	} elsif ($ACTION_REF->{'actmode'} eq '81') {
+
+		return() if ($act_args{'sec'} =~ /[^0-9]/ || $act_args{'sec'} < 1);
+
+		$AGI->exec('playtones',$act_args{'playtone'});
+		$AGI->exec('wait',$act_args{'sec'});
+		$AGI->exec('StopPlaytones');
+
+		return();
+
+
+#------------------------------------------------------------------------99    挂机
+	} elsif ($ACTION_REF->{'actmode'} eq '99') {
+
+		$AGI->hangup();
+		exit;
+
+	}
+
+
+exit;
+}
+
+# 执行optmenu指令
+# 接受参数$inputed
+sub _ivrmenu_userinput_run
+{
+my	$self = shift;
+my	$OPTMENU_REF = shift;
+my	$USERINPUTED = shift;
+my	$AGI = $self->{server}{agi};				#Asterisk::AGI object
+
+	#create and get sessionid and set action
+my	$MYSESS = $self->_callsession('ivrmenu_userinput');
+my	$FRI2_SESSIONID = $MYSESS->{'FRI2_SESSIONID'};
+	$self->_callsession_set($MYSESS->{ACTID},'dtmf',$USERINPUTED);
+
+	#未输入
+	if (!defined$USERINPUTED || $USERINPUTED eq '') {
+		$AGI->set_music('on','default');
+	my	$userinput_ascii = $AGI->wait_for_digit($OPTMENU_REF->{'timeout'}{'general_args'}{'timeout'}.'000');
+		$AGI->set_music('off','default');
+
+		#通道错误
+		exit if (!defined$userinput_ascii || $userinput_ascii == -1);
+
+		#输入超时
+		if ($userinput_ascii == 0) {
+			$AGI->exec('playback',$OPTMENU_REF->{'timeout'}{'general_args'}{'folder'}.'/'.$OPTMENU_REF->{'timeout'}{'general_args'}{'filename'});
+			$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$OPTMENU_REF->{'timeout'}{'gotoivrnumber'}.'&actpoint='.$OPTMENU_REF->{'timeout'}{'gotoivractid'});
+			exit;
+		}
+		$USERINPUTED = pack("C",$userinput_ascii);
+	}
+
+	#测试选择按键内容
+	if (!defined$OPTMENU_REF->{$USERINPUTED}) {
+		$AGI->exec('playback',$OPTMENU_REF->{invalid}{general_args}{folder}.'/'.$OPTMENU_REF->{invalid}{general_args}{filename});
+		$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$OPTMENU_REF->{invalid}{gotoivrnumber}.'&actpoint='.$OPTMENU_REF->{invalid}{gotoivractid});
+		exit;
+	}
+    #将USERINPUTED 存入通道变量 add by hotplum
+	$AGI->exec('set','FRI2_IVRTEXT_CHANNEL_DTMFCHAR='.$USERINPUTED);
+	#跳转到所指定的IVR菜单中进行处理
+	$AGI->exec('AGI','agi://127.0.0.1/ivrmenu?ivrnumber='.$OPTMENU_REF->{$USERINPUTED}{gotoivrnumber}.'&actpoint='.$OPTMENU_REF->{$USERINPUTED}{gotoivractid});
+
+exit;
+}
