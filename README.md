@@ -34,5 +34,6 @@ documentation can be found in the doc/ folder.
 
 For additional features, and plugs please see also http://www.freeiris.org
 
-Xu Hao <loveme1314@gmail.com>     2013
-sun bing <hoowa.sun@freeiris.org> 
+Xu Hao <loveme1314@gmail.com>     Copyright © 2013
+
+sun bing <hoowa.sun@freeiris.org> Copyright © 2005-2012
