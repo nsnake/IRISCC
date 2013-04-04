@@ -67,11 +67,11 @@ my	$sth = $DBH->prepare("select * from trunk where id = '".$PARAM->{'trunkid'}."
 my	$row = $sth->fetchrow_hashref();
 	$sth->finish;
 	if ($row->{trunkproto} eq 'custom') {
-		$AGI->exec('dial',$row->{trunkdevice}.'/'.$PARAM->{'callednum'}.'|'.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.'|'.$def_dialargs);
+		$AGI->exec('dial',$row->{trunkdevice}.'/'.$PARAM->{'callednum'}.','.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.','.$def_dialargs);
 	} elsif ($row->{trunkproto} eq 'dahdi') {
-		$AGI->exec('dial','DAHDI/R'.$row->{trunkdevice}.'/'.$PARAM->{'callednum'}.'|'.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.'|'.$def_dialargs);
+		$AGI->exec('dial','DAHDI/R'.$row->{trunkdevice}.'/'.$PARAM->{'callednum'}.','.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.','.$def_dialargs);
 	} else {
-		$AGI->exec('dial',$row->{trunkproto}.'/'.$row->{trunkdevice}.'/'.$PARAM->{'callednum'}.'|'.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.'|'.$def_dialargs);
+		$AGI->exec('dial',$row->{trunkproto}.'/'.$row->{trunkdevice}.'/'.$PARAM->{'callednum'}.','.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.','.$def_dialargs);
 	}
 
 exit;
