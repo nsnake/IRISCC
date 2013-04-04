@@ -104,11 +104,11 @@ my	($def_typeof,$def_voicemail,$def_dialargs);
 	my	$row = $sth->fetchrow_hashref();
 		$sth->finish;
 		if ($row->{deviceproto} eq 'custom') {
-			$AGI->exec('dial',$row->{devicestring}.'|'.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.'|'.$def_dialargs);
+			$AGI->exec('dial',$row->{devicestring}.','.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.','.$def_dialargs);
 		} elsif ($row->{deviceproto} eq 'fxs') {
-			$AGI->exec('dial','DAHDI/'.$row->{devicestring}.'|'.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.'|'.$def_dialargs);
+			$AGI->exec('dial','DAHDI/'.$row->{devicestring}.','.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.','.$def_dialargs);
 		} else {
-			$AGI->exec('dial',$row->{deviceproto}.'/'.$row->{devicestring}.'|'.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.'|'.$def_dialargs);
+			$AGI->exec('dial',$row->{deviceproto}.'/'.$row->{devicestring}.','.$FRI2CONF->{'fastagi'}{'dial_ringtime'}.','.$def_dialargs);
 		}
 
 		#检测是否呼叫失败
@@ -133,7 +133,7 @@ my	($def_typeof,$def_voicemail,$def_dialargs);
 		if ($row->{'mohwhenonlyone'} eq '1') {
 			$meetopt.='M';
 		}
-		$AGI->exec('MeetMe',$row->{'confno'}.'|'.$meetopt.'|'.$row->{'pincode'});
+		$AGI->exec('MeetMe',$row->{'confno'}.','.$meetopt.','.$row->{'pincode'});
 
 	#呼叫队列会议类型分机
 	} elsif ($row->{'typeof'} eq 'queue' && ($def_typeof eq 'queue' || $def_typeof eq '')) {
@@ -152,7 +152,7 @@ my	($def_typeof,$def_voicemail,$def_dialargs);
 			$opt.='r';
 		}
 
-		if ($AGI->exec('Queue',$row->{'queuenumber'}.'|'.$opt.'||'.$row->{'announce'}.'|'.$row->{'queuetimeout'}.'|'.'agi://127.0.0.1/queue_answeragent?saymember='.$row->{'saymember'})) {
+		if ($AGI->exec('Queue',$row->{'queuenumber'}.','.$opt.'||'.$row->{'announce'}.','.$row->{'queuetimeout'}.','.'agi://127.0.0.1/queue_answeragent?saymember='.$row->{'saymember'})) {
 		#无人接通
 		} elsif ($row->{'failedon'} ne '') {
 			$AGI->exec('AGI','agi://127.0.0.1/dial_local?&typeof=extension&dialargs=tk&callednum='.$row->{'failedon'});
