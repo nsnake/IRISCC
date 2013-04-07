@@ -139,12 +139,16 @@ chkconfig --level 345 mysqld on
 	其他2.6.X的Linux, 未经过测试,并且系统可能需要经过修改.其中请确保Perl版本在5.10及以上<br>
 	<br>
 	以下说明都以Centos6为例<br>
-	<br>
-	<font color="#FF0000">安装依赖包:</font><br>
-	</font>    
-	<font face="微软雅黑">
-	<pre id='code'>	
-yum install kernel-devel httpd mysql-server mysql mysql-devel php php-mysql perl libdbi-dbd-mysql perl-libwww-perl php-process
+	<font color="#FF0000">关闭SELINUX：</font></font> <font face="微软雅黑"><br>
+	  <pre id='code'>	
+sed -i s/SELINUX=enforcing/SELINUX=disabled/g /etc/selinux/config
+	</pre>	
+    
+    <font color="#FF0000">安装依赖包:</font><br>
+    </font>    
+ <font face="微软雅黑">
+ <pre id='code'>	
+yum install -y make wget openssl-devel ncurses-devel  newt-devel libxml2-devel kernel-devel gcc gcc-c++  httpd mysql-server mysql mysql-devel php php-mysql perl libdbi-dbd-mysql perl-libwww-perl php-process
 	</pre>	
 	建议依赖包安装完成后重新启动一次系统<br>
 	<br>
@@ -156,7 +160,7 @@ yum install kernel-devel httpd mysql-server mysql mysql-devel php php-mysql perl
 wget &quot;http://downloads.asterisk.org/pub/telephony/dahdi-linux-complete/dahdi-linux-complete-current.tar.gz&quot;
 tar zxvf dahdi-linux-complete-current.tar.gz
 cd dahdi-linux-complete-xxx
-make all
+make
 make install
 make config
 /etc/init.d/dahdi start
@@ -184,7 +188,7 @@ make config
 
 	</pre>
 	<font color="#FF0000">注意!!!!!!!!!!!!!!!!!!!!!!!!!!!<br>
-	make menuselect时请勾选cdr_mysql选项。另外请确保你已经安装过mysql-devel<br>
+	make menuselect时请勾选cdr_mysql选项<br>
 	</font><br>
 <!-- 	<br>
 	<font color="#0000FF"><b>安装g729 g723的语音编码:</b></font><br>
@@ -235,15 +239,6 @@ WARNING:
 `/freeiris2//contrib/init.d/fri2d' -> `/etc/init.d/fri2d'
 `/freeiris2//contrib/init.d/hardware' -> `/etc/init.d/hardware'
 
-
-#==============================================#
-#     ______             _      _     ___      #
-#    |  ____|           (_)    (_)   |__ \     #
-#    | |__ _ __ ___  ___ _ _ __ _ ___   ) |    #
-#    |  __| '__/ _ \/ _ \ | '__| / __| / /     #
-#    | |  | | |  __/  __/ | |  | \__ \/ /_     #
-#    |_|  |_|  \___|\___|_|_|  |_|___/____|    #
-#                                              #
 #==============================================#
 #    sun bing &lt;hoowa.sun@freeiris.org&gt;         #
 #    www.freeiris.org                          #

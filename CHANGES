@@ -3,7 +3,9 @@ Freeiris2 - 4.0 b
 安装: 安装系统最小为Centos6
 配置: 开启Asterisk TCP支持
 配置: 支持Asterisk 1.8+
-
+更新：使用agiengine替换agispeedy模块
+FIX:  在agiengine开启严格模式下部分模块的警告
+FIX： PHP 5.3+以上web页面显示源码
 
 ======================================================================
 ===
