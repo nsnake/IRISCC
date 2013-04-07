@@ -302,7 +302,7 @@ my	(%ast_conf);
 		chmod(0777,$savepath."/".$recordfilename.'.WAV');
 
 		#进行录音处理
-		$AGI->exec('Record',$savepath."/".$recordfilename.'.WAV|'.$FRI2CONF->{ivrmenu}{silence}.'|'.$FRI2CONF->{ivrmenu}{maxduration});
+		$AGI->exec('Record',$savepath."/".$recordfilename.'.WAV|'.$FRI2CONF->{ivrmenu}{silence}.','.$FRI2CONF->{ivrmenu}{maxduration});
 
 		return();
 

@@ -451,22 +451,6 @@ my	@cdr_mysql=<SDV>;
 	}
 	close(SDV);
 
-	#---------------安装G.723和G.729专利算法并且提示警告
-my	$process_type = `cat /proc/cpuinfo`;
-	if ($process_type =~ /(AMD|Amd|INTEL|Intel)/) {
-		if ($process_type !~ /Geode/) {
-			&println('response',"install G.729 G.723.1 Binary files");
-			print `cat $setvar{'install_target'}/contrib/codec/LICENSE`;
-			system("cp -af ".$setvar{'install_target'}."/contrib/codec/codec_g723-ast14-gcc4-glibc-pentium3.so /usr/lib/asterisk/modules/") 
-				if (!-e"/usr/lib/asterisk/modules/codec_g723-ast14-gcc4-glibc-pentium3.so");
-			system("cp -af ".$setvar{'install_target'}."/contrib/codec/codec_g729-ast14-gcc4-glibc-pentium3.so /usr/lib/asterisk/modules/")
-				if (!-e"/usr/lib/asterisk/modules/codec_g729-ast14-gcc4-glibc-pentium3.so");
-		} else {
-			&println('response',"skip to install Codec because not complated whit your processor");
-		}
-	} else {
-			&println('response',"skip to install Codec because not complated whit your processor");
-	}
 
 	#---------------设置为html默认页
 #	&println('input',"Set to html default(yes/no)?");

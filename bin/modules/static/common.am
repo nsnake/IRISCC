@@ -155,7 +155,7 @@ sub _callsession_set
 my	$self = shift;
 my	$actid = shift;
 my	$keyname = shift;
-my	$value = shift;
+my	$value = shift || '';
 
 	#actid不能为空,并且keyname不能为空
 	return if ($keyname eq '' || $actid eq '');
