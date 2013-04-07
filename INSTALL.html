@@ -33,32 +33,35 @@
 	<h2><font face="微软雅黑" color="#0000FF">安装</font></h2>
 	<p><font face="微软雅黑"><font color="#FF0000">警告 : </font><br>
 	1. Freeiris2目前不适合在WIN下安装和开发, 客户端部分webclient/目录可以单独被安装在win下请自己研究.<br>
-	2. Freeiris2是一类专业系统,如果没有相关专业知识请不要尝试安装使用<br>
+	2. Freeiris2是一类专业系统,使用本系统可能需要你具有一定的VOIP基础知识<br>
 	3. 因为可能导致文件权限出错,请不要在windows下解压缩文件.<br>
-	4. 如果遇到问题请访问网站中的讨论组进行讨论,无论什么时候开发组成员都不会回答任何关于使用问题的Email或咨询.<br>
+	4. 如果遇到问题请到freeiris的论坛进行讨论,为了更好的帮助其它人，请不要随意的私密开发人员为你解决问题（需要商业技术支持服务的除外）.<br>
 	5. 如果不是Linux专家请安装前关闭系统的selinux和firewall防止IP数据无法穿透.<br>
 &nbsp;</font></p>
 	<h2><font face="微软雅黑" color="#0000FF">目前系统安装方式</font></h2>
-	<p><font face="微软雅黑">
-	<ul>
-		<li>第一种方式、光盘版安装——适合独立安装新系统(仅用于测试和演示)
-			<ol>
-				<li>&nbsp;&nbsp;&nbsp;&nbsp;<font face="微软雅黑"><a href="http://www.freeiris.org" target="_blank">请访问网站直接下载光盘版安装包并且刻录光盘进行安装</a></font></li>
+	<p>
+ <ul>
+		<li><font face="微软雅黑">第一种方式、光盘版——适合需要体验的用户(该版本的内容过于陈旧，仅供演示)
+			</font>
+		  <ol>
+				<li><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.freeiris.org" target="_blank">请访问网站直接下载光盘版安装包并且刻录光盘进行安装</a></font></li>
 			</ol>
 		</li>
-<!-- 		<li>第二种方式、采用RPM包的免编译安装方法——适合在现有系统进行集成
+<font face="微软雅黑"><!-- 		<li>第二种方式、采用RPM包的免编译安装方法——适合在现有系统进行集成
 			<ol>
 				<li>&nbsp;&nbsp;&nbsp;&nbsp;<font face="微软雅黑"><a href="#inst_yum">YUM自动安装基本系统</a></font></li>
 				<li>&nbsp;&nbsp;&nbsp;&nbsp;<font face="微软雅黑"><a href="#inst_fri2">安装Freeiris2安装包</a></font></li>
 			</ol>
 		</li> -->
-		<li>第二种方式、采用全程源代码编译安装方法——可以订制更详细的内容，适合高级用户
-			<ol>
-				<li>&nbsp;&nbsp;&nbsp;&nbsp;<font face="微软雅黑"><a href="#inst_src">全程编译安装基本系统</a></font></li>
-				<li>&nbsp;&nbsp;&nbsp;&nbsp;<font face="微软雅黑"><a href="#inst_fri2">安装Freeiris2安装包</a></font></li>
+		</font>
+<li><font face="微软雅黑">第二种方式、源代码安装(可以保持最新的系统)
+			</font>
+  <ol>
+			  <li><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;<a href="#inst_src">全程编译安装基本系统</a></font></li>
+				<li><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;<a href="#inst_fri2">安装Freeiris2安装包</a></font></li>
 			</ol>
 		</li>
-	</ul>
+	</ul><font face="微软雅黑">
 	<br>
 	<br>
 &nbsp;</font></p>
@@ -130,17 +133,16 @@ chkconfig --level 345 mysqld on
 	<br>
 &nbsp;</font></p> -->
 	<h3><font face="微软雅黑" color="#0000FF"><a name="#inst_src">全程编译安装基本系统:</a></font></h3>
-	<p><font face="微软雅黑">本安装方法适合高级使用者,从代码进行安装.<br>
-	<br>
-	<br>
-	<font color="#FF0000">需要环境:</font><br>
-	Centos 5.X (Best is >= Centos 5.3)<br>
+	<p><font face="微软雅黑"><font color="#FF0000">系统环境:</font><br>
+	Centos 6.X 及以上版本<br>
 	Redhat类操作系统(Centos、Fedora、Redhat)都可以,但未经过测试.<br>
-	其他2.6.X的Linux, 未经过测试,并且系统可能需要经过修改.<br>
+	其他2.6.X的Linux, 未经过测试,并且系统可能需要经过修改.其中请确保Perl版本在5.10及以上<br>
 	<br>
-	以下说明都以Centos 5.6为例<br>
+	以下说明都以Centos6为例<br>
 	<br>
 	<font color="#FF0000">安装依赖包:</font><br>
+	</font>    
+	<font face="微软雅黑">
 	<pre id='code'>	
 yum install kernel-devel httpd mysql-server mysql mysql-devel php php-mysql perl libdbi-dbd-mysql perl-libwww-perl php-process
 	</pre>	
@@ -151,8 +153,8 @@ yum install kernel-devel httpd mysql-server mysql mysql-devel php php-mysql perl
 	<br>
 	<font color="#0000FF"><b>安装dahdi驱动(A1200P板卡用户要自己打patch请咨询openvox公司,如果要安装oslec回音消除也请参考资料):</b></font><br>
 	<pre id='code'>	
-wget &quot;http://www.freeiris.org/download/down.php?target=asterisk&amp;obj=&amp;file=dahdi-linux-complete-2.5.0.2%2B2.5.0.2.tar.gz&quot;
-tar zxvf dahdi-linux-complete-2.5.0.2+2.5.0.2.tar.gz
+wget &quot;http://downloads.asterisk.org/pub/telephony/dahdi-linux-complete/dahdi-linux-complete-current.tar.gz&quot;
+tar zxvf dahdi-linux-complete-current.tar.gz
 cd dahdi-linux-complete-xxx
 make all
 make install
@@ -161,36 +163,29 @@ make config
 /etc/init.d/dahdi stop
 cd ..
 
-wget &quot;http://www.freeiris.org/download/down.php?target=asterisk&amp;obj=&amp;file=libpri-1.4.12.tar.gz&quot;
-tar zxvf libpri-1.4.12.tar.gz
-cd libpri-1.4.12
+wget &quot;http://downloads.asterisk.org/pub/telephony/libpri/libpri-1.4-current.tar.gz
+tar zxvf libpri-1.4-current.tar.gz
+cd libpri-1.4.xxx
 make
 make install
 cd ..
 	</pre>
-	<font color="#0000FF"><b>安装asterisk软件:</b></font><br>
+	<font color="#0000FF"><b>安装asterisk软件（4.0版本仅支持Asterisk 1.8+）:</b></font><br>
 	<pre id='code'>	
-wget &quot;http://www.freeiris.org/download/down.php?target=asterisk&amp;obj=&amp;file=asterisk-1.4.43.tar.gz&quot;
-tar zxvf asterisk-1.4.43.tar.gz
-cd asterisk-1.4.43
+wget &quot;http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-11-current.tar.gz&quot;
+tar zxvf asterisk-11-current.tar.gz
+cd asterisk-11.xxx
 ./configure
+make menuselect
 make
 make install
 make samples
 make config
-cd ..
 
-wget &quot;http://www.freeiris.org/download/down.php?target=asterisk&amp;obj=&amp;file=asterisk-addons-1.4.13.tar.gz&quot;
-tar zxvf asterisk-addons-1.4.13.tar.gz
-cd asterisk-addons-1.4.13
-./configure
-make cdr
-cp cdr/cdr_addon_mysql.so /usr/lib/asterisk/modules/
-cd ..
 	</pre>
 	<font color="#FF0000">注意!!!!!!!!!!!!!!!!!!!!!!!!!!!<br>
-	如果这个步骤提示cdr_addon_mysql.so找不到,很可能是你没有安装mysql-devel造成的.<br>
-	如果报告这个错误,请先返回上面的步骤看看是不是有问题,不要跳过这个步骤.</font><br>
+	make menuselect时请勾选cdr_mysql选项。另外请确保你已经安装过mysql-devel<br>
+	</font><br>
 <!-- 	<br>
 	<font color="#0000FF"><b>安装g729 g723的语音编码:</b></font><br>
 	请注意这两个语音编码是专利编码,如果你要使用在商业领域,请向编码版权所有者交纳版税.否则请跳过此步骤.
@@ -205,15 +200,15 @@ cp -avf codec_g72*.so /usr/lib/asterisk/modules/
 	<br>
 	<br>
 	<h3><font face="微软雅黑" color="#0000FF"><a name="inst_fri2">安装freeiris2安装包:</a></font></h3>
-	下载方法A.发行版
-	<pre id='code'>	
+	<s>下载方法A.发行版 </s>
+	<pre id='code'><s>	
 wget &quot;http://www.freeiris.org/download/down.php?target=darwin&amp;obj=&amp;file=freeiris2-current.tar.gz&quot;
 tar zxvf freeiris2-current.tar.gz
 cd freeiris2-*
-	</pre>
-	下载方法B. SVN版
+	</s></pre>
+	下载方法B. 从Github获取源码
 	<pre id='code'>	
-svn checkout http://darwin.freeiris.org/svn/freeiris/branches/freeiris2 ./freeiris2
+git clone git://github.com/nsnake/freeiris2.git ./freeiris2
 cd freeiris2
 	</pre>
 	<br>
@@ -272,29 +267,12 @@ Setup Freeiris2
 [STEP] Setup your Mysql Database.............
   [RESPONSE] Try To mysql with user: root pass: null host: localhost
   [RESPONSE] Initlization database......
-#==============================================#
-# G.729 G.723.1 LICENSE WARNNING!!!            #
-#==============================================#
-# 1. This Codec G.729 and G.723.1 used only in #
-#    education purposes.                       #
-# 2. Files from http://asterisk.hosting.lv/    #
-# 3. In Commerce you may need to pay a royalty #
-#    fee. Please see http://www.sipro.com for  #
-#    details. if a patent exists in you country#
-#    for G.729 or G.723.1 then you should      #
-#    contact the owner of that patent and      #
-#    request their permission before excuting  #
-#    the code.                                 #
-# 4. if you don't agree this license please    #
-#    remove files from                         #
-#    /usr/lib/asterisk/modules/                #
-#==============================================#
-  [RESPONSE] install G.729 G.723.1 Binary files
   [RESPONSE] set freeiris2 services
   [RESPONSE] install example
   [RESPONSE] all done!	
   [RESPONSE] Please Reboot your system!	  
-	</pre>表示安装完成,重新启动系统安装流程会生效.<br>
+	</pre>
+	表示安装完成,请重新启动系统.<br>
 <!-- 	<pre id='code'>
 	[INPUT] Set to html default(yes/no)?
 	提示你是否将freeiris2设置为默认页,选择yes就表示这个机器的默认web页就是本系统
