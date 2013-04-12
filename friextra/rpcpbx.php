@@ -37,7 +37,7 @@ ENDPAPER
 require_once("./include/friextra_common_inc.php");
 
 $rpc_name      = 'rpcpbx';
-$rpc_version   = '1.2';
+$rpc_version   = '2.0';
 $freeiris_conf = null;
 //$asterisk_conf=null;
 $manager_conf  = null;
@@ -52,8 +52,8 @@ initrpc();
 /*
 	生成RPC对象
 */
-$server = new PHPRPC_Server();
-
+$server = new HproseHttpServer();
+$server->setDebugEnabled ( true );
 
 /*
 	注册开放式RPC基本服务
@@ -93,7 +93,7 @@ if (!isset($_SESSION["client_authorized"]) || $_SESSION["client_authorized"] == 
 /*
     启动RPC SERVICE服务
 */
-$server->start();
+$server->handle();
 
 
 

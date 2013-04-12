@@ -25,14 +25,13 @@
 /*------------------------------------
 	include and initization of modules
 --------------------------------------*/
-require_once("../include/phprpc/phprpc_client.php");
+require_once("../include/hprose/HproseHttpClient.php");
 require_once("../include/smarty/Smarty.class.php");
 require_once("../include/asteriskconf/asteriskconf.inc.php");
 require_once("../include/freeiris_common_inc.php");
 
 // rpc url
-$rpcpbx = new PHPRPC_Client($friconf['friextra_urlbase'].'/rpcpbx.php');
-
+$rpcpbx = new HproseHttpClient($friconf['friextra_urlbase'].'/rpcpbx.php');
 // init
 $smarty = null;
 web_initialization();
@@ -138,7 +137,7 @@ function page_main_alert() {
 	global $friconf;
 
 	//getall alert message
-	//$rpcremote = new PHPRPC_Client('http://www.fonoirs.com/usercenter/minable.php');
+	//$rpcremote = new HproseHttpClient('http://www.fonoirs.com/usercenter/minable.php');
 	//$rpcremote->setTimeout(10);
 	//$alertres = $rpcremote->get_mainpageinfo();
 	//if (!is_a($alertres, "PHPRPC_Error")) {
@@ -210,7 +209,7 @@ function page_main_alert() {
 //	$data['company_size']=$_REQUEST['company_size'];
 //	$data['company_contact']=$_REQUEST['company_contact'];
 //
-//	$rpcremote = new PHPRPC_Client('http://cn.freeiris.org/usercenter/minable.php');
+//	$rpcremote = new HproseHttpClient('http://cn.freeiris.org/usercenter/minable.php');
 //	$rpcres = $rpcremote->add_machine($_REQUEST['username'],$_REQUEST['password'],$data);
 //	if (!$rpcres)
 //		error_popbox(901,null,null,null,null,'submit_failed');

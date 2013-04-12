@@ -144,8 +144,8 @@ function web_initialization()
 	$smarty->right_delimiter= '%>';
 
 	// rpc enginnger
-//	$rpcsysadm = new PHPRPC_Client($friconf['friextra_urlbase'].'/rpcsysadm.php');
-//	$rpcpbx = new PHPRPC_Client($friconf['friextra_urlbase'].'/rpcpbx.php');
+//	$rpcsysadm = new HproseHttpClient($friconf['friextra_urlbase'].'/rpcsysadm.php');
+//	$rpcpbx = new HproseHttpClient($friconf['friextra_urlbase'].'/rpcpbx.php');
 
 	return(true);
 }

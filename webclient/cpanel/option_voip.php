@@ -25,13 +25,13 @@
 /*------------------------------------
 	include and initization of modules
 --------------------------------------*/
-require_once("../include/phprpc/phprpc_client.php");
+require_once("../include/hprose/HproseHttpClient.php");
 require_once("../include/smarty/Smarty.class.php");
 require_once("../include/asteriskconf/asteriskconf.inc.php");
 require_once("../include/freeiris_common_inc.php");
 
 // rpc url
-$rpcpbx = new PHPRPC_Client($friconf['friextra_urlbase'].'/rpcpbx.php');
+$rpcpbx = new HproseHttpClient($friconf['friextra_urlbase'].'/rpcpbx.php');
 
 // init
 $smarty = null;

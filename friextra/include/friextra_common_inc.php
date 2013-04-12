@@ -24,7 +24,7 @@
 */
 
 require_once("./include/asteriskconf/asteriskconf.inc.php");
-require_once("./include/phprpc/phprpc_server.php");
+require_once("./include/hprose/HproseHttpServer.php");
 require_once('./include/freeiris_ami_inc.php');
 
 /*
