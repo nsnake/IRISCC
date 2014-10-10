@@ -28,12 +28,10 @@ WARNNING !  Only Chinese support in freeiris2 current!
 Docs
 ----
 
-install please see 安装说明.html
+安装方法请看 INSTALL.html
 
-documentation can be found in the doc/ folder.
+开发文档可以查看doc目录（已经没有更新）.
 
-For additional features, and plugs please see also http://www.freeiris.org
-
-Xu Hao <loveme1314@gmail.com>     Copyright © 2013
+Xu Hao <loveme1314@gmail.com>     Copyright © 2013-2014
 
 sun bing <hoowa.sun@freeiris.org> Copyright © 2005-2012

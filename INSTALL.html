@@ -32,19 +32,18 @@
 &nbsp;</font></p>
 	<h2><font face="微软雅黑" color="#0000FF">安装</font></h2>
 	<p><font face="微软雅黑"><font color="#FF0000">警告 : </font><br>
-	1. Freeiris2目前不适合在WIN下安装和开发, 客户端部分webclient/目录可以单独被安装在win下请自己研究.<br>
-	2. Freeiris2是一类专业系统,使用本系统可能需要你具有一定的VOIP基础知识<br>
-	3. 因为可能导致文件权限出错,请不要在windows下解压缩文件.<br>
-	4. 如果遇到问题请到freeiris的论坛进行讨论,为了更好的帮助其它人，请不要随意的私密开发人员为你解决问题（需要商业技术支持服务的除外）.<br>
-	5. 如果不是Linux专家请安装前关闭系统的selinux和firewall防止IP数据无法穿透.<br>
-&nbsp;</font></p>
+	1. Freeiris2目前不适合在WIN下安装和开发, 客户端部分webclient/目录可以单独被安装在win下，具体请自己研究.<br>
+	2. Freeiris2属于专业通信系统,因此使用和调试可能需要你具有一定的VOIP知识<br>
+	3. 因为可能会有文件权限出错的问题,务必不要在windows下解压文件后在上传.<br>
+	4. 安装前请关闭系统的selinux和firewall服务防止一些莫名其妙的问题<br>
+	5. Freeiris2为免费开源项目，没有专人义务解答你所出现的问题。如有需要可以联系QQ:318274085购买技术支持服务.</font></p>
 	<h2><font face="微软雅黑" color="#0000FF">目前系统安装方式</font></h2>
 	<p>
  <ul>
-		<li><font face="微软雅黑">第一种方式、光盘版——适合需要体验的用户(该版本的内容过于陈旧，仅供演示)
-			</font>
+		<li><font face="微软雅黑"><s>第一种方式、光盘版——适合需要体验的用户(该版本的内容过于陈旧，仅供演示)
+			</s></font>
 		  <ol>
-				<li><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.freeiris.org" target="_blank">请访问网站直接下载光盘版安装包并且刻录光盘进行安装</a></font></li>
+				<li><s><font face="微软雅黑">&nbsp;&nbsp;&nbsp;&nbsp;<a href="http://www.freeiris.org" target="_blank">请访问网站直接下载光盘版安装包并且刻录光盘进行安装</a></font></s><font face="微软雅黑"><a href="http://www.freeiris.org" target="_blank"></a></font></li>
 			</ol>
 		</li>
 <font face="微软雅黑"><!-- 		<li>第二种方式、采用RPM包的免编译安装方法——适合在现有系统进行集成
@@ -64,7 +63,7 @@
 	</ul><font face="微软雅黑">
 	<br>
 	<br>
-&nbsp;</font></p>
+&nbsp;</font>
 <!-- 	<br>
 	<br>
 	<h3><font face="微软雅黑" color="#0000FF"><a name="#inst_yum">YUM自动安装基本系统:</a></font></h3>
@@ -80,7 +79,7 @@
 	<br>
 	<br>
 	<font color="#0000FF"><b>创建文件/etc/yum.repos.d/freeiris.repo:</b></font><br>
-	<pre id='code'>	
+	<pre id='code'>
 
 vim /etc/yum.repos.d/freeiris.repo
 
@@ -115,13 +114,13 @@ gpgcheck=0
 #gpgkey=http://packages.digium.com/RPM-GPG-KEY-Digium
 	</pre>
 	<font color="#FF0000"><b>安装YUM版的Asterisk所有组件和系统依赖组件,如果你要使用Openvox的特殊驱动卡,请自己再重新编译一次dahdi以便支持:</b></font><br>
-	<pre id='code'>	
+	<pre id='code'>
 yum install asterisk14 asterisk14-devel asterisk14-dahdi asterisk14-addons-mysql dahdi-linux
-yum install dahdi-tools libpri httpd mysql-server mysql-devel php php-mysql perl-libwww-perl 
+yum install dahdi-tools libpri httpd mysql-server mysql-devel php php-mysql perl-libwww-perl
 yum install libdbi-dbd-mysql r8101-kmod-base r8168-kmod-base
 	</pre>
 	<font color="#0000FF"><b>设置启动引导:</b></font><br>
-	<pre id='code'>	
+	<pre id='code'>
 chkconfig --level 345 httpd on
 chkconfig --level 345 mysqld on
 	</pre>
@@ -135,28 +134,28 @@ chkconfig --level 345 mysqld on
 	<h3><font face="微软雅黑" color="#0000FF"><a name="#inst_src">全程编译安装基本系统:</a></font></h3>
 	<p><font face="微软雅黑"><font color="#FF0000">系统环境:</font><br>
 	Centos 6.X 及以上版本<br>
-	Redhat类操作系统(Centos、Fedora、Redhat)都可以,但未经过测试.<br>
-	其他2.6.X的Linux, 未经过测试,并且系统可能需要经过修改.其中请确保Perl版本在5.10及以上<br>
+	Redhat类操作系统(Fedora、Redhat)都可以,但未经过测试.<br>
+	请确保Perl版本在5.10及以上<br>
 	<br>
 	以下说明都以Centos6为例<br>
 	<font color="#FF0000">关闭SELINUX：</font></font> <font face="微软雅黑"><br>
-	  <pre id='code'>	
+	  <pre id='code'>
 sed -i s/SELINUX=enforcing/SELINUX=disabled/g /etc/selinux/config
-	</pre>	
-    
+	</pre>
+
     <font color="#FF0000">安装依赖包:</font><br>
-    </font>    
+    </font>
  <font face="微软雅黑">
- <pre id='code'>	
+ <pre id='code'>
 yum install -y make wget openssl-devel ncurses-devel  newt-devel libxml2-devel kernel-devel gcc gcc-c++  httpd mysql-server mysql mysql-devel php php-mysql perl libdbi-dbd-mysql perl-libwww-perl php-process
-	</pre>	
+	</pre>
 	建议依赖包安装完成后重新启动一次系统<br>
 	<br>
 	<font color="#FF0000">其中httpd和mysql要设置为系统服务跟随系统一起启动</font><br>
 	<br>
 	<br>
 	<font color="#0000FF"><b>安装dahdi驱动(A1200P板卡用户要自己打patch请咨询openvox公司,如果要安装oslec回音消除也请参考资料):</b></font><br>
-	<pre id='code'>	
+	<pre id='code'>
 wget &quot;http://downloads.asterisk.org/pub/telephony/dahdi-linux-complete/dahdi-linux-complete-current.tar.gz&quot;
 tar zxvf dahdi-linux-complete-current.tar.gz
 cd dahdi-linux-complete-xxx
@@ -175,7 +174,7 @@ make install
 cd ..
 	</pre>
 	<font color="#0000FF"><b>安装asterisk软件（4.0版本仅支持Asterisk 1.8+）:</b></font><br>
-	<pre id='code'>	
+	<pre id='code'>
 wget &quot;http://downloads.asterisk.org/pub/telephony/asterisk/asterisk-11-current.tar.gz&quot;
 tar zxvf asterisk-11-current.tar.gz
 cd asterisk-11.xxx
@@ -193,7 +192,7 @@ make config
 <!-- 	<br>
 	<font color="#0000FF"><b>安装g729 g723的语音编码:</b></font><br>
 	请注意这两个语音编码是专利编码,如果你要使用在商业领域,请向编码版权所有者交纳版税.否则请跳过此步骤.
-	<pre id='code'>	
+	<pre id='code'>
 wget "http://asterisk.hosting.lv/bin/codec_g723-ast14-gcc4-glibc-pentium3.so"
 wget "http://asterisk.hosting.lv/bin/codec_g729-ast14-gcc4-glibc-pentium3.so"
 cp -avf codec_g72*.so /usr/lib/asterisk/modules/
@@ -205,19 +204,19 @@ cp -avf codec_g72*.so /usr/lib/asterisk/modules/
 	<br>
 	<h3><font face="微软雅黑" color="#0000FF"><a name="inst_fri2">安装freeiris2安装包:</a></font></h3>
 	<s>下载方法A.发行版 </s>
-	<pre id='code'><s>	
+	<pre id='code'><s>
 wget &quot;http://www.freeiris.org/download/down.php?target=darwin&amp;obj=&amp;file=freeiris2-current.tar.gz&quot;
 tar zxvf freeiris2-current.tar.gz
 cd freeiris2-*
 	</s></pre>
 	下载方法B. 从Github获取源码
-	<pre id='code'>	
+	<pre id='code'>
 git clone git://github.com/nsnake/freeiris2.git ./freeiris2
 cd freeiris2
 	</pre>
 	<br>
 	执行安装程序:<br>
-	<pre id='code'>	
+	<pre id='code'>
 chmod +x install.pl
 ./install.pl --install
 	</pre>
@@ -264,24 +263,28 @@ Setup Freeiris2
   [RESPONSE] Initlization database......
   [RESPONSE] set freeiris2 services
   [RESPONSE] install example
-  [RESPONSE] all done!	
-  [RESPONSE] Please Reboot your system!	  
+  [RESPONSE] all done!
+  [RESPONSE] Please Reboot your system!
 	</pre>
-	表示安装完成,请重新启动系统.<br>
-<!-- 	<pre id='code'>
+ </font>
+ <p><font face="微软雅黑">
+	表示安装完成,请重新启动系统</font></p>
+ <p><font face="微软雅黑 " color="#FF0000"><b>注意:hardwaretel程序已作废.如果你有板卡需求，请手动生成板卡相关的配置文件</b><br>
+  <!-- 	<pre id='code'>
 	[INPUT] Set to html default(yes/no)?
 	提示你是否将freeiris2设置为默认页,选择yes就表示这个机器的默认web页就是本系统
 	</pre> -->
-	<br>
-	<br>
-	<font color="#FF0000"><b>特别说明:</b></font><br>
-	如果过程中提示数据库部分,说明系统尝试默认数据库登陆失败,请根据提示填写数据库连接信息.<br>
-	默认情况下系统是以mysql的localhost root方式登陆，并且自动创建freeiris2库.<br>
-&nbsp;</font></p>
-	<font color="#FF0000"><b>参考资料: Openvox公司硬件板卡的WIKI文档库</b></font><br>
-	http://wiki.openvox.cn/index.php/Troubleshooting_of_PRI_cards_Chinese</font></p>
-
-
-
+   <br>
+   <br>
+   <font color="#FF0000"><b>特别说明:</b></font><br>
+   如果过程中提示数据库部分,说明系统尝试默认数据库登陆失败,请根据提示填写数据库连接信息.<br>
+   默认情况下系统是以mysql的localhost root方式登陆，并且自动创建freeiris2库.<br>
+  &nbsp;</font>
+   <font color="#FF0000"><b>参考资料: Openvox公司硬件板卡的WIKI文档库</b></font><br>
+   http://wiki.openvox.cn/index.php/Troubleshooting_of_PRI_cards_Chinese
+   
+   
+   
+ </p>
  </BODY>
 </HTML>
