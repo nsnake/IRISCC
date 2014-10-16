@@ -1,0 +1,241 @@
+0.035beta:
+
+fixed some bugs in web script
+add new parameter in astercc.conf
+	billing: support prepaid and postpaid for callshop
+	callbackbill: support bill lega only, legb only or both leg in a callback
+add new parameter in astercc.conf.php
+	creditlimittype: support set creditlimit for each call or each customer
+improved lock function
+	the booth could be locked even the browser is closed
+----------------------------------------------------------------------------------
+0.035
+
+add new parameter in astercc.conf.php
+	refreshBalance: astercc will refresh the balance of the group
+change the booth order by clid rather than addtime
+add new parameter in astercc.conf.php
+	sipfile: astercc could generate sip peers 
+astercc could generate sip peers from clid
+fix a bug in asterrc (when there's a clid which doesnt exsit in table clid, it would be error)
+fix a bug in asterrc (some clid could not be loaded)
+change the lock flag from 0 to -1
+add new field "display" in table clid to store display name of the booth
+add a button so that operator/groupadmin could choose hide/display the callshop status
+add new parameter in astercc.conf.php
+	validcode: if require valid code when login
+add new field "accountcode" in table resellergroup
+----------------------------------------------------------------------------------
+0.045 alpha
+
+add new fiels `billingtime` in table "accountgroup", "resellergroup"
+add features: credithistory 
+when modify credit, can only use plus/minus, and this operation would be recored to table credithistory
+improve postpaid, administrator could reset postpaid timeline
+improve CDR search method
+login using clid/pin, could check CDR for this booth
+----------------------------------------------------------------------------------
+0.045 beta
+add new table [peerstatus]
+fliter CDR with resellerid = -1 or groupid = -1 in phpcode
+add a new option in astercc.conf so that u can remove useless cdr if you want
+add a new table [historycdr], all billed cdr will go there
+----------------------------------------------------------------------------------
+0.09 beta
+add a new parameter [keepNoanswerCDR] in astercc.conf.php, if we move the no answer cdr to historycdr
+add a new daemon astercclock, to lock calls
+add a new parameter [refreshlock] in astercc.conf, save the  time we refresh data in astercclock
+add new field curcredit in table resellergroup and accountgroup to store reseller/group balance
+add new field amount and total in table accountgroup to store all selling and all cost 
+----------------------------------------------------------------------------------
+0.09
+2008-10-11 added new fields `credit_clid`, `credit_group`, `credit_reseller` in table clid, accountgroup, resellergroup 
+2008-10-11 added new field `billingtime` in table clid
+2008-10-11 fixed the bug in credit limit
+2008-10-11 fixed the bug when hangup
+2008-10-15 allow select a file in upload folder to improt
+2008-10-15 set billingblock to 60 by default
+2008-11-10 changed project name to asterBilling
+2008-11-10 changed conf file astercc.conf.php to asterbilling.conf.php
+2008-11-10 add multi language support
+2008-11-10 it would delete clid, group, rate when delete a group or a reseller
+2008-11-10 no use php function mb_convert_encoding
+2008-11-10 added a new agi and some sounds file for calling card usage
+2008-11-10 added difference interface for user and administrator
+2008-11-10 support use "like", ">", "<" , "=" when search
+2008-11-10 support billing on clid
+----------------------------------------------------------------------------------
+0.095
+2008-11-17  fixed the import bug
+2008-11-22  fixed the bug that when refreshrate is less than 0, asterrc doesnt bill
+2008-12-1   added new stastic reports
+2008-12-1   added inbound billing
+2008-12-1   added manager login page and clid login page
+2008-12-1   added group logo, group name and could be displayed on callshop page
+2008-12-1   added receipt feature
+2008-12-1   added billing second multiple
+2008-12-1   fixed do not delete group account when delete a group
+2008-12-5   fixed astercclock always generate log
+2008-12-5   change the navigation
+----------------------------------------------------------------------------------
+0.096
+2008-12-10  added multiple updating rate function for rate
+2008-12-12  added delete and export through search in all page
+2008-12-15  added advance report
+2008-12-15  fixed sip_generate error in reseller interface
+2008-12-17  fixed asterrc bug(don't check prefix when set numlen)
+2008-12-19  fixed systemstatus page display bug in IE
+2008-12-29  added flash chart for report
+2009-1-5    added remember me in login page
+----------------------------------------------------------------------------------
+0.097
+2009-1-8    improve flash chart for report
+2009-1-12   shortcut for choose date
+2009-1-12   add archive function in CDR page
+2009-1-14   display more infomation in callshop page(Amount,Cost,Limit,Current Credit,Available Balance)
+2009-1-14   add payment type(Cash,Credit card,Debit card,Promotion,Other)
+2009-1-14   could checkout in Receipt page
+2009-1-15   add search rate by destination in callshop page
+2009-1-15   add customers module
+2009-1-22   CDR for customers
+2009-1-22   dynamic/static discount rate for customers
+2009-1-22   support licence with time limit
+2009-1-22   support German
+2009-1-24   add ASR/ACD in Report page 
+2009-1-24   display the buy rates when adding/editing the sell rates
+2009-2-11   improve import module
+2009-2-12   improve asterrc (support hungup call if no rate or not in group)
+2009-2-12   add billing by source channel
+----------------------------------------------------------------------------------
+0.098
+2009-3-13   add generate sip extension and sip reload for admin user
+2009-3-15   add display connect speed of clid
+2009-3-15   add comment in credithistory
+2009-3-28    add reloadrate, useSrcchanWhenNoClid in astercc.conf
+2009-3-23   improve asterrc that replace src to srcchan when src not match
+2009-3-28   add a shortcut update customer rate for groupadmin
+2009-3-28   improve callshop interface 
+2009-3-31   support payment by paypal
+2009-4-2    add reload and restart asterisk in web(systme page)
+----------------------------------------------------------------------------------
+0.099
+2009-4-20   fixed can't display report of today
+2009-5-3    fixed bug in flash report
+2009-5-18   add check credit reseller and callshop realtime when booth calling
+2009-5-30   improved send request by javascript in callshop interface
+2009-6-4    fixed don't update blance when cannel limit in booth
+2009-6-9    add delete files what have uploaded
+2009-6-18   fixed can't find astercc license file when don't run in '/opt'
+2009-6-21   fixed ASR and ACD both are '0' in report grid
+----------------------------------------------------------------------------------
+0.11
+2009-11-14 fixed the prefix billing
+2009-11-14 added professional mode
+2009-11-14 added member mode switch
+2009-11-14 added Portuguese support
+
+----------------------------------------------------------------------------------
+0.12
+2010-03-30 improved profile page of resller and groupadmin(could view the own balance)
+2010-03-30 fixed the currency bug of recharge by paypal
+2010-04-09 added display callshop Balance in systemstatus
+2010-04-16 improve clid page (could control the clid if display in systemstatus as a booth)
+2010-04-17 improved systemstatus(could be open manager page in current page)
+2010-04-29 added set free call function in receipt page
+2010-04-29 improved receipt to close page when paid
+2010-04-30 improved cdr page to set special color for unbilled or free call
+2010-05-10 improved report(display memo and note)
+2010-05-11 added could set a special turnk for each resller dialout
+2010-05-11 astercc daemon support astersik 1.6.x
+2010-05-15 improved reselleroutbound.agi, support spare trunk
+2010-05-18 added account_log page(records the account login logs)
+----------------------------------------------------------------------------------
+0.13
+2010-08-18 fixed bug of update all reseller epayment information in profile page.
+2010-08-25 added the parameter 'callshop_pay_fee' in asterbilling.conf and reseller profile to control if callshop pays the fee by paypal.
+2010-10-12 improved removePrefix in astercc.conf, supports like "removePrefix = 00,011"
+----------------------------------------------------------------------------------
+0.14
+2010-11-22 fixed bug of epayment with callshop_pay_fee setting
+2010-11-22 no longer support callback function(could use callback in version 0.12(asterCC 0.14))
+2010-11-29 fixed issue of astercclock cause for high CPU usage
+----------------------------------------------------------------------------------
+0.15
+2010-12-29 added pushcall mode(works with pushcall.agi)
+2011-02-18 added billing by accountcode mode
+2011-02-19 added query and hangup current channels in system page
+----------------------------------------------------------------------------------
+0.16
+2011-10-19 improved both hangup channels of caller and callee when click to hanguup in portal page
+2011-11-21 added the options display 'all' or 'answered' in cdr page
+2012-01-30 added booth_cdr_order in asterbilling.conf.php to determine order of showing cdr in booth
+2011-02-02 added the synchronization.pl for asteriblling synchronization solution
+
+import时如果数据量大会报错
+code有时候会出现问题, vista总是不识别
+需要增加statics功能
+验证图片对ff失效
+
+astercc features:
+	
+	work with all asterisk based system	
+	realtime billing
+	prepaid/postpaid support
+	maximum 240 simultaneous calls support
+	booth lock/unlock
+	booth/callshop/reseller credit limit
+	mulit-callshop support in one system
+	mulit-reseller support in one system
+	multi-language support
+	each customer/callshop/reseller could use a rate template or use specific rate
+	callback with credit limit support (billing lega/legb/both)
+	reseller rate/callshop rate/customer rate three level billing
+	admin/reseller/callshop admin/operator four user types
+	rate import/export
+	hangup calls
+	web script part is open source
+	profit calculate
+	Grid layout
+	CDR search/browser
+	5 free channels license
+	credit operation history
+	print receipt
+	agi for calling card and internal pbx billing
+	billing for clid
+	inbound billing
+	advance report(flash chart)
+	multiple updating rate
+	multi language support[Simplified Chinese/English]
+
+
+astercc特点
+
+	兼容所有的asterisk系统
+	实时计费显示
+	预付费/后付费支持
+	可以支持240个并发呼叫
+	话机锁定/解锁
+	代理商/话吧/特定通话话费限额
+	多计费组支持
+	多代理商支持
+	多语言支持
+	不同的客户/分组/代理商可以使用相同的费率或是特定的费率
+	支持带话费限制的回拨(计费 主叫/被叫/同时计费)
+	代理商/分组/客户三级计费
+	系统管理员/代理商/组管理员/操作员四级权限
+	费率导入/导出
+	强行结束通话
+	网页代码为开源
+	收益计算
+	呼叫记录查询查看
+	表格型显示方式更加直观
+	5个免费的通话许可
+	话费操作记录
+	提供了可以用作电话卡或内部pbx计费的agi脚本
+	单独分机计费
+        充值信息记录
+	收据打印
+        分机可登陆系统查询通话记录
+	高级报告(支持flash报表)
+	批量修改费率
+        多语言支持[中/英]

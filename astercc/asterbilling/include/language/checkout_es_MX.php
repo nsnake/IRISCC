@@ -1,0 +1,34 @@
+<?
+$amount = "Cantidad";
+$callshop = "Caseta";
+$callshop_cost = "Costo Caseta";
+$reseller_cost = "Costo Distribuidor";
+$limit_type = "Tipo de Limite";
+$no_limit = "Ilimitado";
+$calldate = "Fecha de Llamada";
+$clid = "Cabina";
+$dst = "Destino";
+$duration = "Duracion";
+$disposition = "Estado";
+$billsec = "Tiempo Facturado";
+$destination = "Destino";
+$rate = "Tarifa";
+$price = "Costo";
+$status = "Estado";
+$all = "Todo";
+$none = "Ninguno";
+$list_detail = "Lista Detallada";
+$list = "Lista";
+$cal = "Calendario";
+$callback = "WebCall";
+$from = "De";
+$to = "A";
+$markup = "Beneficio";
+$calls = "Llamadas";
+$sum_by_year = "Sumar por año";
+$sum_by_month = "Sumar por mes";
+$sum_by_day = "Sumar por dia";
+$sum_by_hour = "Sumar por hora";
+$sum_by_destination = "Sumar por destino";
+$year = "Año";
+?>

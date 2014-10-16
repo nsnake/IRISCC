@@ -1,0 +1,291 @@
+html, body {
+  height: 100%;
+  width:  100%;
+  font-family: Arial, Verdana, sans-serif;
+  font: 12px Tahoma;
+  color: #000;
+  font-size: 1em;
+  /* overflow: auto; */
+  margin-left: 0px;
+  margin-top:  10px;
+  margin-bottom: 0px;
+  margin-right: 0px;
+}
+
+div.float {
+	float: left;
+	overflow: auto;
+	width: 290px;
+	height: 258px;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	border: 1px solid #777;
+	background-color: #efefef;
+	margin-left: 5px;
+	margin-top:  10px;
+	margin-bottom: 5px;
+	margin-right: 5px;
+}
+
+div.floatnomember {
+	float: left;
+	overflow: auto;
+	width: 290px;
+	height: 236px;
+	overflow-y: hidden;
+	overflow-x: hidden;
+	border: 1px solid #777;
+	background-color: #fff;
+	margin-left: 5px;
+	margin-top:  10px;
+	margin-bottom: 5px;
+	margin-right: 5px;
+}
+
+div.calllog{
+	width:290px;
+	height:148px;
+	overflow: auto;
+	overflow-x: scroll;
+	overflow-y: scroll;
+}
+
+div.float p {
+	 text-align: center;
+	 }
+
+div.container {
+	border: 2px #333;
+	background-color: #ffe;
+	}
+
+div.spacer {
+	clear: both;
+	}
+
+div.lable{
+	width: 290px;
+	height: 20px;
+	background-color:#4b9ae9;
+	border: 1px solid #777;
+	border-color:#8e8e8e #bebebe #bebebe #bebebe;
+
+/*
+	text-align: center;
+	MARGIN-RIGHT: auto;
+	MARGIN-LEFT: auto;
+	cursor:pointer;
+*/
+}
+
+
+table.calllog {
+}
+
+table.calllog td{
+	border: solid;
+	border-width: 1px 1px 1px 1px;
+	border-color: #ccc;
+	padding: 1px;
+	font-size: 10px;
+}
+
+table.curcall th{
+   border: 2px solid;
+    border-color: #fff #333 #333 #fff;
+    background-color: #eeeeee; 
+    padding-right: 9px;
+    padding-left: 9px;
+    padding-bottom: 2px;
+    /*cursor: pointer; */
+    text-align: center;
+    color: black; 
+    font-size: 12px;
+}
+
+table.curcall td{
+	border: solid;
+	border-width: 1px 1px 1px 1px;
+	border-color: #e1dcd5;
+	padding: 4px;
+	font-size: 10px;
+}
+
+tr.curchannel{
+	border: solid;
+	border-width: 1px 1px 1px 1px;
+	background-color: #f4e7d6;
+	padding: 4px;
+	font-size: 15px;
+	font-weight: bold;
+}
+
+input.button{
+	border-color:threeddarkshadow threedhighlight threedhighlight threeddarkshadow;
+	background:#fff;
+	width:55px;
+	height:20px;
+	padding:1px;
+	margin:1px;
+}
+
+input.text{
+	border-color:threeddarkshadow threedhighlight threedhighlight threeddarkshadow;
+	background:#fff;
+	width:75px;
+	height:23px;
+	padding:1px;
+	margin:1px;
+}
+
+div.formDiv {
+	width: 220px; 
+	/* height: 400px;  */
+	border: thin solid #767676; 
+/*	border-right-width: medium; 
+	border-right-color: #767676; 
+	border-bottom-width: medium; 
+	border-bottom-color: #767676; 
+*/
+	position: absolute; 
+	right: 10px; 
+	top: 10px;
+	visibility: hidden; 
+	background-color: #F1F1F1;
+/*	overflow: auto;*/
+}
+
+table.adminlist {
+	background-color: #FFFFFF;
+	margin: 4px;
+	padding: 0px;
+	border: 1px solid #ddd;
+	border-spacing: 0px;
+	width: 98%;
+	border-collapse: collapse;
+}
+
+table.adminlist th {
+	margin: 0px;
+	padding: 6px 4px 2px 4px;
+	height: 25px;
+	background: url(images/background.jpg);
+	background-repeat: repeat;
+	font-size: 12px;
+	color: #000;
+	
+}
+table.adminlist th.title {
+	text-align: left;
+}
+
+table.adminlist th a:link, table.adminlist th a:visited {
+	color: #c64934;
+	text-decoration: none;
+}
+
+table.adminlist th a:hover {
+	text-decoration: underline;
+}
+
+table.adminlist tr.row0 {
+	background-color: #F9F9F9;
+
+}
+table.adminlist tr.row1 {
+	background-color: #FFF;
+}
+table.adminlist td {
+	/* border-bottom: 1px solid #e5e5e5; */
+	border: 1px solid #e5e5e5;
+	padding: 4px;
+}
+table.adminlist tr.row0:hover {
+	background-color: #f1f1f1;
+}
+table.adminlist tr.row1:hover {
+	background-color: #f1f1f1;
+}
+table.adminlist td.options {
+	background-color: #ffffff;
+	font-size: 12px;
+}
+
+A:link {
+	COLOR: #ff2121; TEXT-DECORATION: none
+}
+A:visited {
+	COLOR: #ff2121; TEXT-DECORATION: none
+}
+A:hover {
+	BACKGROUND: #003399; COLOR: #ffffff; TEXT-DECORATION: none
+}
+A:active {
+	BACKGROUND: #ff9933; COLOR: #ffffff; TEXT-DECORATION: none
+}
+
+/**********说明标记CSS开始**********/
+acronym {
+	text-decoration: none;
+	border-bottom: 1px solid #D5D6D7;
+	cursor: help;
+	TEXT-INDENT: 1em;
+	FONT-SIZE: 14px;
+}
+/**********说明标记CSS结束**********/
+
+
+
+div.divPanel {
+	width: 120px;
+	/* height: 400px;  */
+	border: thin solid #767676; 
+/*	border-right-width: medium; 
+	border-right-color: #767676; 
+	border-bottom-width: medium; 
+	border-bottom-color: #767676; 
+*/
+	position: absolute; 
+	right: 0%; 
+	top: 0px;
+	background-color: #BED1DF;
+}
+
+#nav {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	position: absolute;
+	height: 100%;
+	border-top: 4px solid #FF881A;
+	width: 100%;
+	padding-top: 10px;
+    /*定义整个ul菜单的行高和背景色*/
+}
+/*==================一级目录===================*/
+#nav a {
+ width: 160px; 
+ display: block;
+ padding-left:0px;
+ /*Width(一定要)，否则下面的Li会变形*/
+}
+#nav li {
+ float:left;
+ /*float：left,本不应该设置，但由于在Firefox不能正常显示
+ 继承Nav的width,限制宽度，li自动向下延伸*/
+}
+#nav li a:hover{
+	background-color: #5a5a5a;
+	outline: none;
+	-moz-border-radius: 3px;
+	-webkit-border-radius : 3px;
+}
+#nav a:link  {
+ color:#666; text-decoration:none;
+}
+#nav a:visited  {
+ color:#666;text-decoration:none;
+}
+#nav a:hover  {
+ color:#FFF;text-decoration:none;font-weight:bold;
+}

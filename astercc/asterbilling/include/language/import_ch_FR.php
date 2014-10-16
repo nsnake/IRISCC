@@ -1,0 +1,30 @@
+<?
+	$please_select_file = "Choisissez un fichier csv/xls";
+	$upload = "upload";
+	$file_manager = "Gestionnaire des fichiers";
+	$no_file_choosen = "Aucun fichier n'a ete selectionne";
+	$add = "Add";
+	$todiallist = "to dial list";
+	$file = "Fichier";
+	$uploadsuccess = "Chargement effectue avec succès";
+	$have = "have";
+	$default = "affiche les 8 premiers resultats";
+	$failed = "Chargement interrompu, Verifiez votre fichier";
+	$choose = "Choisissez un fichier";
+	$import = "Importer";
+	$area = "Assigner";
+	$cantup = "xls,csv seulement";
+	$success = "Succès";
+	$field_overflow	   = "Nombre de champs excede";
+	$field_must_digits = "Les champs doivent contenir des chiffres ";
+	$field_cant_repeat = "Les numero de champs ne peuvent pas être repetes";
+	$error = "erreur";
+	$recrod = " enregistrements";
+	$assign_automaticly = "Les numeros vont être assignes à tous les accomptes automatiquement";
+	$submit = "Envoyer";
+	$selecttable = "Choisissez une table";
+	$feifa = "Erreur";
+	$uploading = "Chargement..., veuillez patienter";
+	$data_importing = "excute donnees de chargement……";
+	$records_inserted = 'insere avec succès';
+?>

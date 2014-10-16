@@ -1,0 +1,876 @@
+BODY {
+	/*text-align: center; */
+	/*text-align: -moz-center; */
+   	margin:0 auto;
+    color:#1e1e1e;
+	background-color: #FFF;
+	font-size: 12px;
+	BACKGROUND: #fff; 
+	PADDING-TOP: 8px;
+    max-width:96em; /* 21.03.2008 */
+    min-width:870px; /* 21.03.2008 */
+    font: 12px/1.6em Verdana, Helvetica, Arial, Geneva, Helvetica, sans-serif;
+}
+
+A {
+	color:#0040b6;
+	text-decoration:none;
+}
+
+A:hover {
+}
+
+A:active {
+}
+
+DIV{
+	white-space:normal;
+}
+
+INPUT, TEXTAREA, SELECT {
+	z-index : -3;
+	font-size: 12px;
+}
+
+HR {
+	height: 1px;
+	border: 0;
+	border-top: 1px solid #CCCCCC;
+}
+
+FORM {
+	BORDER-RIGHT: 0px; 
+	PADDING-RIGHT: 0px;
+	BORDER-TOP: 0px; 
+	PADDING-LEFT: 0px; 
+	PADDING-BOTTOM: 0px; 
+	BORDER-LEFT: 0px; 
+	PADDING-TOP: 0px; 
+	BORDER-BOTTOM: 0px;
+	MARGIN: 0px 0px 0px 0px;
+	DISPLAY:inline;
+}
+
+TABLE {
+	BORDER-RIGHT: medium none; 
+	PADDING-RIGHT: 0px; 
+	BORDER-TOP: medium none; 
+	PADDING-LEFT: 0px; 
+	PADDING-BOTTOM: 0px;
+	MARGIN: 0px; 
+	BORDER-LEFT: medium none; 
+	PADDING-TOP: 0px; 
+	BORDER-BOTTOM: medium none
+}
+
+TD {
+	FONT: 12px/150% Arial, Helvetica, sans-serif;
+}
+
+TH {
+	FONT: 12px/150% Arial, Helvetica, sans-serif;
+}
+
+
+H3 {
+	MARGIN-BOTTOM: 5px; FONT: 14px/150% normal Arial, Helvetica, sans-serif; COLOR: #666666; BACKGROUND-COLOR: #eeffee
+}
+H2 {
+	MARGIN-BOTTOM: 5px; FONT: 14px/150% normal Arial, Helvetica, sans-serif; COLOR: #006600
+}
+H1 {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; FONT-WEIGHT: bold; FONT-SIZE: 28px; PADDING-BOTTOM: 10px; MARGIN: 0px; COLOR: #494949; PADDING-TOP: 18px
+}
+
+A:link {
+	COLOR: #336699; TEXT-DECORATION: underline
+}
+A:visited {
+	COLOR: #666699; TEXT-DECORATION: underline
+}
+A:hover {
+	BACKGROUND: #003399; COLOR: #ffffff; TEXT-DECORATION: none
+}
+A:active {
+	BACKGROUND: #ff9933; COLOR: #ffffff; TEXT-DECORATION: none
+}
+A IMG {
+	BORDER-TOP-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-RIGHT-WIDTH: 0px
+}
+
+
+.pt {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 0px; MARGIN: 0px; WIDTH: 100%; PADDING-TOP: 0px
+}
+
+.mt {
+	MARGIN-LEFT: auto; WIDTH: 100%; MARGIN-RIGHT: auto; BORDER-BOTTOM: #ffffff 20px solid; border-spacing: 0px
+}
+
+.mp {
+	FONT-SIZE: 12px; COLOR: #006600
+}
+.m {
+	FONT-SIZE: 14px; COLOR: #006600; LINE-HEIGHT: 120%
+}
+.mn {
+	FONT: 14px/150% Arial, Helvetica, sans-serif; COLOR: #006600
+}
+
+.lst {
+	PADDING-RIGHT: 0px; PADDING-LEFT: 0px; PADDING-BOTTOM: 5px; WIDTH: 100%; PADDING-TOP: 5px
+}
+.pp {
+	PADDING-RIGHT: 5px; PADDING-LEFT: 5px; FLOAT: left; PADDING-BOTTOM: 5px; MARGIN: 5px; FONT: 12px Arial, Helvetica, sans-serif; VERTICAL-ALIGN: top; PADDING-TOP: 5px; TEXT-ALIGN: center
+}
+.pil {
+	BORDER-RIGHT: #cccccc 1px solid; BORDER-TOP: #cccccc 1px solid; MARGIN-BOTTOM: 5px; BORDER-LEFT: #cccccc 1px solid; WIDTH: 48px; MARGIN-RIGHT: 10px; BORDER-BOTTOM: #cccccc 1px solid; HEIGHT: 48px
+}
+
+.sil {
+	PADDING-RIGHT: 5px; PADDING-LEFT: 5px; FLOAT: left; PADDING-BOTTOM: 5px; MARGIN: 5px; FONT: 12px Arial, Helvetica, sans-serif; VERTICAL-ALIGN: top; PADDING-TOP: 5px; TEXT-ALIGN: left
+}
+
+.fil {
+	PADDING-RIGHT: 15px; FLOAT: left; PADDING-BOTTOM: 15px
+}
+
+.ul {
+	LINE-HEIGHT: 100%; BORDER-BOTTOM: #dddddd 1px dotted
+}
+
+
+.paginator {
+	MARGIN-TOP: 10px; MARGIN-BOTTOM: 5px; FONT: 14px/150% normal Arial, Helvetica, sans-serif; COLOR: #666666; BACKGROUND-COLOR: #eeffee; TEXT-ALIGN: center
+}
+.paginator A {
+	PADDING-RIGHT: 4px; PADDING-LEFT: 4px; PADDING-BOTTOM: 2px; PADDING-TOP: 2px
+}
+.thispage {
+	PADDING-RIGHT: 4px;
+	PADDING-LEFT: 4px;
+	PADDING-BOTTOM: 2px;
+	PADDING-TOP: 2px;
+	border-top: 1px none #999999;
+	border-right: 1px none #999999;
+	border-bottom: 1px none #999999;
+	border-left: 1px none #999999;
+}
+.break {
+	PADDING-RIGHT: 4px; PADDING-LEFT: 4px; PADDING-BOTTOM: 2px; PADDING-TOP: 2px
+}
+.paginator .prev {
+	MARGIN-RIGHT: 20px
+}
+.paginator .next {
+	MARGIN-LEFT: 20px
+}
+.paginator .count {
+	FONT-SIZE: 12px; MARGIN-LEFT: 20px
+}
+.rlnk {
+	CURSOR: pointer; COLOR: #336699; TEXT-DECORATION: underline
+}
+.rlnked {
+	CURSOR: default; COLOR: green; TEXT-DECORATION: none
+}
+
+#pagewidth {
+	min-width: 820px;
+	width: 100%;
+	overflow: hidden;
+	position:relative;
+}
+
+#wrapper {
+	border: 0px;
+	margin: 0px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0px;
+}
+
+#header {
+	height: 45px;
+	min-height: 45px;
+}
+
+ #header ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	position: absolute;
+	height: 40px;
+	border-top: 4px solid #FF881A;
+	background-color: #BED1DF;
+	width: 100%;
+	padding-top: 2px;
+  }
+
+#header ul li {
+		float: left;
+		display: inline;
+}
+
+#header ul a {
+	display: block;
+	font: bold 10px Trebuchet MS, Arial, sans-serif;
+	color: #fff;
+	text-transform: uppercase;
+}
+
+#header ul a {
+padding: 3px 5px;
+-moz-border-radius: 3px;
+-webkit-border-radius : 3px;
+}
+
+#header ul a:focus,
+#header ul a:active,
+#header ul a:hover {
+background-color: #5a5a5a;
+outline: none;
+}
+
+
+/*         #header ul li.service {
+               float: right;
+               margin-right: 23px;
+               display: inline;
+          }
+*/
+
+
+#home #header ul a.home,
+#account #header ul a.account,
+#account_log #header ul a.account_log,
+#accountgroup #header ul a.accountgroup,
+#resellergroup #header ul a.resellergroup,
+#report #header ul a.report,
+#statistic #header ul a.statistic,
+#customerrate #header ul a.customerrate,
+#callshoprate #header ul a.callshoprate,
+#resellerrate #header ul a.resellerrate,
+#clid #header ul a.clid,
+#import #header ul a.import,
+#cdr #header ul a.cdr,
+#profile #header ul a.profile,
+#customers #header ul a.customers,
+#discount #header ul a.discount,		  
+#system #header ul a.system,
+#credithistory #header ul a.credithistory,
+#curcdr #header ul a.curcdr,
+#delete_rate #header ul a.delete_rate{
+	  background-color: #000000;
+	  color: #67A7E3;
+	  -moz-border-radius: 3px;
+	  -webkit-border-radius : 3px;
+  }
+
+
+#wrapper1 div {
+    border: 0px;
+    margin: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px 5px 0px 5px;
+    display: inline;
+}
+
+
+.pagenav {
+	font-size : 12px;
+}
+a.pagenav {
+	color : #808080;
+	font-size : 12px;
+	text-decoration : underline;
+}
+a.pagenav:hover {
+	color : #FFF;
+	font-size : 12px;
+}
+a.pagenav:active {
+	color : #333;
+	font-size : 12px;
+}
+.sectionname {
+	color : #FF9900;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 18px;
+	font-weight: bold;
+}
+
+.inputbox {
+        z-index: -3;
+        font-size: 12px;
+}
+
+div.box{
+	padding-left:10px;
+	float:left;
+	width:220px;
+	height:230px;
+	border : 1px solid #ccc;
+}
+
+.text_area {
+        border : 1px solid #ccc;
+        z-index: -3;
+        font-size: 12px
+}
+.small {
+	color : #FF9900;
+	font-family : Arial, Helvetica, sans-serif;
+	font-size : 12px;
+	text-decoration : none;
+}
+.smallgrey {
+	color : #999;
+	font-size : 12px;
+}
+.error {
+	color : #C40000;
+	font-size : 12px;
+	font-weight : bold;
+}
+
+table.menubar {
+	width: 98%;
+	
+}
+td {
+	font-size: 12px;
+}
+/* header block */
+table.adminheading {
+	background-color: #FFF;
+	font-family : Arial, Helvetica, sans-serif;
+	margin: 0px;
+	padding: 0px;
+	border: 0px;
+	width: 98%;
+	border-collapse: collapse;
+	color: #C64934;
+	font-size : 18px;
+	font-weight: bold;
+	text-align: left;
+}
+table.adminheading th {
+	background: url(../images/generic.png) no-repeat left;
+	text-align: left;
+	height: 50px;
+	width: 99%;
+	padding-left: 50px;
+	border-bottom: 5px solid #fff;
+}
+table.adminheading th.checkin {
+	background: url(../images/checkin.png) no-repeat left;
+}
+table.adminheading th.cpanel {
+	background: url(../images/cpanel.png) no-repeat left;
+}
+table.adminheading th.config {
+	background: url(../images/config.png) no-repeat left;
+}
+table.adminheading th.modules {
+	background: url(../images/module.png) no-repeat left;
+}
+table.adminheading th.menus {
+	background: url(../images/menu.png) no-repeat left;
+}
+table.adminheading th.trash {
+	background: url(../images/trash.png) no-repeat left;
+}
+table.adminheading th.user {
+	background: url(../images/user.png) no-repeat left;
+}
+table.adminheading th.inbox {
+	background: url(../images/inbox.png) no-repeat left;
+}
+table.adminheading th.msgconfig {
+	background: url(../images/message_config.png) no-repeat left;
+}
+table.adminheading th.langmanager {
+	background: url(../images/langmanager.png) no-repeat left;
+}
+table.adminheading th.mediamanager {
+	background: url(../images/mediamanager.png) no-repeat left;
+}
+table.adminheading th.impressions {
+	background: url(../images/impressions.png) no-repeat left;
+}
+table.adminheading th.browser {
+	background: url(../images/browser.png) no-repeat left;
+}
+table.adminheading th.searchtext {
+	background: url(../images/searchtext.png) no-repeat left;
+}
+table.adminheading th.templates {
+	background: url(../images/templatemanager.png) no-repeat left;
+}
+table.adminheading th.massemail {
+	background: url(../images/massemail.png) no-repeat left;
+}
+table.adminheading th.frontpage {
+	background: url(../images/frontpage.png) no-repeat left;
+}
+table.adminheading th.sections {
+	background: url(../images/sections.png) no-repeat left;
+}
+table.adminheading th.edit {
+	background: url(../images/addedit.png) no-repeat left;
+}
+table.adminheading th.categories {
+	background: url(../images/categories.png) no-repeat left;
+}
+table.adminheading th.install {
+	background: url(../images/install.png) no-repeat left;
+}
+table.adminheading th.dbbackup {
+	background: url(../images/backup.png) no-repeat left;
+}
+table.adminheading th.dbrestore {
+	background: url(../images/dbrestore.png) no-repeat left;
+}
+table.adminheading th.dbquery {
+	background: url(../images/query.png) no-repeat left;
+}
+table.adminheading th.info {
+	background: url(../images/systeminfo.png) no-repeat left;
+}
+
+table.adminheading td {
+	color : #000;
+}
+
+
+/* standard list style table */
+table.adminlist {
+	background-color: #FFFFFF;
+	margin: 4px;
+	padding: 0px;
+	border: 1px solid #ddd;
+	border-spacing: 0px;
+	width: 98%;
+	border-collapse: collapse;
+}
+
+table.memberlist {
+	background-color: #FFFFFF;
+	margin: 4px;
+	padding: 0px;
+	border-spacing: 0px;
+	width: 98%;
+	border-collapse: collapse;
+}
+
+table.memberlist td{
+	width: 25%;
+}
+
+table.adminlist th {
+	margin: 0px;
+	padding: 6px 4px 2px 4px;
+	height: 25px;
+	background: url(images/background.jpg);
+	background-repeat: repeat;
+	font-size: 12px;
+	color: #000;
+	
+}
+table.adminlist th.title {
+	text-align: left;
+}
+
+table.adminlist th a:link, table.adminlist th a:visited {
+	color: #c64934;
+	text-decoration: none;
+}
+
+table.adminlist th a:hover {
+	text-decoration: underline;
+}
+
+table.adminlist tr.row0 {
+	background-color: #F9F9F9;
+
+}
+table.adminlist tr.row1 {
+	background-color: #FFF;
+}
+table.adminlist td {
+	/* border-bottom: 1px solid #e5e5e5; */
+	border: 1px solid #e5e5e5;
+	padding: 4px;
+}
+table.adminlist tr.row0:hover {
+	background-color: #f1f1f1;
+}
+table.adminlist tr.row1:hover {
+	background-color: #f1f1f1;
+}
+table.adminlist td.options {
+	background-color: #ffffff;
+	font-size: 12px;
+}
+select.options, input.options {
+	font-size: 12px;
+	font-weight: normal;
+	border: 1px solid #999999;
+}
+/* standard form style table */
+table.adminform {
+	background-color: #f9f9f9;
+	border: solid 1px #d5d5d5;
+	width: 98%;
+	padding: 10px;
+	border-collapse: collapse;
+}
+table.adminform tr.row0 {
+	background-color: #f9f9f9;
+}
+table.adminform tr.row1 {
+	background-color: #eeeeee;
+}
+table.adminform th {
+	font-size: 12px;
+	padding-top: 6px;
+	padding-bottom: 2px;
+	padding-left: 4px;
+	padding-right: 4px;
+	text-align: left;
+	height: 25px;
+	background: url(../images/background.jpg);
+	color: #000;
+	background-repeat: repeat;
+}
+table.adminform td {
+	padding: 3px;
+	text-align: left;
+}
+table.adminform td.editor {
+	font-size: 12px;
+}
+
+table.cpanel td {
+	text-align: center;
+}
+
+/* Styles for dhtml tabbed-pages */
+.ontab {
+	font-size: 12px;
+	background-color: #ffae00;
+	border: 1px solid #cccccc;
+	width: 14%;
+	text-align: center;
+	cursor: pointer;
+	font-weight: bold;
+	color: #FFFFFF;
+}
+.offtab {
+	font-size: 12px;
+	background-color : #e5e5e5;
+	border: 1px solid #cccccc;
+	width: 14%;
+	text-align: center;
+	cursor: pointer;
+	font-weight: normal;
+}
+.tabpadding {
+	/*border-bottom: solid 1px #D5D5D5;*/
+}
+.tabheading {
+	background-color: #FFAE00;
+	color: #FFF;
+	font-size: 12px;
+	text-align: left;
+}
+.pagetext {
+	visibility: hidden;
+	display: none;
+	position: relative;
+	top: 0;
+}
+.menubackgr {
+	background: #F1F3F5;
+	border-bottom: 1px solid #cccccc;
+
+}
+.menudottedline {
+	border-bottom: 1px solid #cccccc;
+	border-top: 1px solid #ffffff;
+	background-color: #F1F3F5;
+}
+.pathway {
+	margin-left: 15px;
+}
+.adminheader {
+	color : #c30;
+	font-size : 24px;
+}
+/* Text passed with mosmsg url parameter */
+.message {
+	font-family : "Trebuchet MS", Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size : 14px;
+	color : #c30;
+	text-align: center;
+}
+
+div.centermain {
+	MARGIN: 10px 10px 10px 10px;
+	padding: 0 10px;
+}
+
+div.main {
+	width: 99%;
+	padding: 0;
+}
+
+.quote {
+	margin: 4px;
+	border: 1px solid #cccccc;
+	background-color: #E9ECEF;
+	padding: 10px;
+	font-size: 12px;
+	color: #254D78;
+}
+
+.formDiv {
+	/* width: 520px; 
+	height: 400px;  */
+	border: thin solid #767676; 
+/*	border-right-width: medium; 
+	border-right-color: #767676; 
+	border-bottom-width: medium; 
+	border-bottom-color: #767676; 
+*/
+	position: absolute; 
+	right: 10px; 
+	top: 10px;
+	visibility: hidden; 
+	background-color: #F1F1F1;
+/*	overflow: auto;*/
+}
+
+#processingMessage {
+    background: white;
+    padding: 20px;
+    border: 2px solid green;
+    display: none; /* hidden */
+    position: absolute;    
+    left: 50%;
+    margin-left: -100px;
+    top: 25%;
+    width: 200px;
+    /*height: 100px;*/
+        /*margin-top: -50;*/
+    font-weight: bold;
+    font-size: large;
+	z-index:100;
+}
+
+/********************************************/
+
+/********************************************/
+
+/********************************/
+
+#des{
+	height:14px;
+	font-weight:bold;
+	text-align:left;
+	border-left:4px solid #CCC;
+	padding:10px;
+}
+
+#title{
+	font-weight:bold;
+	padding:10px;
+	border-top: 0;
+	border-left: 0;
+	
+	background: none
+}
+
+.imagetable{
+	width:100%;
+}
+
+.ulstyle{
+	width:100%;
+	height:auto;
+	line-height:20px;
+	list-style:none;
+	text-align:left;
+	margin-top:0px;
+}
+
+.top_banner {
+	background-image: url(../images/top_bg.gif);
+	background-repeat: repeat-x;
+	height: 127px;
+	width: 980px;
+}
+.top_banner li {
+	list-style-type: none;
+	float: left;
+	margin:0px; 
+	display:inline;
+}
+
+
+/*#tablefield{width:auto;height:auto;text-align:right;margin-top:0px;}*/
+#mainDiv{
+	width:900px;
+	height:auto;
+	text-align:center;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:5px;
+}
+
+#divShowTable{
+	width:200px;
+	height:auto;
+	margin-top:0px;
+	margin-left:10px;
+}
+
+/*#divMainRight{
+	width:600px;
+	height:auto;
+	float:left;
+	margin-top:0px;
+	margin-left:10px;
+}*/
+#divSubmitForm{
+	width:100%;
+	height:auto;
+	line-height:30px;
+	text-align:center;
+	margin-top:10px;
+}
+
+#divShowExcel{
+	width:700px;
+	height:auto;
+	margin:0;
+	overflow:scroll;
+	border:1px double #cccccc;
+}
+
+
+#tablefield{width:auto;height:auto;text-align:right;margin-top:0px;}
+
+#formDiv #loginForm .bottom {
+	background-image: url(../images/login_in_03.gif);
+	height: 1px;
+	width: 460px;
+	background-repeat: repeat-x;
+}
+
+.top_banner ul {
+	padding:0;
+	margin:0;
+	list-style:inside decimal;
+}
+
+.font {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.failed {
+	font-weight: bold;
+	color : red;
+}
+
+.passed {
+	font-weight: bold;
+	color : green;
+}
+
+#divMsg {
+    padding:5px 0;
+    background-color:#F0F8FF;
+    width: 300px;
+    height:30px;
+    font-weight:bold;
+    margin-left:auto;
+    margin-right:auto;
+    margin-top:5px;
+    visibility: hidden;
+    position: absolute; 
+    left: 30%; 
+    top: 3%;
+    border:1px double #cccccc;
+    z-index:999;
+}
+
+
+/***** info popups *****/
+a.info {
+	position:relative;
+	color:black;
+    border-bottom:1px dashed #ccc;
+}
+/* Added to solve the z-order problem of IE */
+a.info:hover {
+	z-index:2;
+}
+/* End */
+a.info span{
+    display: none;
+}
+
+a.info:hover span{
+	display:block;
+	position:absolute;
+	z-index:1;
+	top:2em;
+	left:0em;
+	/*width:20em;*/
+	border:1px solid #E6F2FF;
+	background-color:#E6F2FF;
+	color:#000;
+	text-align:justify;
+	font-size:10px;
+	font-weight:normal;
+	padding:3px;
+	line-height:15px;
+}
+
+.campaign{
+	padding:5px;
+	margin:5px;
+}
+
+.group{
+	font-size:12px;
+	background-color:#E6F2FF;
+	border:1px solid #E6F2FF;
+}
+
+.td{
+	background-image: url(images/background.jpg);
+	background-repeat: repeat-x;
+}
+
+.end{
+	background-repeat:repeat-x;
+	height:64px;
+	margin-top:10px;
+	text-align:center;
+}
+
+.end ul{
+	margin-top:10px;
+	line-height:20px;
+	padding:0;
+	color:#7D8288;
+	list-style:none;
+}
+/* add-flash */
+.jin-fl{margin:5px; border:1px solid #CCC; float:left;}

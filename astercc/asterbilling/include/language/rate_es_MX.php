@@ -1,0 +1,35 @@
+<?
+$like = "Como";
+$prefix = "Prefijo";
+$length = "Longitud";
+$destination = "Destino";
+$connect_charge = "Cargo de conexion";
+$init_block = "Bloque Inicial";
+$rate = "Tarifa";
+$billing_block = "Bloque Facturacion";
+$group = "Caseta";
+$reseller = "Revendedor";
+$addtime = "Agregar Tiempo";
+$add_rate = "Agregar Tarifa";
+$edit_rate = "Editar Tarifa";
+$rate_duplicate = "Duplicar Tarifa";
+$rate_added = "Tarifa agregada";
+$can_not_insert_rate = "No se pudo insertar la Tarifa";
+$rate_updated = "Tarifa actualizada";
+$record_cannot_be_updated = "Tarifa no puede ser actualizada";
+$rate_detail = "Detalles de Tarifa";
+$record_deleted = "Registro eliminado";
+$record_cannot_be_deleted = "Registro no puede ser eliminado";
+$obligatory_fields = "Campos Obligatorios";
+$continue = "Continuar";
+$all = "Todo";
+$option = "Opcion";
+$modify = "Modificar";
+$duplicate = "Duplicar";
+$change = "Cambio";
+$to = "a";
+$plus = "mas";
+$minus = "menos";
+$multiply = "Multiplo";
+$multi_edit = "Multi Edicion";
+?>

@@ -1,0 +1,191 @@
+#!/usr/bin/perl
+
+# for like callingcard solution: callingcard
+
+use strict;
+use DBI;
+use Asterisk::AGI;
+use Config::IniFiles;
+
+$|=1;
+
+# Setup some variables
+my $tests = 0; my $fail = 0; my $pass = 0;
+my $dbh;
+my $conf_file = "/opt/asterisk/scripts/astercc/astercc.conf" ; #may be need change this value to your config file path
+my $cfg = new Config::IniFiles -file => $conf_file;
+
+my %dbInfo = (
+        dbtype => trim($cfg->val('database', 'dbtype')),
+        dbhost => trim($cfg->val('database', 'dbhost')),
+        dbname => trim($cfg->val('database', 'dbname')),
+		dbport  => trim($cfg->val('database', 'dbport')),
+ 		dbuser  => trim($cfg->val('database', 'username')),
+ 		dbpasswd  => trim($cfg->val('database', 'password'))
+   );
+$dbh = &connect_mysql(%dbInfo);
+
+my $context = 'from-internal';
+if ( trim($cfg->val('system', 'clidoutcontext')) ){
+	$context = trim($cfg->val('system', 'clidoutcontext'));
+}
+
+my $myAGI = new Asterisk::AGI; 
+my %AGI = $myAGI->ReadParse(); 
+
+#execute
+checkclid();
+exit;
+
+#check if callerid in clid table
+sub checkclid{
+	my	$exten = $AGI{'extension'};
+	my $curclid = $AGI{'callerid'};	
+	my $query = "SELECT * FROM clid WHERE clid = '$curclid' ";
+	my $clid = &executeQuery($query,'getrow');
+	if($clid) {
+	my	$exten = $AGI{'extension'};
+		checkbalance($clid,$exten);
+	}else{
+		promptPin();
+	}
+}
+
+#if callerid no in clid table, prompt to enter pin number
+sub promptPin{
+	my $pin = shift;
+	# prompt for pin
+	my $pin = $myAGI->get_data('pls-enter-your-pin', 15000 , 20);	
+	my $query = "SELECT * FROM clid WHERE pin = '$pin' ";
+	my $clid = &executeQuery($query,'getrow');
+
+	if ($clid) {
+		# check clid status
+	my	$exten = '';
+		checkbalance($clid,$exten);
+	}else{
+		# dont get a match for the pin		
+		$myAGI->stream_file('your-pin-incorrect','*');
+		promptPin();
+		return 0;
+	}
+}
+
+#check clid if be allowed dial out
+sub checkbalance{
+	my $clid = shift;
+	my $exten = shift;
+
+	# check clid status
+	if ($clid->{"status"} != 1) {
+		$myAGI->stream_file('your-account-disabled','*');
+		&hangup('locked');
+	}
+
+	my $balance = $clid->{'creditlimit'} - $clid->{'curcredit'};
+
+	# check if the guy have enough credit to dial
+	if ( $balance <= 0 ) {
+		$myAGI->stream_file('your-balance-not-enough','*');
+		&hangup('clid');
+	}
+
+	# check the group
+	my $query = "SELECT * FROM accountgroup WHERE id = ".$clid->{'groupid'};
+	my $group = &executeQuery($query,'getrow');
+	if ($group) {
+		if ($group->{'curcredit'} >= $group->{'creditlimit'}) {
+			$myAGI->stream_file('your-balance-not-enough','*');
+			&hangup('group');
+		}
+	}
+
+	# check the reseller
+	$query = "SELECT * FROM resellergroup WHERE id = ".$clid->{'resellerid'};
+	my $group = &executeQuery($query,'getrow');
+	if ($group) {
+		if ($group->{'curcredit'} >= $group->{'creditlimit'}) {
+			$myAGI->stream_file('your-balance-not-enough','*');
+			&hangup('reseller');
+		}
+	}
+		
+	# prompt for destination
+	&promptDestination($clid->{'clid'}, $clid->{'groupid'},$clid->{'resellerid'},$exten,$balance);
+}
+
+# Prompt the dst number and dial
+sub promptDestination{
+	my $clid = shift;
+	my $groupid = shift;
+	my $resellerid = shift;
+	my $exten = shift;
+	my $balance = shift;
+	
+
+	my $dst = '';
+	if($exten == '' ){
+		$dst = $myAGI->get_data('pls-enter-dst-number', 15000 , 20 ,'#');
+	}else{
+		$dst = $exten;
+	}
+
+	# start dial
+	$myAGI->set_callerid($clid);
+	$myAGI->set_extension($dst);
+	$myAGI->set_context("$context");
+	$myAGI->exec('Dial', "$dst@$context/n");
+}
+
+
+exit;
+sub connect_mysql{
+	my	%info = @_;
+	my	$dbh = DBI->connect("DBI:mysql:database=$info{'dbname'};host=$info{'dbhost'};port=$info{'dbport'}",$info{'dbuser'},$info{'dbpasswd'});
+	return($dbh);
+}
+
+sub executeQuery
+{
+	my	$query = shift;
+	return if ($query eq '');
+
+	my	$queryType = shift;
+
+	if (!$dbh->ping) {
+		 &debug("Reconnect database");
+		 $dbh = &connect_mysql(%dbInfo);
+	}
+
+	if ($queryType eq '') {
+		my $affect = $dbh->do($query) or die $dbh->errstr;
+		if ($affect eq '0E0'){
+			return 0;
+		}else{
+			return $affect;
+		}
+	}elsif ($queryType eq 'rows'){
+		my $rows = $dbh->prepare($query);
+		$rows->execute() or die $dbh->errstr;
+		return $rows;
+	}elsif ($queryType eq 'insert'){
+		$dbh->do($query);
+		return $dbh->{q{mysql_insertid}};
+	}elsif ($queryType eq 'getrow'){
+		my $rows = $dbh->prepare($query);
+		$rows->execute() or die $dbh->errstr;
+		if (my $ref = $rows->fetchrow_hashref()) {
+			return $ref;
+		}else{
+			return 0;
+		}
+	}
+}
+
+sub trim
+{
+        my $string = shift;
+        $string =~ s/^\s+//;
+        $string =~ s/\s+$//;
+        return $string;
+}

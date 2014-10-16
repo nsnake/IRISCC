@@ -1,0 +1,30 @@
+<?
+	$please_select_file = "Escolher arquivo csv/xls";
+	$upload = "Carregar";
+	$file_manager = "Administrador de arquivos";
+	$no_file_choosen = "Nenhum arquivo foi escolhido";
+	$add = "Adicionar";
+	$todiallist = "Lista a Marcar";
+	$file = "Arquivo";
+	$uploadsuccess = "Carregado com Sucesso!";
+	$have = "Tem";
+	$default = "Registros, mostra os primeiros 8 registros";
+	$failed = "Erro ao carregar, por favor verifique os diretórios";
+	$choose = "Arquivo escolhido";
+	$import = "Importar";
+	$area = "Selecionar";
+	$cantup = "Somente xls,csv";
+	$success = "Sucesso";
+	$field_overflow	   = "Número de Campos Excedidos ";
+	$field_must_digits = "Campo deve ser dígitos ";
+	$field_cant_repeat = "Não pode repetir número de campos";
+	$error = "Erro";
+	$recrod = " Registros";
+	$assign_automaticly = "Numero de Telefono debe ser asignado a todos las cuentas AsterCRM automaticamente";
+	$submit = "Enviar";
+	$selecttable = "Selecionar Tabela";
+	$feifa = "Erro";
+	$uploading = "Cargando..., por favor espere";
+	$data_importing = "Executando carga de datos……";
+	$records_inserted = 'Registros inseridos com sucesso';
+?>

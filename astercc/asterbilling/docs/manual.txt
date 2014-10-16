@@ -1,0 +1,262 @@
+astercc user manual
+
+***Fist login***
+Access your WEB-based user interface such as http://yourhost/astercc, the login page will be displayed. Use the default User name: admin and default password: admin to login.
+ 
+You will see all of operation item on the top of page after login, contain following item in there: 
+Account | Account Group | Reseller Group | Report | Rate to Customer | Rate to Callshop | Rate to Reseller | Clid | Import | CDR | Logout. 
+ 
+You can find the functions of these items and how to use them by following content.
+
+***Account***
+This item uses to manage user login account. It would be appeared in the interface of Admin user, Reseller user and Groupadmin user. 
+You can see an account which User name, Password and User type all be ¡®admin¡¯ when you login first as admin in this item, 
+and we suggest you change the User name and Password of admin for system safety.
+ 
+It contains four types user account, these user types are ¡®Admin¡¯, ¡®Reseller¡¯, ¡®Groupadmin¡¯ and ¡®Operator¡¯.
+Add an account:
+As an Admin user, you can add users with all the types.
+As a Reseller user, you can add two types of user, they are groupadmin and operator.
+As a Groupadmin user, you can only add one type of user, it is operator.
+Click the ¡®Add¡¯ button on top left corner of account table to add a new account, and then the ¡®Adding Account¡¯ interface will be display:
+ 
+First you should fill in the User Name, Password and select User Type, and then if you want to add a Reseller user, 
+you must select a Reseller (It must be add in Reseller Group before you add a Reseller user) for new account, 
+else if you want to add a Groupadmin user, you must select a Reseller and a Group (they must be add in Reseller Group and Account Group before you add a Groupadmin user, 
+and the account group belong to the reseller group) for new account, the last step, just click the Continue button to finish adding.
+
+Search:
+You can search the account in this table, fill the content you want to search in the blank fields following the ¡®Search:¡¯,
+and select the field of search by, click the continue button to search and display result. 
+
+Other operation:
+You can edit, delete and view the account in Account interface by corresponding button at the end of account row which you want to operate.
+ 
+
+***Account Group***
+This item uses to manage account group. 
+ 
+Add an account group:
+Click the ¡®Add¡¯ button on top left corner of accountgroup table to add a new account group, and then the ¡®Add group¡¯ interface will be display:
+ 
+Reseller: which Reseller group the new account group belongs to, at least there is a reseller group can be selected, this field can not be blank.
+Group Name: give a name for new account group, this field can not be blank.
+Account Code: 
+Callback: select if the new account group can use callback, default is ¡®yes¡¯. 
+Credit Limit: define the credit limit of new account group. It¡¯s would be no limit if it¡¯s blank.
+Limit Status: select the limit status of new account group is ¡®Prepaid¡¯ or ¡®Postpaid¡¯ or ¡®No limit¡¯.
+Select and fill the fit content and click continue button to finish adding.
+
+Search:
+You can search the account group in this table, fill the content you want to search in the blank fields following the ¡®Search:¡¯, 
+and select the field of search by, click the continue button to search and display result. 
+
+Other operation:
+You can edit and delete the account group in Account Group interface by corresponding button at the end of account group row which you want to operate.
+ 
+***Reseller Group***
+This item uses to manage reseller. 
+ 
+Add a reseller:
+Click the ¡®Add¡¯ button on top left corner of resellgroup table to add a new reseller, and then the ¡®Add group¡¯ interface will be display:
+ 
+Reseller Name: give a name for new reseller, this field can not be blank.
+Account Code: 
+Callback: select if the new reseller can use callback, default is ¡®yes¡¯. 
+Credit Limit: define the credit limit of new reseller. It¡¯s would be no limit if it¡¯s blank.
+Limit Status: select the limit status of new reseller is ¡®Prepaid¡¯ or ¡®Postpaid¡¯ or ¡®No limit¡¯.
+Select and fill the fit content and click continue button to finish adding.
+
+Search:
+You can search the reseller in this table, fill the content you want to search in the blank fields following the ¡®Search:¡¯,
+ and select the field of search by, click the continue button to search and display result. 
+
+Other operation:
+You can edit and delete the reseller in Reseller Group interface by corresponding button at the end of reseller row which you want to operate.
+ 
+***Report***
+This item uses to check out Amount, Callshop cost and Reseller cost. 
+ 
+You can see three drop-down list boxes on the first line, the first box use to select the reseller, 
+the second box use to select the account group, and the last one use to select the clid or callback. 
+You can select the period of list on the second line, and if you haven¡¯t checked the check box of List Detail, 
+you will see the all of amount, callshop cost and reseller cost which meet you prescribed conditions, 
+else if you checked that box, you will see the detail record lines, 
+and then you can check each line you need and click the ¡®Check Out¡¯ button to check out the cost you need, 
+or check the box ¡®All¡¯ to check out all cost of records.
+
+***Billing police of system***
+Before you add a rate sheet, you must learn the billing police of this system.
+There are three rate tables in system: myrate, callshoprate and reseller rate. When someone is making a call, 
+the billing system will search the myrate table at first, if there is a rate line which matched by prefix or number length in myrate, 
+that would billing the call by this rate line; if there isn¡¯t a rate line can be matched by prefix or length in myrate, 
+then would billing the call by default rate line in myrate, but if there is not a default rate line in myrate, 
+well then the billing system will search the callshoprate table to billing the call, 
+if there is a rate line which matched by prefix or number length in callshoprate, that would billing the call by this rate line; 
+if there isn¡¯t a rate line can be matched by prefix or length in callshoprate, then would billing the call by default rate line in callshoprate, 
+but if there is not a default rate line in callshoprate, well then the billing system will search the resellerrate table to billing the call, 
+if there is a rate line which matched by prefix or number length in resellerrate, that would billing the call by this rate line; 
+if there isn¡¯t a rate line can be matched by prefix or length in resellerrate, then would billing the call by default rate line in resellerrate, 
+but if there is not a rate line in system, then can¡¯t billing the call.
+
+***Rate to Customer***
+This item uses to define the rate of customer. 
+ 
+
+Add a new customer rate
+Click the ¡®Add¡¯ button on top left corner of myrate table to add a new customer rate, and then the ¡®add rate¡¯ interface will be display:
+ 
+Dialprefix: define the prefix of destination number for this rate; if you want to set this rate to be a default rate, you should fill ¡®default¡¯ in this blank field.
+Length: define the length of destination number, the default is ¡®0¡¯, all length will be matched if it be ¡®0¡¯.
+Destination: describe dials to which country or area uses this rate.
+Connectcharge: define the connection charge, it rate for initblock.
+Initblock: define length of init block it works with connectcharge.
+Rateinitial: define the based rate per billingblock, it rate for a calling except initblock.
+Billingblock: define the length of billingblock, it works with rateinitial.
+Reseller: define this rate using in which reseller.
+Group: define this rate using in which group (call shop) that belong to reseller define in this interface.
+Select and fill the fit content and click continue button to finish adding.
+
+Search and export:
+You can search the rate in this table, fill the content you want to search in the blank fields following the ¡®Search:¡¯,
+ and select the field of search by, click the continue button to search and display result. 
+If you have checked the export check box, the result will be exported to your local machine as a CSV file.
+
+Other operation:
+You can edit and delete the rate by corresponding button at the end of rate row which you want to operate.
+ 
+
+***Rate to Callshop***
+This item uses to define the rate of callshop. 
+ 
+
+Add a new callshop rate
+Click the ¡®Add¡¯ button on top left corner of callshoprate table to add a new rate, and then the ¡®add rate¡¯ interface will be display:
+ 
+Dialprefix: define the prefix of destination number for this rate; if you want to set this rate to be a default rate, you should fill ¡®default¡¯ in this blank field.
+Length: define the length of destination number, the default is ¡®0¡¯, all length will be matched if it be ¡®0¡¯.
+
+Destination: describe dials to which country or area uses this rate.
+Connectcharge: define the connection charge, it rate for initblock.
+Initblock: define length of init block it works with connectcharge.
+Rateinitial: define the based rate per billingblock, it rate for a calling except initblock.
+Billingblock: define the length of billingblock, it works with rateinitial.
+Reseller: define this rate using in which reseller.
+Group: define this rate using in which group (call shop) that belong to reseller define in this interface.
+Select and fill the fit content and click continue button to finish adding.
+
+Search and export:
+You can search the rate in this table, fill the content you want to search in the blank fields following the ¡®Search:¡¯,
+ and select the field of search by, click the continue button to search and display result. If you have checked the export check box, 
+the result will be exported to your local machine as a CSV file.
+
+Other operation:
+You can edit and delete the rate by corresponding button at the end of rate row which you want to operate.
+ 
+
+***Rate to Reseller***
+This item uses to define the rate of reseller. 
+ 
+Add a new reseller rate
+Click the ¡®Add¡¯ button on top left corner of resellerrate table to add a new rate, and then the ¡®add rate¡¯ interface will be display:
+ 
+Dialprefix: define the prefix of destination number for this rate; if you want to set this rate to be a default rate, 
+you should fill ¡®default¡¯ in this blank field.
+Length: define the length of destination number, the default is ¡®0¡¯, all length will be matched if it be ¡®0¡¯.
+Destination: describe dials to which country or area uses this rate.
+Connectcharge: define the connection charge, it rate for initblock.
+Initblock: define length of init block it works with connectcharge.
+Rateinitial: define the based rate per billingblock, it rate for a calling except initblock.
+Billingblock: define the length of billingblock, it works with rateinitial.
+Reseller: define this rate using in which reseller.
+Select and fill the fit content and click continue button to finish adding.
+
+Search and export:
+You can search the rate in this table, fill the content you want to search in the blank fields following the ¡®Search:¡¯, 
+and select the field of search by, click the continue button to search and display result. If you have checked the export check box, 
+the result will be exported to your local machine as a CSV file.
+
+Other operation:
+You can edit and delete the rate by corresponding button at the end of rate row which you want to operate.
+ 
+
+***Clid	***
+This item uses to manage clid. 
+ 
+Add a reseller:
+Click the ¡®Add¡¯ button on top left corner of resellgroup table to add a new reseller, and then the ¡®Add group¡¯ interface will be display:
+ 
+Call ID: define the clid id, it must be an account in asterisk and this account would be billing as a user of callshop.
+Pin Number: it is account id of clid, and it¡¯s also the password for clid login.
+Display: define the name which display in booth box.
+Reseller: select which reseller this clid belong to.
+Group: select which group this clid belong to.
+Status: select if this clid be available or locked.
+Select and fill the fit content and click continue button to finish adding.
+
+Search:
+You can search the clid in this table, fill the content you want to search in the blank fields following the ¡®Search:¡¯, 
+and select the field of search by, click the continue button to search and display result. 
+
+Other operation:
+You can edit and delete the clid in this interface by corresponding button at the end of reseller row which you want to operate.
+ 
+
+***Import***
+This item uses to import the rate sheet. 
+ 
+Upload your rate sheet:
+The rate sheer must be a CSV or xls file, and the file path must be all English word;
+For example, there is one rate record in yourrate.xls.
+ 
+Upload this file and you will see the page display the record.
+ 
+When the file has been uploaded, you should select the table name from selecttable box, 
+the number and content of field of the table you selected will display, 
+and then fill the corresponding number of field in the corresponding blank field under the content of new record you upload.
+ 
+Then select the reseller and group for this rate, just click the ¡®Import¡¯ button to finish importing.
+
+***CDR***
+This item uses to view clid CDR.
+ 
+Enter this page you can view all CDR of clid belong to you.
+
+Search:
+You can search the CDR in this table, fill the content you want to search in the blank fields following the ¡®Search:¡¯, 
+and select the search type (=, <,>, like) and field, click the continue button to search and display result.
+
+***Booth management***
+If you login as groupadmin or operator user, you will see the booth management interface.
+ 
+
+Calling:
+When a customer is calling, you can view it real-time in booth box.
+ 
+Set credit limit:
+ 
+You can set the credit limit for this custom in the booth box, 
+just fill the credit amount in blank field and checked the ¡®Limit¡¯ check box, 
+when the cost of this call more than credit amount, the call will be hung up forced. 
+
+Lock a clid:
+ 
+You can set the credit limit for this custom in the booth box, just checked the ¡®Lock¡¯ check box, 
+and then the color of ¡®Lock¡¯ will turn to red, now, this clid can¡¯t dial to any destination.
+
+Hang up a calling:
+ 
+You can click the ¡®Hangup¡¯ button in booth box to hang up the current call forced.
+Clear a Booth:
+ 
+When a customer finished one or many calls and have already paid to you, you can click the ¡®Clear¡¯ button to finish this booth.
+Viewing CDR:
+ 
+You can click the ¡®Cdr¡¯ button to view CDR of this clid:
+ 
+Callback:
+If the current login account can use call back function, you can see a callback box in this page.
+When you want to use call back, you just fill the ¡®Ori¡¯ and the ¡®Dest¡¯ number in call back box, 
+and then click the ¡®start¡¯ button; now, a callback process will be created, then a new booth box for callback will appear in page. You can set credit amount for the callback.
+ 
+Click the ¡®D¡¯ button on callback booth box to delete it when this callback booth finished.

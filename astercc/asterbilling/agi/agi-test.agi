@@ -1,0 +1,53 @@
+#!/usr/bin/perl
+use strict;
+use DBI;
+use Asterisk::AGI;
+
+$|=1;
+
+# Setup some variables
+my $tests = 0; my $fail = 0; my $pass = 0;
+my $dbh;
+my $myAGI = new Asterisk::AGI; 
+my %AGI = $myAGI->ReadParse(); 
+
+my %dbInfo = (
+        dbtype => 'mysql',
+        dbhost => '127.0.0.1',
+        dbname => 'callshop',
+	dbport  => '3306',
+	dbuser  => 'root',
+	dbpasswd  => 'loh3288lgj'
+   );
+$dbh = &connect_mysql(%dbInfo);
+
+
+
+my ($tmp,$groupid) = split(/-/,$AGI{'context'},2);
+my $pin;
+$pin = $AGI{'dnid'};
+$pin =~ s/\#//; 
+my $query = "SELECT clid FROM clid WHERE groupid = $groupid AND pin = '$pin'";
+my $rows = $dbh->prepare($query);
+$rows->execute() or die $dbh->errstr;
+if (my $ref = $rows->fetchrow_hashref()) {
+	my $dst = $myAGI->get_data('pls-enter-dest', 15000 , 20 ,'#'); 
+	$myAGI->set_callerid($ref->{'clid'});
+	$myAGI->exec('NoOp', "$dst");
+	$dst =~ s/^(00|0)//;
+	$myAGI->set_extension($dst);
+	$myAGI->set_context("callshop");
+	$myAGI->set_variable("dst",$dst);
+
+	$myAGI->exec('Dial', "Sip/ss200/$dst");
+}else{
+	print "HANGUP";
+}
+
+exit 0;
+
+sub connect_mysql{
+	my	%info = @_;
+	my	$dbh = DBI->connect("DBI:mysql:database=$info{'dbname'};host=$info{'dbhost'};port=$info{'dbport'}",$info{'dbuser'},$info{'dbpasswd'});
+	return($dbh);
+}

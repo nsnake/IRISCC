@@ -1,0 +1,183 @@
+#!/usr/bin/perl
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+use Asterisk::AGI;
+use Config::IniFiles;
+use DBI;
+#use Time::Local;
+#use Data::Dumper; 
+#use strict;
+
+my $AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+$|=1; #auto flash
+
+#may be need change this value to your asterbilling config file path
+my $conf_file = "/var/www/html/asterCC/asterbilling/asterbilling.conf.php" ;
+
+# read parameter from conf file
+my $cfg = new Config::IniFiles -file => $conf_file;
+if (not defined $cfg) {
+	&debug("Failed to parse $conf_file:");
+	foreach(@Config::IniFiles::errors) {
+		&debug("Error: $_") ;
+	}
+	exit(1);
+}
+
+my %dbInfo = (
+        dbtype => trim($cfg->val('database', 'dbtype')),
+        dbhost => trim($cfg->val('database', 'dbhost')),
+        dbname => trim($cfg->val('database', 'dbname')),
+		dbport  => trim($cfg->val('database', 'dbport')),
+ 		dbuser  => trim($cfg->val('database', 'username')),
+ 		dbpasswd  => trim($cfg->val('database', 'password'))
+   );
+
+my $dbh = &connect_mysql(%dbInfo);
+my $db_prefix = $dbInfo{'prefix'};
+my $query;
+my $rows;
+my $ref;
+my $extension;
+
+#$AGI->verbose($input{'extension'});
+#$AGI->verbose($input{'callerid'});
+#$AGI->verbose($input{'channel'});
+#$AGI->verbose($input{'type'});
+
+my	$timeout = 40;
+$extension = $input{'extension'};
+
+# 检查该号码属于哪个reseller
+
+$query = "SELECT clid.id,resellergroup.trunk1_id,resellergroup.trunk2_id,resellergroup.resellername FROM ".$db_prefix."clid LEFT JOIN resellergroup ON (resellergroup.id = clid.resellerid) WHERE clid = '$input{'callerid'}' AND  resellerid > 0 AND clid.status = 1";
+
+$rows = &executeQuery($query,'rows');
+
+$ref = $rows->fetchrow_hashref();
+
+if($ref->{'id'} > 0){
+	my $trunk_ref = 0;
+	#die;
+	if ($ref->{'trunk1_id'} == 0 ) { #no trunk, auto 
+		# 没有指定trunk
+		$AGI->exec("NoOP","no trunk assigned for reseller $ref->{'resellername'}");
+		exit;
+		#&hangup();
+	}
+	my $callstatus = '';
+	if($ref->{'trunk1_id'} > 0 ){
+		$query = "SELECT trunks.trunkname,trunks.trunkidentity,trunks.trunkprotocol FROM trunks WHERE id = $ref->{'trunk1_id'} ";
+		$rows = &executeQuery($query,'rows');
+		$trunk_ref = $rows->fetchrow_hashref();
+
+		$AGI->exec("NoOP","Dialing by $trunk_ref->{'trunkname'}");
+		$AGI->exec('dial',"$trunk_ref->{'trunkprotocol'}/$trunk_ref->{'trunkidentity'}/$extension|$timeout|Tt");
+	}else{
+		my	$default_trunk = '';#trim($cfg->val('system', 'resellertrunk'));
+		my	$default_trunk_protocol = '';#trim($cfg->val('system', 'resellertrunktype'));
+
+		if($trunk_ref->{'trunk1_id'} == -1){
+			$default_trunk = trim($cfg->val('resellertrunk', 'trunk1'));
+			$default_trunk_protocol  = trim($cfg->val('resellertrunk', 'trunk1_type'));
+		}elsif($trunk_ref->{'trunk1_id'} == -2){
+			$default_trunk = trim($cfg->val('resellertrunk', 'trunk2'));
+			$default_trunk_protocol  = trim($cfg->val('resellertrunk', 'trunk2_type'));
+		}
+		
+		if($default_trunk ne "" && $default_trunk_protocol ne ""){
+			$AGI->exec("NoOP","Dialing by default trunk $default_trunk");
+			$AGI->exec('dial',"$default_trunk_protocol/$default_trunk/$extension|$timeout|Tt");
+		}else{
+			$AGI->exec("NoOP",'default trunk settings incorrect !!!');
+		}
+	}
+
+	$callstatus = $AGI->get_variable('DIALSTATUS');
+
+	if($callstatus ne 'ANSWER' && $callstatus ne 'CANCEL' && $callstatus ne 'BUSY' ){
+		if($ref->{'trunk2_id'} > 0 ){
+			$query = "SELECT trunks.trunkname,trunks.trunkidentity,trunks.trunkprotocol FROM trunks WHERE id = $ref->{'trunk2_id'} ";
+			$rows = &executeQuery($query,'rows');
+			$trunk_ref = $rows->fetchrow_hashref();
+
+			$AGI->exec("NoOP","Dialing by $trunk_ref->{'trunkname'}");
+			$AGI->exec('dial',"$trunk_ref->{'trunkprotocol'}/$trunk_ref->{'trunkidentity'}/$extension|$timeout|Tt");
+		}else{
+			my	$default_trunk = '';#trim($cfg->val('system', 'resellertrunk'));
+			my	$default_trunk_protocol = '';#trim($cfg->val('system', 'resellertrunktype'));
+
+			if($trunk_ref->{'trunk2_id'} == -1){
+				$default_trunk = trim($cfg->val('resellertrunk', 'trunk1'));
+				$default_trunk_protocol  = trim($cfg->val('resellertrunk', 'trunk1_type'));
+			}elsif($trunk_ref->{'trunk2_id'} == -2){
+				$default_trunk = trim($cfg->val('resellertrunk', 'trunk2'));
+				$default_trunk_protocol  = trim($cfg->val('resellertrunk', 'trunk2_type'));
+			}
+			
+			if($default_trunk ne "" && $default_trunk_protocol ne ""){
+				$AGI->exec("NoOP","Dialing by default trunk $default_trunk");
+				$AGI->exec('dial',"$default_trunk_protocol/$default_trunk/$extension|$timeout|Tt");
+			}else{
+				$AGI->exec("NoOP",'default trunk settings incorrect !!!');
+			}
+		}
+	}
+}
+
+&hangup();
+die;
+
+sub hangup{
+	$AGI->hangup();
+	$AGI->verbose("hang up");
+	exit;
+}
+
+sub connect_mysql
+{
+	my	%info = @_;
+	my	$dbh = DBI->connect("DBI:mysql:database=$info{'dbname'};host=$info{'dbhost'};port=$info{'dbport'}",$info{'dbuser'},$info{'dbpasswd'});
+	return($dbh);
+}
+
+sub executeQuery
+{
+	my	$query = shift;
+	return if ($query eq '');
+
+	my	$queryType = shift;
+
+	if (!$dbh->ping) {
+		 $dbh = &connect_mysql(%dbInfo);
+	}
+	#$AGI->verbose($query);
+	
+	if ($queryType eq '') {
+			my $affect = $dbh->do($query);
+			if ($affect eq '0E0'){
+				return 0;
+			}else{
+				return $affect;
+			}
+	}elsif ($queryType eq 'rows'){
+			my $rows = $dbh->prepare($query);
+			$rows->execute();
+			return $rows;
+	}elsif ($queryType eq 'insert'){
+		$dbh->do($query);
+		return $dbh->{q{mysql_insertid}};
+	}
+}
+
+sub trim($)
+{
+	my $string = shift;
+	$string =~ s/^\s+//;
+	$string =~ s/\s+$//;
+	return $string;
+}
+
+
+

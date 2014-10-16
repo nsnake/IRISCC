@@ -1,0 +1,35 @@
+<?
+$like = "Wie";
+$prefix = "Vorwahl";
+$length = "Länge";
+$destination = "Land";
+$connect_charge = "Verbindungsgebühr";
+$init_block = "Erster Takt";
+$rate = "Tarif";
+$billing_block = "Zweiter Takt";
+$group = "Callshop";
+$reseller = "Reseller";
+$addtime = "Hinzugefügt";
+$add_rate = "Tarif einfügen";
+$edit_rate = "Tarif ändern";
+$rate_duplicate = "Tarif duplizieren";
+$rate_added = "Tarif eingefügt";
+$can_not_insert_rate = "Tarif konnte nicht eingefügt werden";
+$rate_updated = "Tarif aktualisiert";
+$record_cannot_be_updated = "Tarif kann nicht aktualisiert werden";
+$rate_detail = "Tarif Details";
+$record_deleted = "Eintrag gelöscht";
+$record_cannot_be_deleted = "Eintrag kann nicht gelöscht werden";
+$obligatory_fields = "Pflichtfelder";
+$continue = "Weiter";
+$all = "Alle";
+$option = "Option";
+$modify = "ändern";
+$duplicate = "duplizieren";
+$change = "ändern";
+$to = "nach";
+$plus = "plus";
+$minus = "minus";
+$multiply = "Multipliziere";
+$multi_edit = "Multi Edit";
+?>
