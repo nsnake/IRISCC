@@ -1,0 +1,36 @@
+<?php
+$number		= "号码";
+$assign_to	= "分派给";
+$add_diallist	= "添加一个号码";
+$continue	= "继续";
+$group_name = '分组名称';
+$campaign_name = '计划名称';
+$create_time = '创建时间';
+$create_by = '创建者';
+$dialtime = '拨号时间';
+$edit_record = "修改记录";
+$dialed = '已拨列表';
+$campaign = '拨号计划';
+$obligatory_fields = '* 为必填项';
+$all = "全部";
+$dial_number_must_be_digits = "号码必须为数字";
+$empty_means_no_scheduler = "字段为空表示不使用定时拨号";
+$like = "包含";
+$worktime_packages = "工作时间范围";
+$call_order = "优先级";
+$customer = "客户";
+$name = "客户名称";
+$dnc_list = "免拨列表";
+$diallist = "拨号列表";
+$add_dnclist = "添加";
+$please_select = "请选择";
+$memo = "备注";
+$cal = "日期";
+$check_duplicates = "检测重复号码";
+$clear_duplicates = "清除重复号码";
+$export_duplicates = "导出重复号码";
+$duplicate_recorder = "重复号码列表(显示前100条)";
+$are_you_sure_clear_those_duplicate_records = "您确定要清除重复的号码吗";
+$clear_success = "清除成功";
+$clear_failed = "清除失败";
+?>

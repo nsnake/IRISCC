@@ -1,0 +1,133 @@
+/*
+	 *主页样式
+	 *@author RenLi
+	 *@date 2008-10—31
+ */
+@charset "utf-8";
+body{
+	font-family: Arial;
+	font-size: 12px;
+	color: #343434;
+	text-decoration: none;
+	font-weight: bold;
+	background-image: url(../images/login_mainbg.gif);
+	background-repeat: repeat-x;
+	margin:0 auto;
+}
+/*
+整个body的样式定义
+ */
+*{            
+	SCROLLBAR-FACE-COLOR: #efefef;
+	FONT-SIZE: 12px; 
+	SCROLLBAR-HIGHLIGHT-COLOR: #ffffff;
+	SCROLLBAR-SHADOW-COLOR: #999999;
+	SCROLLBAR-3DLIGHT-COLOR: #eaeaea;
+	SCROLLBAR-ARROW-COLOR: #3d3d3d;
+	SCROLLBAR-TRACK-COLOR: #eaeaea;
+	FONT-FAMILY: "宋体";
+	SCROLLBAR-DARKSHADOW-COLOR: white;
+}
+/*
+整个页面滚动条样式的定义
+ */
+a:link,a:visited {
+	color:#000000;
+	text-decoration: none;
+}
+a:hover,a:active {
+	color: #000000;
+	text-decoration: none;
+}
+/*
+链接样式的定义
+ */
+#loginbody{
+	background-image:url(../images/login_bg.gif);
+	width:568px;
+	height:372px;
+	margin:0 auto;
+	margin-top:186px;
+}
+/*
+登录最外层背景部分
+ */
+#logininfo{
+	margin-top:10px;
+	margin-left:95px;
+}
+/* 
+登录信息输入部分
+ */
+#logininfo div.text01{
+line-height:30px;
+}
+/*
+Please文字行样式
+ */
+#logininfo table{
+text-indent:1em;
+}
+/*
+表格首行缩进
+ */
+#logininfo table td{
+text-align:left;
+}/*
+表格里的td对齐
+ */
+.select{
+	font-family: Arial;
+	font-size: 12px;
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+	height: 20px;
+	width: 150px;
+	border-top:solid 1px #3C5364;
+	border-left:solid 1px #3C5364;
+	border-right:solid 1px #6C7A8A;
+	border-bottom:solid 1px #6C7A8A;
+}
+/*
+两个下拉列表框
+ */
+.input{
+	font-family: Arial;
+	font-size: 12px;
+	font-weight: bold;
+	color: #000000;
+	text-decoration: none;
+	height: 16px;
+	width: 147px;
+	_width: 143px;
+	border-top:solid 1px #3C5364;
+	border-left:solid 1px #3C5364;
+	border-right:solid 1px #6C7A8A;
+	border-bottom:solid 1px #6C7A8A;
+}
+/*
+password输入框
+ */
+#copyright{
+	margin-top:70px;
+	width:360px;
+	text-align:center;
+	color: #8C8C8C;
+}
+/*
+版权信息部分
+ */
+#astercclogo{
+margin-left:80px;
+}
+/*
+asterCC标识
+ */
+#sonicwelllogo{
+text-align:center;
+margin-top:15px;
+}
+/*
+sonicwell标识
+ */

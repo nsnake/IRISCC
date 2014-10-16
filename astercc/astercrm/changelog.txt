@@ -1,0 +1,401 @@
+2007-8-30	add processing message									solo
+2007-8-31	disabled waitCursor									solo
+2007-9-3	support external crm									solo
+2007-9-6	modify delete_events.py only delete events 2 minutes ago				solo
+2007-9-6	add extension status									solo
+2007-9-7	add table column extensions in table account						solo
+2007-9-7	修改了转接和分机状态显示,需要在数据库里设置用户可以转接以及状态显示的分机		solo
+2007-9-7	fix a bug when get callerid or calleeid							solo
+2007-9-7	add extension status in manager interface						solo
+2007-9-10	fix bug in README file									solo
+2007-9-10	add authority to manager interface							solo
+2007-9-11	change asterevent class									solo
+-----------------------------------------------------
+v0.0442
+2007-9-14	could open new window when pop-up
+2007-9-18	add table diallist
+2007-9-18	modify style.css to improve compatibility with firefox
+2007-9-18	fix spelling bug in portal.server.php , incotext => incontext
+2007-9-23	add Active Channels in manager interface
+2007-9-24	add predictive dialer (need asterisk be installed with asterisk)
+2007-9-25	if customer information display, it wouldnot pop up
+2007-9-25	add agent outbound campaign
+-----------------------------------------------------------------------------------------
+v0.0443
+2007-9-30	agent界面增加Dial功能
+2007-9-30	customer表中增加了contact, phone, state, city字段
+2007-9-30	login时检查AMI的连接状况和分机状态(可选)
+2007-10-1	AMI连接失败时, 在Manager Interface会有连接失败的提示
+2007-10-2	更改contact为可选, 添加记录时允许不填写联系人或者备注
+2007-10-3	修改了asterisk.php, 修正了生成call文件的权限问题
+2007-10-3	修改了MaxRetries为0
+2007-10-4	改进了predictive dialer，增强对最大active channels的控制
+2007-10-5	修改了astercrm.sql文件, 将date类型修改为datetime
+2007-10-5	将contact和customer改成独立的部分, contact可以脱离customer存在
+2007-10-5	在customer表和contact表中增加了gender字段
+2007-10-8	在asterevent里面查询事件的类中增加对timestamp的判断，仅捕获10秒钟之前的事件
+2007-10-8	修改了弹出窗口获得callerid的一个bug
+2007-10-8	允许contact在不同的customer中切换
+-----------------------------------------------------------------------------------------
+v0.045
+2007-10-8	增加了对用户登陆信息的过滤
+2007-10-9	增加了contact和note管理，以及customer,contact,note的导出功能
+2007-10-9	增加了astercrm类, 修改了grid.*
+2007-10-9	将语言文件改名为.php, 并且合并了相同的部分
+2007-10-10	修改了点击复制联系人时出现的javascript bug
+2007-10-10	增加了代替ProxyMan的方法eventsdaemon
+		以前的ProxyMan.py和delete_evnets.py都可以不用了
+		代之以 eventsdeamon.pl &
+2007-10-10	增加了dialedlist表，保存从diallist里拨出的号码
+2007-10-10	修改了manager.server.php和portal.server.php, 
+		从diallist表里获取号码后会保存在dialedlist表里
+2007-10-10	增加了grid.common.php, 用于保存crm的通用函数
+2007-10-11	增加了对录音功能的控制
+2007-10-14	增加了问卷功能
+2007-10-15	customer表中增加了bankname 和 bankaccount字段
+2007-10-15	priority为0的结果集不在portal中显示
+2007-10-15	修改了登陆界面
+2007-10-15	增加了survey的enable属性
+2007-10-15	弹屏的同时可以自动最大化(在config.php中设置开关变量)
+2007-10-15	来电或着去电时标题栏会闪烁
+2007-10-16	修正了搜索customer时产生的bug
+2007-10-17	config.php中增加一个参数,  $config['system']['trim_zreo']
+		用于判定在将电话号码送入数据库进行匹配前是否会去除前面的0
+2007-10-17	customer的main phone处增加了点击呼叫
+2007-10-17	增加开关控制, 可以控制是否能够自动匹配完全相符的customer和contact
+2007-10-17	copyright内增加版本号信息
+2007-10-17	在发行版中增加了CDR
+2007-10-17	修改了xajaxGrid类文件, 当关闭一个层时自动清空其中的内容
+2007-10-17	config.php中增加一个参数,  $config['system']['allow_dropcall']
+		用于区分系统拨号时使用的方法
+2007-10-17	config.php中增加一个参数,  $config['system']['allow_same_data']
+		用于设定系统是否允许有相同名称的customer数据
+2007-10-17	增加了surveyresult, 允许查看问卷结果
+2007-10-17	customer表中增加了bankzip字段
+2007-10-18	config.php中增加两个参数,  $config['system']['log_enabled']
+					$config['system']['log_file_path']
+		用于设定日志系统是否启动以及日志文件保存的位置
+2007-10-19	增加了德语支持
+2007-10-19	允许移动层
+2007-10-22	使用ini类型的文件代替原来的php格式 增加astercrm.conf.php保存系统参数
+-----------------------------------------------------------------------------------------
+v0.0451
+
+2007-10-24	customer 表内增加了 fax, mobile, email三个字段
+		add four new field in customer table: fax, mobile, email, bankaccountname
+2007-10-24	在asterisk类中增加了sendCall方法,这样就可以在任意机器上使用astercrm的预拨号功能了
+		add sendCall method in asterisk class, now you could install astercrm on a different server from your asterisk and use predictive dialer function
+2007-10-25	customer 表内增加了 bankaccountname 字段
+2007-10-25      在astercrm.conf.php文件中增加enable_contact = "0"，控制contact的显示与隐藏
+		add parameter : "enable_contact", which can be used to control if contact information is displayed
+2007-10-25      修改了form可移动的范围, div可移动的范围可以根据屏幕的变化自适应
+		modify div movable range, the range could adjust automaticly to the width and height of the screen
+2007-10-25      修正了管理界面customer和contact管理不能自动完成, 以及confirm按钮的bug
+		fix "confirm" button bug in customer manage page and contact manage page
+2007-10-25      在note表中增加了 attitude 字段
+		add field attitude in note table, and smile face on agent interface
+2007-10-25      自动完成时 设置成当输入字符长度超过2时才响应
+		when using auto-suggestion, astercrm would only suggest when the length of the string is greater than two
+2007-10-25      增加了点击分机拨号功能
+		add click-call function on extension panel
+2007-10-25      修正了ring=callee时, callerid错误的问题
+		fix callerid bug when first_ring = callee
+-----------------------------------------------------------------------------------------
+v0.0456 beta
+
+2007-10-29      增加了查找电话对应联系人的功能
+2007-10-30      account表增加channel字段, 用于使用zaptel通道的客户
+2007-10-31	增加了hangup方法
+2007-11-1		修正了当使用sendCall方法时不能hangup的问题
+2007-11-1		增加了分机面板上显示入局或出局号码的功能
+2007-11-1		trim_zero修改成trim_prefix, 支持多种前缀消除
+2007-11-6		修正了astercrm.sql, 去掉了insert语句中的表名
+2007-11-6		配置文件中增加了 portal_display_type = "customer" 参数
+			用于控制agent界面客户信息的显示方法
+2007-11-6		修正了astercrm.js, 解决了屏蔽contact是 查找不好用的bug
+2007-11-6		修正了astercrm.class.php, 在mobile和fax域增加了点击拨号功能
+2007-11-6		增加了删除调查问卷选项的功能
+2007-11-7		增加了显示面板上正在通话分机的通话对象的callerid的功能
+2007-11-7		修正当note信息过长时 页面被拉长的bug
+2007-11-7		填写note信息时 将使用textarea而不是inputbox
+2007-11-7		修改了插入数据库时, 无法使用单引号的问题
+2007-11-7		增加了chanspy功能
+2007-11-12	account表增加了accountcode 字段
+2007-11-13	account表增加了groupid 字段
+2007-11-13	增加了accountgroup表
+2007-11-14	修正了使用第三方crm并通过frame显示时的bug
+2007-11-15	修改了参数名称upload_excel_path -> upload_file_path
+2007-11-15	增强customer和contact的搜索功能, 增强导出模块
+2007-11-30	增加了多重条件检索功能
+2007-12-1		增加了按条件导出功能
+2007-11-15	增加对config.php的管理为web模式
+2007-12-13	增加了对google map的支持
+
+-----------------------------------------------------------------------------------------
+v0.046
+2007-12-17	diallist 表增加了 groupid 字段
+2007-12-18	增加了拨号器的分组拨号功能, 可以为不同的分组选用不同的context
+2007-12-19	修改了localization类, 当语言文件不存在时将返回原字符串而不会报错
+2007-12-19	改进了根据callerid查找联系人的方法
+2007-12-19	修改了asterevent.class中的一个bug, 该bug导致当刷新页面时旧有的呼叫事件不会被hangup
+2007-12-19	surveyoption 表增加了 optionnote 字段
+2008-1-8		修改了 eventsdaemon.pl 默认启动时为debug模式, 增加了shell脚本 eventdog.sh
+2008-1-10		survey 表增加了 groupid 字段
+2008-1-10		survey 表增加了 surveynote 字段
+2008-1-10		对 survey 增加了备注说明功能
+2008-1-14		对 surveyoptions 增加了备注说明功能
+2008-1-14		account, survey界面增加了用户组的显示
+2008-1-14		surveyresult, customer, contact, note 表增加了 groupid 字段
+2008-1-15		diallist 表增加了 cretime, creby 字段
+2008-1-15		完善了分组模块
+2008-1-15		astercrm.conf.php 添加了新的参数 detail_level , 取值有 all 或者 group, 控制当显示来电信息时信息系统信息是否共享
+2008-1-15		改进了 asterEvent 类的 checkIncoming 函数的方法, 增强了系统效率和兼容性
+2008-1-16		当分机正在通话, 点击呼叫功能将被禁用
+-----------------------------------------------------------------------------------------
+v0.0461
+2008-1-31		当没有选择指派时, 也能导入diallist
+2008-2-1		修正了predictivedialer拨号时context错误的bug
+2008-2-1		修正sql文件里的错误 (diallist 表字段名称错误)
+2008-2-1		dialedlist表增加了  answertime， duration, response, uniqueid, assign, groupid 字段
+2008-2-4		管理员使用import功能时允许选择导入到哪个组
+2008-2-6		accountgroup 表增加了 creby, cretime 字段
+2008-2-6		增加了campaign表
+2008-2-6		增加了campaignid字段在diallist和dialedlist表
+2008-2-6		增加了dailedlist的回收功能
+2008-2-14		补上了portal.server.php以前丢失的monitor函数
+2008-2-14		导入diallist以及预拨号时可以选择不同的组或是campaign
+2008-2-15		修正了删除suerey时的一个bug
+-----------------------------------------------------------------------------------------
+v0.047 alpha
+2008-2-24		增加了monitorrecord表, 并且在录音的同时会将录音信息保存到该表中
+2008-2-26		修正了一个bug, 当使用customer模式时, 点击detail会报错
+2008-2-29		修正了一个predictivedialer对ie的兼容性问题
+2008-3-24		增加了eventtype参数
+2008-3-24		增加了表curcdr, mycdr
+2008-3-24		增加了表trunkinfo, 保存trunk信息
+2008-3-24		增加了显示从哪条外线打来的功能(被叫号码信息显示)
+2008-5-4		更改了account表和accountgroup表名为astercrm_account和astercrm_accountgroup
+			为了避免和astercc使用中发生冲突
+			表campaign中增加了 `fileid`  `end-fileid` `phonenumber` 三个字段
+			表dialedlist中更改`dialnumber` 为 `dialednumber`
+			增加了 `transfertime` 字段
+2008-5-4		表 `diallist` 增加了 dialtime, trytime, status 字段
+			表 `campaign` 增加了 incontext, outcontext, inexten 字段
+2008-6-3		增加了customer对应的CDR查询功能及管理员后台CDR查询
+2008-6-11		修正了使用astercc时，拨入不弹屏的问题及弹屏时不弹出已有客户信息的问题		
+2008-6-16		增加了customer对应的diallist查询,添加,修改功能
+2008-6-16		增加了dialer.pl进程作为自动拨号程序
+-----------------------------------------------------------------------------------------
+v0.047 beta
+2008-6-22		增加了表peerstatus
+2008-6-22		增加了表speeddial
+2008-6-20		修正了customer对应的diallist列表中添加和修改功能中不能选择日期的bug
+2008-6-26		monitorrecords 表增加了uniqueid字段，用于与mycdr表记录关联
+2008-6-26		更改了录音存储目录结构，按年/月/日/小时进行目录存储
+2008-6-30		增加了customer对应的录音记录查询功能及管理员后台录音记录查询
+2008-7-7		增加了录音记录web播放功能(wav录音格式/mediaplayer插件播放)
+2008-7-22		更新了astercc改善了对queue拨入的支持
+2008-7-26		增加了表queuestatus, 用于保存队列状态
+2008-8-1		批量删除客户记录
+2008-8-6		座席自动拨号
+2008-8-16		更新了astercc对diallist拨号时通话状态的记录
+			dialedlist表中增加了字段`dialedtime`用于回收未到最大拨号次数的未接能号码
+			campaign表中增加了字段`maxtrytime`用于指定diallist号码最大拨号次数
+			增加了回收dialedlist中未到最大拨号次数的未接能号码
+
+-----------------------------------------------------------------------------------------------
+v0.05
+2008-10-8		合并asterbilling与astercrm 库表结构
+2008-10-9		`monitorrecord` 表修改 `filename` 由VARCHAR(60)改为VARCHAR(128)，否则会出现文件名存不全的情况
+2008-10-10		增加agent的默认interval 值为30
+2008-10-10		修改agent 页面中的diallist增加功能 当用户类型为agent时将assign to 栏固定为agent自己的号码
+2008-10-10		修改predictivedialer页 当eventtype=curcdr时, 读取当前系统通话量的方法改为由curcdr表中读取
+2008-10-10		creby 改为varchar(30), 插入用户名称
+2008-10-11		更新所有的xajaxGrid代码
+			1.xajaxGrid无法搜索带单引号的字符串
+			2.将所有的搜索部分增加 > = < like的搜索方式
+2008-10-13		import页选择上传文件时可选已上传文件 上传文件时，可通过下拉列表选择已上传过的文件
+2008-10-13		拨号时在页面上增加提示 解决customer detail 点击 电话号码 进行呼叫时页面上没有任何提示
+2008-10-13		在recentcdr页面上增加对录音文件的关联
+2008-10-13		修改搜索框处敲回车键为搜索而不是添加
+2008-10-13		修正note页选择导出时出错，并且需要改进导出功能 导出数据时将title一并导出
+2008-10-17		pereference页面更新，与astercrm.conf.php同步
+2008-10-18		curcdr,mycdr,historycdr 中增加didnumber字段
+			1. 当从mycdr向historycdr转移数据时 转移didnumber字段
+			2. 显示CDR时增加显示didnumber字段
+			3. 弹屏时显示DID号码
+2008-10-18		astercc进程升级，修正了当从queue拨入时 分机cdr没有didnumber的bug
+2008-10-22		campaign表中增加绑定queue的queuename字段，用于预拨号时 拨号器查询队列状态以决定是否发起一个拨号
+2008-10-23		来电时将主叫号码加入座席页面的search文本框中做为默认值
+2008-10-24		camaign表中增加enable字段，控制camaign是否可用
+2008-10-24		astercrm_account表修改,增加firstname, lastname, agent字段, 修改了extension字段
+2008-10-25		contact表修改,增加 fax_ext 传真分机 字段
+2008-10-25		customer表修改,修改了category字段, 增加了customer.country, phone_ext, fax_ext字段
+2008-10-27		修正了groupadmin后台点回收已拨号码时报错的问题
+2008-10-27		增加对queue/agent模式的预拨号功能的支持
+2008-10-28		修正了diallist修改时出现的campaign名称与数据库存储的名称没有对应上
+2008-10-28		分机面板和后台system页面增加对分机的monitor和whisper功能
+2008-10-28		trunkinfo表中增加didnumber字段， 外部拨入时DID详细信息显示
+2008-10-28		导入页面不再显示表中由系统负责导入的字段
+2008-10-28		修改预拨号页 
+			增加两种拨号规则
+			1. 按座席空闲程度拨号
+			2. 按预拨号接通率拨号
+2008-10-29		astercrm_accoutgroup表修改,增加groupnote字段
+2008-10-31		 monitorrecord 表修改,修改了 extension 字段长度为15
+2008-10-31		增加了CDR显示页对动态座席情况下的支持
+2008-11-3		predictive页增加了groupadmin工作模式
+2008-11-4		修改astercrm_acountgroup表,增加forcemonitor字段，group配置信息中增加强制录音选项
+2008-11-5		增加了通过web更新astercc许可的功能/pereference页面
+2008-11-6		monitorrecord增加了fileformat varchar(8)字段，页面支持播放wav,gsm
+2008-11-6		修改system功能
+			当使用curcdr模式时 修改system页的工作方式为读取curcdr
+			并且当使用groupadmin登陆时, 仅显示本组的实时通话
+2008-11-8		更新asterccd/asterccdaemon脚本,支持astercctools的启动和监测
+2008-11-8		preference页面保存功能修改,增加了保存失败时的提示
+2008-11-10		修改播放monitor record 方法，取消对monitor目录的软连接
+---------------------------------------------------------------------------------------------------------
+v0.055
+2008-11-13	修正了重复显示两条同样的录音记录的bug
+2008-11-17	修正了google map的bug
+2008-11-18	增强了调查问卷的功能
+2008-11-18	将默认的显示内容由note改为customer
+2008-11-19	分机列表mouseover时可以显示用户分机号码
+2008-11-20	增加了来电号码智能匹配功能，当来电在数据库中没有匹配到号码时, 
+		会自动寻找与之近似的号码(即末尾n位不匹配), 并给出提示，
+		astercrm.conf.php中增加参数：smart_match_remove(同时修改preferences页面)
+2008-11-19	不再允许agent监听面板分机，但允许秘语
+2008-11-19	改进了分机面板状态读取方式
+2008-11-19	修正了管理员可以删除自己(account)的bug
+2008-11-20	页面更新事件的时间间隔加到系统参数中，astercrm.conf.php 增加 status_check_interval 参数
+2008-11-20	使用callerid匹配客户信息的函数(getCustomerByCallerid)加了groupid限制的判断
+2008-12-01	修正了astercctools不支持asterisk 1.2的bug
+2008-12-3	修正了可以删除自已账户的bug
+2008-12-05	插入数据时 电话号码字段将过滤掉非数字字符
+2008-12-05	修正系统状态页面的bug：Limit Status状态显示错误
+2008-12-05	修正了diallist页面日期选择按钮的不可用的bug
+2008-12-05	预拨号页增加了对拨号计划的context和inexten信息的显示
+2008-12-05	安装脚本更新，增加了数据建立和建表警告
+2008-12-07	改进了预拨号器 支持进程拨号
+2008-12-07	支持预拨号主叫号码绑定
+2008-12-07	支持预拨号直接进入队列
+2008-12-07	导入拨号列表时可指定拨号时间
+---------------------------------------------------------------------------------------------------------
+v0.056
+2008-12-11	增加了强插和邀请功能
+2008-12-12	所有页面中增加了删除和导入搜索结果的功能
+2008-12-18	添加可观察分机时，支持分机号码和用户名两中方式
+2008-12-22	数据库增加了parkedcalls 表，可获取驻留电话信息
+2009-1-4	改进admin导入diallist时，平均分配号码时，分配到所选组的分机中
+2009-1-4	增加从dialedlist中回收号码时，可通过复选框或搜索结果回收
+2009-1-4	登录页增加了"记住我"
+---------------------------------------------------------------------------------------------------------
+v0.057
+2009-1-12	解决已拨号列表回收和和最大拨号次数的冲突问题
+2009-1-16	解决了 添加用户时usertype选择groupadmin时 不选组也可以添加的问题
+2009-1-23	改进拨号器, 支持不同的拨号服务器
+2009-1-24	google map中文支持
+2009-1-24	增加external link可传递的参数
+2009-1-30	增加按时间限制的授权方式
+2009-1-31	campaign页面增加servername
+2009-2-11	改进导入模块
+2009-2-16	增加对动态座席登入queue时间的统计
+---------------------------------------------------------------------------------------------------------
+v0.058
+2009-2-16	增强astercrm的统计报表(1. campaign的拨号结果 (合计/已拨/已接) 2. 增加对座席的统计报表 
+2009-2-18	解决了拨号计划的checkbox状态不准确的bug
+2009-2-19	解决了录音管理页只显示一页的bug
+2009-2-19	解决了agent页面中，note方式显示时，sql语句中未定义notecreby及customer方式时，客户数据大时会造成cpu超负的问题
+2009-2-27	增加了拨号计划的开始/结束时间设置
+2009-3-2	解决了astercctools录音的路径不正确bug
+2009-3-5	增大astercrm_account表中agent的字段长度 从varchar(30)增大到varchar(50)
+2009-3-8	在astercc的script目录中提供了可通过crontab执行的备份文件和数据库的脚本backup.sh
+2009-3-18	customer表单增加scheduler diallist功能
+2009-3-18	增加调整WaitTime的参数
+2009-3-19	解决了trunkinfo在agent页面上显示的bug
+2009-3-20	允许用户在note部分添加<a href=? onclick="transfer(xxxxxx);return false;">xxxxxx</transferto>标签, 点击时执行transfer动作
+2009-3-21	增加了astercrm与asterbilling 结合使用，在astercrm中增加一个组或用户时，可同时在asterbillingk增加相应计费组和用户
+2009-3-26	增加了已导入文件的删除功能
+2009-3-26	增大了curcdr和mycdr中srcuid和dstuid的长度到40
+2009-3-28	增加了座席暂停/恢复的功能
+2009-4-2	增加了asterisk的reload和restart功能
+---------------------------------------------------------------------------------------------------------
+v0.059
+将portal页的实时请求改为由javascript 发起，解决了网络不稳定时实时信息不刷新的问题
+解决了customer,diallist和dialedlist排序不正确的问题
+解决了note ,diallist, dialedlist, campaign和 contact 不能导出的问题
+解决了 astercc 只有在/opt/...下执行才能检测到许可文件的问题
+解决了预拨号开以复选框在IE7下无效的问题
+解决了在部分版本asterisk下，预拨号时无法录音的问题
+
+
+TO-DO:
+portal中调用checkNewCall函数时,不再判断并传递['curuser']['channel'],只传递['curuser']['extension']###传递channel无法做弹屏判断
+删除asteriskcalls和remindercalls部分
+xajaxGrid无法搜索带单引号的字符串
+agent不应该有权限删除任何东西
+
+[fixed] 增加对dialedlist的导出和删除功能
+[added] 增加显示主叫号码的功能
+call hold
+[fixed] 修改后的获取振铃的方法需要和queue测试, 结果表明依靠dial事件获取振铃的方法不适合queue, 只能通过astercc解决这个问题
+
+[fixed] 部分系统当 allow_dropcall = 1 时 无法发起呼叫, 建议检查asterisk spool目录权限是否正确, 或者修改为 allow_dropcall = 0
+
+加快预拨号器的速度
+channel limit应该增加对zap和iax的支持
+
+导出时, 导出的是id 而不是对应的值
+
+当点击呼叫时, 如果 lega 设置了语音信箱, 那么当lega被hangup 那么legb仍然会接通并进入voicemail
+********************************************************
+
+定时提醒功能
+
+
+
+改善错误提示
+
+手动外拨时的callerid问题
+
+需要php的mbstring模块
+
+need to add queue status
+
+
+voicemail check
+
+增加SMS模块
+
+对1.4版本增加playdtmf功能
+
+增加对sqlite的支持
+增加agent之间的im功能
+
+在predictivedialer里将show sip verbose这个命令改为手动执行
+
+system里增加执行cli命令的部分
+
+#为什么在系统监视里面看到的分机不全？
+----------------------------------------------------------------------------
+
+1。	数据导入
+2。	数据导出
+3。	账户管理
+4。	客户管理
+	4。1	用户管理
+	4。2	联系人管理
+	4。3	备注信息管理
+5。	问卷调查
+	5。1	问卷管理
+	5。2	结果统计
+6。	系统状态
+	6。1	活跃的通道
+	6。2	分机状态
+7。	拨号器
+	7。1	预拨号器
+	7。2	拨号列表
+8。	系统设置
+9。	CDR
+10。	返回
+11。	退出系统

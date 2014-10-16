@@ -1,0 +1,44 @@
+﻿Monitor Service
+
+	astercc.pl				connect to asterisk AMI, read all events and store to database
+
+CRM part
+	./account.*				account management interface
+	./group.*				account group management interface
+	./contact.*				contact management interface
+	./customer.*			customer management interface
+	./diallist.*				diallist management interface
+	./managerportal.*		administrator portal interface
+	./note.*				note management interface
+	./portal.*				agent portal interface
+	./predictivedialer.*		predictive dialer interface
+	./survey.*				survey management interface
+	./surveyresult.*			survey result browser
+	./systemstatus.*			system status browser interface
+	./import.*				import module
+	./login.*				login module
+
+System part:
+
+	./astercrm.conf.php		asterCRM configration file
+	./config.php			read conf file and save it to a global variable
+						define some other global variable
+	./LICENSE				asterCRM license file
+	./FILES.txt				file function description file
+	./sql/astercrm.sql		database create sql file (only for mysql 4.1 or above)
+
+Common Part
+
+	./include/astercrm.class.php		astercrm common class
+	./include/asterevent.class.php	read and analyze asterisk events
+	./include/asterisk.class.php		send request to asterisk
+	./include/excel.class.php		read excel file
+	./include/pgoogle.php			google map api class
+	./upload.php				upload a file to server
+	./db_connect.php			get a database connection handle
+
+Others
+	./js/*					javascript
+	./skin/*				UI files: images, css styles...
+	./docs/*				documents
+	./changelog.txt			changelog and to-do list

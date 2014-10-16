@@ -1,0 +1,36 @@
+<?php
+$ticketcategory_manage = 'TicketCategory Manage';
+$ticket_manage = 'Ticket Manage';
+$like = 'like';
+$ticketcategory_name = 'TicketCategory Name';
+$ticket_name = 'Ticket Name';
+$customer = 'Customer';
+$status = 'Status';
+$memo = 'Memo';
+$creby = 'Creby';
+$adding_ticketdetails = 'adding_ticketdetails';
+$obligatory_fields = 'obligatory_fields';
+$add_ticket_details = 'add_ticket_details';
+$rec_cannot_insert = 'record cannot insert';
+$can_not_delete_this_ticket_detail = 'Can not delete this ticket_detail';
+$delete_rec = 'delete record';
+$rec_cannot_delete = 'record cannot delete';
+$edit_ticket_detail = 'edit ticket_detail';
+$update_rec = 'update record';
+$rec_cannot_update = 'record cannot update';
+$assignto = 'AssignTo';
+$new = 'new';
+$panding = 'panding';
+$closed = 'closed';
+$all = 'ALL';
+$customer_name ='Customer Name';
+$continue = 'continue';
+$none = 'None';
+$please_select = 'please select';
+$cancel = 'cancel';
+$ticketdetail_id = "ID";
+$view_subordinate_ticketdetails = "View Subordinate Ticketdetails";
+$ticket_details_operate_logs = "Ticket Details OperateLogs";
+$subordinate_ticketdetails = "Subordinate TicketDetails";
+$parent_ticketdetail_id = "Parent TicketDetail ID";
+?>

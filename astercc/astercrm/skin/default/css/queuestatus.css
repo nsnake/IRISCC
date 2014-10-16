@@ -1,0 +1,195 @@
+/*
+	 *Group style
+	 *@author RenLi
+	 *@date 2008-10—28
+ */
+/*
+整个页面主体
+ */
+*
+{
+	padding:0;
+	margin:0;
+}
+/*
+所有的内间距、外间距
+ */
+.groups_tittle,.groups_tittle2{
+background-image:url(../images/groupti_bg1.gif);
+background-repeat:repeat-x;
+line-height:36px;
+text-indent:2em;
+height:36px;
+font-weight:bold;
+margin-bottom:10px;
+}
+/*
+Groups的标题
+*/
+.groups_tittle2{
+margin-top:10px;
+}
+.groups_channel table{
+padding:3px;
+margin:0 auto;
+}
+.groups_channel table th{
+	background-color:#F6F2ED;
+	border-top: 1px solid #EDE0CE;
+	border-bottom: 1px solid #EDE0CE;
+	color:#A88E68;
+	text-align:center;
+	height:26px;
+	line-height:26px;
+	
+}
+.groups_channel table td{
+	text-align:center;
+	height:26px;
+	line-height:26px;
+	border-bottom:dashed 1px #EDDFCE;
+	
+}
+.groups_channel table th.gc01{
+	border-left: 1px solid #EDE0CE;
+}
+.groups_channel table th.gc02{
+	border-right: 1px solid #EDE0CE;
+}
+.group01{
+	color:#0066FF;
+	font-weight:bold;
+	height:30px;
+	line-height:30px;
+	width:98%;
+	margin:0 auto;
+}
+.group01_1{
+	height:30px;
+	line-height:30px;
+	width:98%;
+	margin:0 auto;
+}
+.group01content{
+width:98%;
+margin:0 auto;
+overflow:hidden;
+}
+.group01content .group01l,.group01content .group01r{
+float:left;
+width:44%;
+}
+.group01content .group01r{
+width:55%;
+}
+.group01content .input{
+	font-size: 11px;
+	text-decoration: none;
+	border: 1px solid #CCCCCC;
+}
+
+
+.group01_channel table{
+padding:3px;
+margin:0 auto;
+}
+.group01_channel table th{
+	background-color:#EDF2F6;
+	border-top: 1px solid #CDE0EC;
+	border-bottom: 1px solid #CDE0EC;
+	color:#698DA9;
+	text-align:center;
+	height:26px;
+	line-height:26px;
+	
+}
+.group01_channel table td{
+	text-align:center;
+	height:26px;
+	line-height:26px;
+	border-bottom:dashed 1px #CDE0EC;
+	
+}
+.group01_channel table th.gc01{
+	border-left: 1px solid #CDE0EC;
+}
+.group01_channel table th.gc02{
+	border-right: 1px solid #CDE0EC;
+}
+
+
+
+.groupsystem_channel table{
+padding:3px;
+margin:0 auto;
+}
+.groupsystem_channel table th{
+	background-color:#EDF6F2;
+	border-top: 1px solid #CEEDDF;
+	border-bottom: 1px solid #CEEDDF;
+	color:#68A88C;
+	text-align:left;
+	text-indent:1em;
+	height:26px;
+	line-height:26px;
+	
+}
+.groupsystem_channel table td{
+	text-align:left;
+	height:26px;
+	line-height:26px;
+	border-bottom:dashed 1px #CEEDDF;
+	
+}
+.groupsystem_channel table th.gc01{
+	border-left: 1px solid #CEEDDF;
+}
+.groupsystem_channel table th.gc02{
+	border-right: 1px solid #CEEDDF;
+}
+.end{
+background-image:url(../images/groups_endbg.gif);
+background-repeat:repeat-x;
+height:64px;
+margin-top:10px;
+text-align:center;
+}
+.end ul{
+margin-top:10px;
+
+padding:0;
+color:#7D8288;
+list-style:none;
+}
+
+.end ul li{
+	padding-top:11px;
+	line-height:20px;
+	padding-top:0px;
+}
+
+
+#grouprightmenu{
+	background-color:#FFFFFF;
+	border:2px solid #CCD3D9;
+	width:70px;
+	color:#000000;
+}
+#grouprightmenu ul{
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+#grouprightmenu ul li a{
+	display:block;
+	color:#000000;
+	height:19px;
+	text-indent:5px;
+	line-height:19px;
+	text-decoration: none;
+}
+#grouprightmenu ul li a:hover{
+	color:#000000;
+	text-decoration: none;
+	background-color:#E5E9EC;
+}
