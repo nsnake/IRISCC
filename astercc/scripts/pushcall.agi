@@ -1,0 +1,179 @@
+#!/usr/bin/perl
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+use Asterisk::AGI;
+use Config::IniFiles;
+use DBI;
+use Time::Local;
+use Data::Dumper; 
+use strict;
+
+
+#AGI Tx >> agi_request: fh_inbound.agi
+#AGI Tx >> agi_channel: DAHDI/1-1
+#AGI Tx >> agi_language: en
+#AGI Tx >> agi_type: DAHDI
+#AGI Tx >> agi_uniqueid: 1249077344.7
+#AGI Tx >> agi_callerid: 041139735852
+#AGI Tx >> agi_calleridname: unknown
+#AGI Tx >> agi_callingpres: 0
+#AGI Tx >> agi_callingani2: 0
+#AGI Tx >> agi_callington: 0
+#AGI Tx >> agi_callingtns: 0
+#AGI Tx >> agi_dnid: unknown
+#AGI Tx >> agi_rdnis: unknown
+#AGI Tx >> agi_context: from-pstn
+#AGI Tx >> agi_extension: s
+#AGI Tx >> agi_priority: 3
+#AGI Tx >> agi_enhanced: 0.0
+#AGI Tx >> agi_accountcode:
+
+my $AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+$|=1; #auto flash
+my $debug = 1;
+
+#my $conf_file = "$Bin/astercc.conf" ;
+my $conf_file = "/opt/asterisk/scripts/astercc/astercc.conf" ;
+
+# read parameter from conf file
+my $cfg = new Config::IniFiles -file => $conf_file;
+if (not defined $cfg) {
+	print "Failed to parse $conf_file:";
+	foreach(@Config::IniFiles::errors) {
+		print "Error: $_\n" ;
+	}
+	exit(1);
+}
+
+my %dbInfo = (
+        dbtype => trim($cfg->val('database', 'dbtype')),
+        dbhost => trim($cfg->val('database', 'dbhost')),
+        dbname => trim($cfg->val('database', 'dbname')),
+		dbport  => trim($cfg->val('database', 'dbport')),
+ 		dbuser  => trim($cfg->val('database', 'username')),
+ 		dbpasswd  => trim($cfg->val('database', 'password'))
+   );
+
+#my %dbInfo = (
+#        dbtype => 'mysql',
+#        dbhost => 'localhost',
+#        dbname => 'astercc',
+#		dbport  => '3306',
+# 		dbuser  => 'root',
+# 		dbpasswd  => 'astercc',
+#		prefix => ''
+#   );
+
+my $dbh = &connect_mysql(%dbInfo);
+my $db_prefix = $dbInfo{'prefix'};
+my $query;
+my $rows;
+my $ref;
+my $extension;
+
+
+#$AGI->verbose($input{'extension'});
+#$AGI->verbose($input{'callerid'});
+#$AGI->verbose($input{'channel'});
+#$AGI->verbose($input{'type'});
+my $dialpart = $AGI->get_variable('DIALPART');
+
+
+$query = "SELECT id,dstchan FROM curcdr WHERE dst = '$input{'extension'}' ORDER BY id ASC LIMIT 1";
+
+$rows = &executeQuery($query,'rows');
+if($ref = $rows->fetchrow_hashref()){
+	
+	if($dialpart eq 'CALLER'){
+		$AGI->exec('SET',"DSTCHAN=$ref->{'dstchan'}");
+		$query = "UPDATE curcdr SET answertime=now(),pushcall='LINK',disposition='LINK' WHERE id = '$ref->{'id'}'";
+		$rows = &executeQuery($query,'');
+	}else{
+		#$query = "UPDATE curcdr SET answertime=now(),pushcall='PRELINK' WHERE id = '$ref->{'id'}'";
+		$query = "UPDATE curcdr SET pushcall='PRELINK' WHERE id = '$ref->{'id'}'";
+		$rows = &executeQuery($query,'');
+	}
+}
+exit;
+
+sub hangup{
+	$AGI->hangup();
+	$AGI->verbose("hang up");
+	exit;
+}
+
+sub connect_mysql
+{
+	my	%info = @_;
+	my	$dbh = DBI->connect("DBI:mysql:database=$info{'dbname'};host=$info{'dbhost'};port=$info{'dbport'}",$info{'dbuser'},$info{'dbpasswd'});
+	return($dbh);
+}
+
+sub executeQuery
+{
+	my	$query = shift;
+	return if ($query eq '');
+
+	my	$queryType = shift;
+
+	if (!$dbh->ping) {
+		 $dbh = &connect_mysql(%dbInfo);
+	}
+	$AGI->verbose($query);
+	
+	if ($queryType eq '') {
+			my $affect = $dbh->do($query);
+			if ($affect eq '0E0'){
+				return 0;
+			}else{
+				return $affect;
+			}
+	}elsif ($queryType eq 'rows'){
+			my $rows = $dbh->prepare($query);
+			$rows->execute();
+			return $rows;
+	}elsif ($queryType eq 'insert'){
+		$dbh->do($query);
+		return $dbh->{q{mysql_insertid}};
+	}
+}
+
+
+
+sub trim($)
+{
+	my $string = shift;
+	$string =~ s/^\s+//;
+	$string =~ s/\s+$//;
+	return $string;
+}
+
+
+#[from-pushcall]
+#exten => _X.,1,Dial(Local/${EXTEN}@from-internal,30,G(pushcall-temp^${EXTEN}^1))
+#exten => _X.,n,hangup
+#
+#exten => h,1,hangup
+#
+#[pushcall-temp]
+#exten => _X.,1,Set(DIALPART=CALLER)
+#exten => _X.,n,GotoIf($["${DIALPART}" = "CALLER"]?caller)
+#exten => _X.,n,Set(CONFNO=${EXTEN})
+#exten => _X.,n,AGI(pushcall.agi)
+#exten => _X.,n,MeetMe(${EXTEN},'dqtL(30000)')
+#exten => _X.,n,hangup
+#exten => _X.,n(caller),Set(CONFNO=${EXTEN})
+#exten => _X.,n(caller),MeetMe(${EXTEN},'pdq')
+#exten => _X.,n,MeetMeCount(${EXTEN},MCOUNT)
+#exten => _X.,n,GotoIf($["${MCOUNT}" = "1"]?pushlink:hangup)
+#exten => _X.,n(pushlink),AGI(pushcall.agi)
+#exten => _X.,n,NoOp("${DSTCHAN}")
+#exten => _X.,n,GotoIf($["${DSTCHAN}" = ""]?hangup:bridge)
+#exten => _X.,n(bridge),Bridge(\${DSTCHAN}),
+#exten => _X.,n(hangup),hangup
+#
+#exten => h,1,MeetMeCount(${CONFNO},MCOUNT)
+#exten => h,n,GotoIf($["${MCOUNT}" = "1"]?kick:hangup)
+#exten => h,n(kick),MeetMeAdmin(${CONFNO},K)
+#exten => h,n(hangup),hangup

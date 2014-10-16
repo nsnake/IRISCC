@@ -1,0 +1,271 @@
+#!/usr/bin/perl
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+use POSIX 'setsid';
+use strict;
+use DBI;
+use Config::IniFiles;
+use Data::Dumper;
+
+my $conf_file = "$Bin/astercc.conf" ;
+# read parameter from conf file
+my $cfg = new Config::IniFiles -file => $conf_file;
+if (not defined $cfg) {
+	exit(1);
+}
+
+my %dbInfo = (
+        dbtype => trim($cfg->val('database', 'dbtype')),
+        dbhost => trim($cfg->val('database', 'dbhost')),
+        dbname => trim($cfg->val('database', 'dbname')),
+		dbport  => trim($cfg->val('database', 'dbport')),
+ 		dbuser  => trim($cfg->val('database', 'username')),
+ 		dbpasswd  => trim($cfg->val('database', 'password'))
+   );
+
+my $dbprefix = '';
+
+my $debug = trim($cfg->val('database', 'debug'));
+
+my $pidFile = "/var/run/astercrm_update_cdr.pid";
+
+my $maxsec = 86400;
+
+$| =1 ;
+
+if ($ARGV[0] eq '-v'){		# print version
+	print "astercrm_update_cdr version 0.01-100521\n";
+	print "copyright \@2009-2010\n";
+	exit;
+}elsif ($ARGV[0] eq '-t'){	 # test database & asterisk connection 
+	&connection_test;
+	exit;
+}elsif ($ARGV[0] eq '-k'){
+    if (open(MYFILE, $pidFile)) {
+	    # here's what to do if the file opened successfully
+
+		my $line = <MYFILE>;
+		my $res;
+		my $res = `kill -9 $line 2>&1`; 
+		if ($res eq '') {
+			print "astercrm_update_cdr process: $line is killed. \n";
+		}else{
+			print "$res \n";
+			print "cant kill astercrm_update_cdr process. \n";
+			exit;
+		}
+		unlink $pidFile;
+    }else{
+		print "cant find $pidFile. \n";
+	}
+	exit;
+}elsif  ($ARGV[0] eq '-s'){
+    if (open(MYFILE, $pidFile)) {
+	    # here's what to do if the file opened successfully
+
+		my $line = <MYFILE>;
+		my $res;
+		my $res = `ps  --pid=$line 2>&1`; 
+		if ($res =~ /\n(.*)\n/) {
+			print "astercrm_update_cdr status: [start]\n";
+		}else{
+			print "astercrm_update_cdr status: [stop]\n";
+		}
+    }else{
+		print "cant find $pidFile, astercrm_update_cdr may not start \n";
+	}
+	exit;
+}elsif  ($ARGV[0] eq '-h'){
+	print "********* astercrm_update_cdr parameters *********\n";
+	print "    -h show help message\n";
+#	print "    -i parse all queue logs in the log file\n";
+	print "    -d start as a daemon\n";
+	print "    -s show astercrm_update_cdr status\n";
+	print "    -k stop astercrm_update_cdr\n";
+	print "    -v show astercrm_update_cdr version \n";
+	exit;
+}elsif ($ARGV[0] eq '--hours'){
+	
+}elsif ($ARGV[0] eq '--days'){
+	
+}elsif ($ARGV[0] eq '--months'){
+	
+}
+
+
+if (-e $pidFile){
+    if (open(MYFILE, $pidFile)) {
+		my $line = <MYFILE>;
+		my $res;
+		my $res = `ps  --pid=$line 2>&1`; 
+		if ($res =~ /\n(.*)\n/) {
+			print "astercrm_update_cdr daemon is still running. Please stop first.\n"; #If no please del $pidFile \n";
+			exit;
+		}else{
+			unlink $pidFile;
+		}
+    }
+}
+
+if (!&connection_test){
+	print("Connection failed, please check the log file for detail.\n");
+	exit;
+}
+
+if ($ARGV[0] eq '-d'){
+	# run background
+	my $daemon=1;
+	my $pid=&become_daemon;
+
+	open PIDFILE, ">$pidFile" or die "can't open $pidFile: $!\n";
+	print PIDFILE $pid;
+	close PIDFILE;
+}
+
+
+my $dbh = &connect_mysql(%dbInfo);
+
+my $query = "SELECT * FROM mycdr WHERE crm_customerid = '0' AND calldate >= (now()-INTERVAL $maxsec SECOND)";
+#$debug = 11;
+my $n=0;
+while ( 1 ) {
+	$n ++;
+	my $rows = &executeQuery($query,'rows');
+	while ( my $ref = $rows->fetchrow_hashref() ) {
+		my $sql = "SELECT id FROM customer WHERE phone='$ref->{'src'}' OR phone='$ref->{'dst'}' OR mobile='$ref->{'src'}' OR mobile='$ref->{'dst'}' ORDER BY id DESC LIMIT 1";
+		my $customer_rows = &executeQuery($sql,'rows');
+		if(my $customer_ref = $customer_rows->fetchrow_hashref()){
+			#print Dumper($customer_ref);
+			$sql = "UPDATE mycdr SET crm_customerid='$customer_ref->{'id'}' WHERE id='$ref->{'id'}'";
+			&executeQuery($sql,'');
+		}else{
+			my $sql = "SELECT id,customerid FROM contact WHERE phone='$ref->{'src'}' OR phone='$ref->{'dst'}' OR mobile='$ref->{'src'}' OR mobile='$ref->{'dst'}' OR phone1='$ref->{'src'}' OR phone1='$ref->{'dst'}' OR phone2='$ref->{'src'}' OR phone2='$ref->{'dst'}' ORDER BY id DESC LIMIT 1";
+			my $contact_rows = &executeQuery($sql,'rows');
+			if(my $contact_ref = $contact_rows->fetchrow_hashref()){
+				#print Dumper($contact_ref);
+				if($contact_ref->{'customerid'} == 0){
+					$contact_ref->{'customerid'} = -2;
+				}
+				$sql = "UPDATE mycdr SET crm_customerid='$contact_ref->{'customerid'}',contactid='$contact_ref->{'id'}' WHERE id='$ref->{'id'}'";
+				&executeQuery($sql,'');
+			}else{
+				$sql = "UPDATE mycdr SET crm_customerid='-1' WHERE id='$ref->{'id'}'";
+				&executeQuery($sql,'');
+			}
+		}
+		#print Dumper($ref);
+	}
+	#print "$n\n";
+	sleep 60;
+}
+
+unlink($pidFile);
+exit;
+
+
+sub connect_mysql
+{
+	my	%info = @_;
+	my	$dbh = DBI->connect("DBI:mysql:database=$info{'dbname'};host=$info{'dbhost'};port=$info{'dbport'}",$info{'dbuser'},$info{'dbpasswd'});
+	return($dbh);
+}
+
+sub connection_test{
+	my $result = 1;
+
+	&debug("Connecting to $dbInfo{'dbtype'} database on $dbInfo{'dbhost'}:");
+	my $dbh = &connect_mysql(%dbInfo);
+	if( !$dbh ){
+		&debug("Database connection unsuccessful. Please check your login details. ".$DBI::errstr);
+		$result = 0;
+	}else{
+		&debug("Database connection successful.");
+	}
+	return $result;
+}
+
+sub executeQuery
+{
+	my	$query = shift;
+	return if ($query eq '');
+
+	my	$queryType = shift;
+
+	if (!$dbh->ping) {
+		 &debug("Reconnect database");
+		 $dbh = &connect_mysql(%dbInfo);
+	}
+
+	if ($debug > 10) {
+		&debug("$query");
+	}
+
+	if ($queryType eq '') {
+			my $affect = $dbh->do($query) or &debug($dbh->errstr."($query)");
+			if ($affect eq '0E0'){
+				return 0;
+			}else{
+				return $affect;
+			}
+	}elsif ($queryType eq 'rows'){
+			my $rows = $dbh->prepare($query);
+			$rows->execute() or &debug($dbh->errstr);
+			return $rows;
+	}elsif ($queryType eq 'insert'){
+		$dbh->do($query) or &debug($dbh->errstr);
+		return $dbh->{q{mysql_insertid}};
+	}
+}
+
+sub trim($)
+{
+	my $string = shift;
+	$string =~ s/^\s+//;
+	$string =~ s/\s+$//;
+	return $string;
+}
+
+sub become_daemon {
+    die "Can't fork" unless defined (my $child = fork);
+    exit 0 if $child;#kill父进程
+    setsid();
+    open( STDIN, "</dev/null" );
+    open( STDOUT, ">/dev/null" );
+    open( STDERR, ">&STDOUT" );
+
+	$SIG{__WARN__} = sub {
+		&debug ("NOTE! " . join(" ", @_));
+	};
+
+	$SIG{__DIE__} = sub { 
+		&debug ("FATAL! " . join(" ", @_));
+		unlink $pidFile;
+		exit;
+	};
+
+	$SIG{HUP} = $SIG{INT} = $SIG{TERM} = sub {
+		# Any sort of death trigger results in death of all
+		my $sig = shift;
+		$SIG{$sig} = 'IGNORE';
+		die "killed by $sig\n";
+		exit;
+	};
+
+    umask(0);
+	#$ENV{PATH} = '/bin:/sbin:/usr/bin:/usr/sbin';
+    return $$;
+}
+
+sub debug{
+	my $message = shift;
+	my $time=scalar localtime;
+	if ($debug > 0) {
+		if ($ARGV[0] eq '-d'){		# output to file
+			open (HDW,">>$Bin/astercrm_update_cdr.txt");
+			print HDW $time," ",$message,"\n";
+			close HDW;
+		}else{
+			print $time," ",$message,"\n";
+		}
+	}
+}

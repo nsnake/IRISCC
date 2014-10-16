@@ -1,0 +1,166 @@
+#!/usr/bin/perl
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+use Asterisk::AGI;
+use Config::IniFiles;
+use DBI;
+#use Time::Local;
+#use Data::Dumper; 
+#use strict;
+
+my $AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+$|=1; #auto flash
+
+#may be need change this value to your asterbilling config file path
+my $conf_file = "/opt/asterisk/scripts/astercc/astercc.conf" ;
+
+# in ISO it's supposed to be 
+# my $conf_file = "/var/www/html/asterCC/asterbilling/asterbilling.conf.php" ;
+
+# read parameter from conf file
+my $cfg = new Config::IniFiles -file => $conf_file;
+if (not defined $cfg) {
+	print "Failed to parse $conf_file:";
+	foreach(@Config::IniFiles::errors) {
+		print "Error: $_" ;
+	}
+	exit(1);
+}
+
+my %dbInfo = (
+        dbtype => trim($cfg->val('database', 'dbtype')),
+        dbhost => trim($cfg->val('database', 'dbhost')),
+        dbname => trim($cfg->val('database', 'dbname')),
+		dbport  => trim($cfg->val('database', 'dbport')),
+ 		dbuser  => trim($cfg->val('database', 'username')),
+ 		dbpasswd  => trim($cfg->val('database', 'password'))		
+   );
+
+my $dbh = &connect_mysql(%dbInfo);
+my $db_prefix = $dbInfo{'prefix'};
+my $query;
+my $rows;
+my $ref;
+my $extension;
+my $paramdelimiter = trim($cfg->val('asterisk', 'paramdelimiter'));
+
+#$AGI->verbose($input{'extension'});
+#$AGI->verbose($input{'callerid'});
+#$AGI->verbose($input{'channel'});
+#$AGI->verbose($input{'type'});
+
+my	$timeout = 45;
+$extension = $input{'extension'};
+
+# 检查该号码属于reseller,accountgroup和clid的balance是否可用
+
+$query = "SELECT * FROM clid WHERE  clid = '$input{'callerid'}' ";
+$rows = &executeQuery($query,'rows');
+
+my $lock = 0;
+my $lock_reason = "";
+if ($ref = $rows->fetchrow_hashref()) {
+	if ($ref->{'status'} == -1) { # locked
+		&hangup('booth status locked');
+	}
+
+
+	if ($ref->{'locked'} == 1) { # locked
+		&hangup('booth balance locked');
+	}
+
+	# 检查是否设定了balance
+
+	my $booth_balance = $ref->{'creditlimit'} - $ref->{'curcredit'};
+	$AGI->exec("NoOP","booth balance: $booth_balance");
+
+	if ($ref->{'limittype'} ne '' && $booth_balance <= 0) {
+		&hangup("booth have no credit, limittype  is $ref->{'limittype'}");
+	}
+	# booth pass
+
+	# 检查accout group的balance
+	$query = "SELECT * FROM accountgroup WHERE id = $ref->{'groupid'}";
+	my $callshop_rows = &executeQuery($query,'rows');
+	if (my $callshop_ref = $callshop_rows->fetchrow_hashref()) {
+		my $callshop_balance = $callshop_ref->{'creditlimit'} - $callshop_ref->{'curcredit'};
+		$AGI->exec("NoOP","callshop balance: $callshop_balance");
+
+		if ($callshop_ref->{'limittype'} ne '' && $callshop_balance <= 0) {
+			&hangup("callshop have no credit, limittype  is $callshop_ref->{'limittype'}");
+		}
+		# callshop pass
+
+		$query = "SELECT * FROM resellergroup WHERE id = $ref->{'resellerid'}";
+		my $reseller_rows = &executeQuery($query,'rows');
+		if (my $reseller_ref = $reseller_rows->fetchrow_hashref()) {
+			my $reseller_balance = $reseller_ref->{'creditlimit'} - $reseller_ref->{'curcredit'};
+			$AGI->exec("NoOP","reseller balance: $reseller_balance");
+
+			if ($reseller_ref->{'limittype'} ne '' && $reseller_balance <= 0) {
+				&hangup("reseller have no credit, limittype is $reseller_ref->{'limittype'}");
+			}
+		}
+	}else{
+		&hangup("no accountgroup found for booth $input{'callerid'}, groupid is $ref->{'groupid'}");
+	}
+}else{
+	&hangup("no clid found for clid $input{'callerid'}");
+}
+
+#$AGI->exec("Goto","from-a2billing,$input{'extension'},1");
+$AGI->exec("NoOp","all check pass");
+exit;
+
+sub hangup{
+	my $reason = shift;
+	$AGI->exec("NoOP","hangup coz $reason");
+	$AGI->hangup();
+	#$AGI->verbose("hang up coz $reason");
+	exit;
+}
+
+sub connect_mysql
+{
+	my	%info = @_;
+	my	$dbh = DBI->connect("DBI:mysql:database=$info{'dbname'};host=$info{'dbhost'};port=$info{'dbport'}",$info{'dbuser'},$info{'dbpasswd'});
+	return($dbh);
+}
+
+sub executeQuery
+{
+	my	$query = shift;
+	return if ($query eq '');
+
+	my	$queryType = shift;
+
+	if (!$dbh->ping) {
+		 $dbh = &connect_mysql(%dbInfo);
+	}
+	#$AGI->verbose($query);
+	
+	if ($queryType eq '') {
+			my $affect = $dbh->do($query);
+			if ($affect eq '0E0'){
+				return 0;
+			}else{
+				return $affect;
+			}
+	}elsif ($queryType eq 'rows'){
+			my $rows = $dbh->prepare($query);
+			$rows->execute();
+			return $rows;
+	}elsif ($queryType eq 'insert'){
+		$dbh->do($query);
+		return $dbh->{q{mysql_insertid}};
+	}
+}
+
+sub trim($)
+{
+	my $string = shift;
+	$string =~ s/^\s+//;
+	$string =~ s/\s+$//;
+	return $string;
+}

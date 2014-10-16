@@ -1,0 +1,614 @@
+#!/bin/bash
+# chkconfig: 2345 99 5
+# description: Activates/Deactivates astercc and asterrc.
+#
+
+# astercc and asterrc control script designed to allow an easy command line interface
+# to controlling astercc and asterrc.  Written by donnie, 2008/03/20
+# 
+# The exit codes returned are:
+#	0 - operation completed successfully
+#	1 - 
+#	2 - usage error
+#	3 - astercc could not be started
+#	4 - astercc could not be stopped
+#	5 - astercc could not be started during a restart
+#	6 - astercc could not be restarted during a restart
+#	7 - asterrc could not be started
+#	8 - asterrc could not be stopped
+#	9 - asterrc could not be started during a restart
+#	10 - asterrc could not be restarted during a restart
+#	11 - asterccdaemon could not be started
+#	12 - asterccdaemon could not be stopped
+#
+# When multiple arguments are given, only the error from the _last_
+# one is reported. 
+#
+#
+# |||||||||||||||||||| CONFIGURATION SECTION  ||||||||||||||||||||
+# --------------------                              --------------------
+#
+# which daeman could be control by this script, set daemonname=1 if you want to control else set daemonname=0.
+#
+asterccmainpath="/opt/asterisk/scripts/astercc"
+
+astercc=`sed -n '/\[system]/,/\[.*\]/p' ${asterccmainpath}/astercc.conf |grep astercc_start[\ ]*= |grep -v "^[\ *\;\ *]" |cut -d= -f2 |tr -d " " |grep -o "[0-9]\+"`
+
+if [ "X${astercc}" == "X" ]; then
+  astercc=0
+fi
+
+astercctools=`sed -n '/\[system]/,/\[.*\]/p' ${asterccmainpath}/astercc.conf |grep astercctools_start[\ ]*= |grep -v "^[\ *\;\ *]" |cut -d= -f2 |tr -d " " |grep -o "[0-9]\+"`
+
+if [ "X${astercctools}" == "X" ]; then
+  astercctools=0
+fi
+
+asterrc=`sed -n '/\[system]/,/\[.*\]/p' ${asterccmainpath}/astercc.conf |grep asterrc_start[\ ]*= |grep -v "^[\ *\;\ *]" |cut -d= -f2 |tr -d " " |grep -o "[0-9]\+"`
+
+if [ "X${asterrc}" == "X" ]; then
+  asterrc=0
+fi
+
+astercclock=`sed -n '/\[system]/,/\[.*\]/p' ${asterccmainpath}/astercc.conf |grep astercclock_start[\ ]*= |grep -v "^[\ *\;\ *]" |cut -d= -f2 |tr -d " " |grep -o "[0-9]\+"`
+
+if [ "X${astercclock}" == "X" ]; then
+  astercclock=0
+fi
+
+asterccdaemon=`sed -n '/\[system]/,/\[.*\]/p' ${asterccmainpath}/astercc.conf |grep asterccdaemon_start[\ ]*= |grep -v "^[\ *\;\ *]" |cut -d= -f2 |tr -d " " |grep -o "[0-9]\+"`
+
+if [ "X${asterccdaemon}" == "X" ]; then
+  asterccdaemon=0
+fi
+
+events2filedaemon=`sed -n '/\[system]/,/\[.*\]/p' ${asterccmainpath}/astercc.conf |grep events2filedaemon_start[\ ]*= |grep -v "^[\ *\;\ *]" |cut -d= -f2 |tr -d " " |grep -o "[0-9]\+"`
+
+if [ "X${events2filedaemon}" == "X" ]; then
+  events2filedaemon=0
+fi
+
+#path of your events2filedaemon
+events2filedaemonpath="${asterccmainpath}/events2filedaemon.pl"
+eventsfile=`sed -n '/\[system]/,/\[.*\]/p' ${asterccmainpath}/astercc.conf |grep eventsfile[\ ]*= |grep -v "^[\ *\;\ *]" |cut -d= -f2 |tr -d " " `
+if [ "X${eventsfile}" == "X" ]; then
+  eventsfile='/tmp/asterccevents.log'
+fi 
+eventsfilecurline="${eventsfile}_cur_line"
+
+#path of your astercc
+asterccpath="${asterccmainpath}/astercc"
+#
+#path of your asterrc
+asterrcpath="${asterccmainpath}/asterrc"
+#
+#path of your astercctools
+asterctpath="${asterccmainpath}/astercctools"
+#
+#path of your astercclock
+asterlcpath="${asterccmainpath}/astercclock"
+#
+# the absolute path to your asterrc monitor---asterccdaemon
+asterccdaemonpath="${asterccmainpath}/asterccdaemon"
+
+#
+# --------------------                              --------------------
+# ||||||||||||||||||||   END CONFIGURATION SECTION  ||||||||||||||||||||
+# Source function library.
+#. /etc/rc.d/init.d/functions
+
+ERROR=0
+ARGV="$@"
+asterccpid=`ps -ef |grep -v grep |grep -E '/astercc$|/astercc[\ ]+-d' |awk '{print $2}'`
+asterrcpid=`ps -ef |grep -v grep |grep -E '/asterrc$|/asterrc[\ ]+-d' |awk '{print $2}'`
+asterlcpid=`ps -ef |grep -v grep |grep -E '/astercclock$|/astercclock[\ ]+-d' |awk '{print $2}'`
+asterctpid=`ps -ef |grep -v grep |grep -E '/astercctools$|/astercctools[\ ]+-d' |awk '{print $2}'`
+
+events2filedaemonpid=`ps -ef |grep -v grep |grep -E '/events2filedaemon\.pl$|/events2filedaemon\.pl[\ ]+-d' |awk '{print $2}'`
+
+
+if [ "x$ARGV" = "x" ] ; then 
+    ARGS="start"
+fi
+
+for ARG in $@ $ARGS
+do
+    # check for pid	
+
+	#for events2filedaemon
+	if [ "x$events2filedaemonpid" != "x" ]; then
+	    events2filedaemonSTATUS="events2filedaemon (pid $events2filedaemonpid) running"
+	    events2filedaemonRUNNING=1
+	else
+	    events2filedaemonSTATUS="events2filedaemon not running"
+	    events2filedaemonRUNNING=0
+	fi
+
+	#for astercc
+	if [ "x$asterccpid" != "x" ]; then
+	    asterccSTATUS="astrercc (pid $asterccpid) running"
+	    asterccRUNNING=1
+	else
+	    asterccSTATUS="astercc not running"
+	    asterccRUNNING=0
+	fi
+
+	#for asterrc
+	if [ "x$asterrcpid" != "x" ]; then
+	    asterrcSTATUS="astrerrc (pid $asterrcpid) running"
+	    asterrcRUNNING=1
+	else
+	    asterrcSTATUS="asterrc not running"
+	    asterrcRUNNING=0
+	fi
+
+	#for astercclock
+	if [ "x$asterlcpid" != "x" ]; then
+	    asterlcSTATUS="astrercclock (pid $asterlcpid) running"
+	    asterlcRUNNING=1
+	else
+	    asterlcSTATUS="astercclock not running"
+	    asterlcRUNNING=0
+	fi
+
+	#for astercctools
+	if [ "x$asterctpid" != "x" ]; then
+	    asterctSTATUS="astercctools (pid $asterctpid) running"
+	    asterctRUNNING=1
+	else
+	    asterctSTATUS="astercctools not running"
+	    asterctRUNNING=0
+	fi
+
+    case $ARG in
+    start)
+
+	#for events2filedaemon
+	if [ ${events2filedaemon} -eq 1 ]; then 
+	  
+		if [ $events2filedaemonRUNNING -eq 1 ]; then
+		    echo "$0 $ARG: events2filedaemon (pid $events2filedaemonpid) already running"
+		else
+		    if test -s $events2filedaemonpath
+		    then
+			    /usr/bin/perl $events2filedaemonpath -d
+			    events2filedaemonpid=`ps -ef |grep -v grep |grep -E '/events2filedaemon.pl$|/events2filedaemon.pl[\ ]+-d' |awk '{print $2}'`
+			    if [ "x$events2filedaemonpid" != "x" ] ; then
+			       echo "$0 $ARG: events2filedaemon started"
+			    else
+				echo "$0 $ARG: events2filedaemon could not be started"
+				ERROR=3
+			    fi
+		    else
+			echo No events2filedaemon in $events2filedaemonpath
+			ERROR=1
+		    fi
+		fi
+	fi
+
+	#for astercc
+	if [ ${astercc} -eq 1 ]; then 
+	  
+		if [ $asterccRUNNING -eq 1 ]; then
+		    echo "$0 $ARG: astercc (pid $asterccpid) already running"
+		else
+		    if test -s $asterccpath
+		    then
+			    $asterccpath -d
+			    asterccpid=`ps -ef |grep -v grep |grep -E '/astercc$|/astercc[\ ]+-d' |awk '{print $2}'`
+			    if [ "x$asterccpid" != "x" ] ; then
+			       echo "$0 $ARG: astercc started"
+			    else
+				echo "$0 $ARG: astercc could not be started"
+				ERROR=3
+			    fi
+		    else
+			echo No astercc in $asterccpath
+			ERROR=1
+		    fi
+		fi
+	fi
+
+	#for astercctools
+	if [ ${astercctools} -eq 1 ]; then 
+	  
+		if [ $asterctRUNNING -eq 1 ]; then
+		    echo "$0 $ARG: astercctools (pid $asterctpid) already running"
+		else
+		    if test -s $asterctpath
+		    then
+			    $asterctpath -d
+			    asterctpid=`ps -ef |grep -v grep |grep -E '/astercctools$|/astercctools[\ ]+-d' |awk '{print $2}'`
+			    if [ "x$asterctpid" != "x" ] ; then
+			       echo "$0 $ARG: astercctools started"
+			    else
+				echo "$0 $ARG: astercctools could not be started"
+				ERROR=3
+			    fi
+		    else
+			echo No astercctools in $asterctpath
+			ERROR=1
+		    fi
+		fi
+	fi
+
+	#for asterrc
+	if [ ${asterrc} -eq 1 ]; then 
+		if [ $asterrcRUNNING -eq 1 ]; then
+		    echo "$0 $ARG: asterrc (pid $asterrcpid) already running"
+		else
+		    if test -s $asterrcpath
+		    then
+			    $asterrcpath -d
+			    asterrcpid=`ps -ef |grep -v grep |grep -E '/asterrc$|/asterrc[\ ]+-d' |awk '{print $2}'`
+			    if [ "x$asterrcpid" != "x" ] ; then
+				echo "$0 $ARG: asterrc started"
+			    else
+				echo "$0 $ARG: asterrc could not be started"
+				ERROR=7
+			    fi
+		    else
+			echo No asterrc in $asterrcpath
+			ERROR=1
+		    fi
+		fi
+	fi
+
+	#for astercclock
+	if [ ${astercclock} -eq 1 ]; then 
+		if [ $asterlcRUNNING -eq 1 ]; then
+		    echo "$0 $ARG: astercclock (pid $asterlcpid) already running"
+		else
+		    if test -s $asterlcpath
+		    then
+			    $asterlcpath -d
+			    asterlcpid=`ps -ef |grep -v grep |grep -E '/astercclock$|/astercclock[\ ]+-d' |awk '{print $2}'`
+			    if [ "x$asterrcpid" != "x" ] ; then
+				echo "$0 $ARG: astercclock started"
+			    else
+				echo "$0 $ARG: astercclock could not be started"
+				ERROR=7
+			    fi
+		    else
+			echo No astercclock in $asterrcpath
+			ERROR=1
+		    fi
+		fi
+	fi
+
+	#for start monitor
+	if [ ${asterccdaemon} -eq 1 ]; then
+		if   test   -s   $asterccdaemonpath
+		then
+			monitorpid=`ps -ef |grep -v grep |grep asterccdaemon |awk '{print $2}'`
+			if [ "x$monitorpid" != "x" ]; then
+				echo "$0 $ARG: asterccdaemon (pid $monitorpid) already running"
+			else
+				/bin/bash $asterccdaemonpath &
+				monitorpid=`ps -ef |grep -v grep |grep asterccdaemon |awk '{print $2}'`
+				if [ "x$monitorpid" != "x" ]; then
+					echo "$0 $ARG: asterccdaemon started"
+				else
+					echo "$0 $ARG: asterccdaemon could not be started"
+					ERROR=11
+				fi
+			fi
+		else
+			echo No monitor script in $asterccdaemonpath
+			ERROR=1
+		fi
+	fi
+
+	;;
+    stop)
+	#for stop monitor
+	#if [ ${asterccdaemon} -eq 1 ]; then
+		monitorpid=`ps -ef |grep -v grep |grep asterccdaemon |awk '{print $2}'`
+		if [ "x$monitorpid" != "x" ]; then
+			if kill -9 $monitorpid ; then
+				echo "$0 $ARG: asterccdaemon stopped"
+			else
+				if [ ${asterccdaemon} -eq 1 ]; then
+					echo "$0 $ARG: asterccdaemon could not be stopped"
+					ERROR=12
+				fi
+			fi
+		else	
+			echo "$0 $ARG: asterccdaemon not running"
+		fi
+	#fi
+	
+	#for stop events2filedaemon
+		if [ $events2filedaemonRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: $events2filedaemonSTATUS"
+		else
+		    if kill -9 $events2filedaemonpid ; then
+			if [ -f ${eventsfile} ]; then
+				rm -f $eventsfile
+			fi
+			if [ -f ${eventsfilecurline} ]; then
+				rm -f $eventsfilecurline
+			fi
+			echo "$0 $ARG: events2filedaemon stopped"
+		    else
+		        if [ ${events2filedaemon} -eq 1 ]; then
+				echo "$0 $ARG: events2filedaemon could not be stopped"
+				ERROR=4
+			fi
+		    fi
+		fi
+
+	#for astercc
+	#if [ ${astercc} -eq 1 ]; then
+		if [ $asterccRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: $asterccSTATUS"
+		else
+		    if kill -9 $asterccpid ; then
+			echo "$0 $ARG: astercc stopped"
+		    else
+		        if [ ${astercc} -eq 1 ]; then
+				echo "$0 $ARG: astercc could not be stopped"
+				ERROR=4
+			fi
+		    fi
+		fi
+	#fi
+
+	#for astercctools
+	#if [ ${astercctools} -eq 1 ]; then
+		if [ $asterctRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: $asterctSTATUS"
+		else
+		    if kill -9 $asterctpid ; then
+			echo "$0 $ARG: astercctools stopped"
+		    else
+			if [ ${astercctools} -eq 1 ]; then
+				echo "$0 $ARG: astercctools could not be stopped"
+				ERROR=4
+			fi
+		    fi
+		fi
+	#fi
+
+	#for asterrc
+	#if [ ${asterrc} -eq 1 ]; then
+		if [ $asterrcRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: $asterrcSTATUS"
+		else
+		    if kill -9 $asterrcpid ; then
+			echo "$0 $ARG: asterrc stopped"
+		    else
+			    if [ ${asterrc} -eq 1 ]; then
+				echo "$0 $ARG: asterrc could not be stopped"
+				ERROR=8
+			    fi
+		    fi
+		fi
+	#fi
+	
+	#for astercclock
+	#if [ ${astercclock} -eq 1 ]; then
+		if [ $asterlcRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: $asterlcSTATUS"
+		else
+		    if kill -9 $asterlcpid ; then
+			echo "$0 $ARG: astercclock stopped"
+		    else
+			if [ ${astercclock} -eq 1 ]; then
+				echo "$0 $ARG: astercclock could not be stopped"
+				ERROR=8
+			fi
+		    fi
+		fi
+	#fi
+
+	;;
+    restart)
+	if [ ${asterccdaemon} -eq 1 ]; then
+		monitorpid=`ps -ef |grep -v grep |grep asterccdaemon |awk '{print $2}'`
+		if [ "x$monitorpid" == "x" ]; then
+			echo "$0 $ARG: asterccdaemon not running, trying to start"
+			
+		else
+			if kill -9 $monitorpid; then
+				echo "$0 $ARG: asterccdaemon stoped"
+			else
+				echo "$0 $ARG: asterccdaemon could not be stop"
+			fi
+		fi
+	fi
+
+	#for events2filedaemon
+	if [ ${events2filedaemon} -eq 1 ]; then
+		if [ $events2filedaemonRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: events2filedaemon not running, trying to start"
+		    /usr/bin/perl $events2filedaemonpath -d
+		    events2filedaemonpid=`ps -ef |grep -v grep |grep -E '/events2filedaemon.pl$|/events2filedaemon.pl[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$events2filedaemonpid" != "x" ] ; then
+			echo "$0 $ARG: events2filedaemon started"
+		    else
+			echo "$0 $ARG: events2filedaemon could not be started"
+			ERROR=5
+		    fi
+		else
+		    kill -9 $events2filedaemonpid
+			if [ -f ${eventsfile} ]; then
+				rm -f $eventsfile
+			fi
+			if [ -f ${eventsfilecurline} ]; then
+				rm -f $eventsfilecurline
+			fi
+		    sleep 1
+		    events2filedaemonpid=`ps -ef |grep -v grep |grep -E '/events2filedaemon.pl$|/events2filedaemon.pl[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$events2filedaemonpid" != "x" ]; then
+			echo "$0 $ARG: events2filedaemon could not stop"
+		    else
+			/usr/bin/perl $events2filedaemonpath -d
+			events2filedaemonpid=`ps -ef |grep -v grep |grep -E '/events2filedaemon.pl$|/events2filedaemon.pl[\ ]+-d' |awk '{print $2}'`
+			if [ "x$events2filedaemonpid" != "x" ] ; then
+			    echo "$0 $ARG: events2filedaemon restarted"
+			else
+			    echo "$0 $ARG: events2filedaemon could not be started"
+			    ERROR=6
+			fi	   
+		    fi
+		fi
+	fi
+
+	#for astercc
+	if [ ${astercc} -eq 1 ]; then
+		if [ $asterccRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: astercc not running, trying to start"
+		    $asterccpath -d
+		    asterccpid=`ps -ef |grep -v grep |grep -E '/astercc$|/astercc[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$asterccpid" != "x" ] ; then
+			echo "$0 $ARG: astercc started"
+		    else
+			echo "$0 $ARG: astercc could not be started"
+			ERROR=5
+		    fi
+		else
+		    kill -9 $asterccpid
+		    sleep 1
+		    asterccpid=`ps -ef |grep -v grep |grep -E '/astercc$|/astercc[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$asterccpid" != "x" ]; then
+			echo "$0 $ARG: astercc could not stop"
+		    else
+			$asterccpath -d
+			asterccpid=`ps -ef |grep -v grep |grep -E '/astercc$|/astercc[\ ]+-d' |awk '{print $2}'`
+			if [ "x$asterccpid" != "x" ] ; then
+			    echo "$0 $ARG: astercc restarted"
+			else
+			    echo "$0 $ARG: astercc could not be started"
+			    ERROR=6
+			fi	   
+		    fi
+		fi
+	fi
+
+	#for astercctools
+	if [ ${astercctools} -eq 1 ]; then
+		if [ $asterctRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: astercctools not running, trying to start"
+		    $asterctpath -d
+		    asterctpid=`ps -ef |grep -v grep |grep -E '/astercctools$|/astercctools[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$asterctpid" != "x" ] ; then
+			echo "$0 $ARG: astercctools started"
+		    else
+			echo "$0 $ARG: astercctools could not be started"
+			ERROR=5
+		    fi
+		else
+		    kill -9 $asterctpid
+		    sleep 1
+		    asterctpid=`ps -ef |grep -v grep |grep -E '/astercctools$|/astercctools[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$asterctpid" != "x" ]; then
+			echo "$0 $ARG: astercctools could not stop"
+		    else
+			$asterctpath -d
+			asterctpid=`ps -ef |grep -v grep |grep -E '/astercctools$|/astercctools[\ ]+-d' |awk '{print $2}'`
+			if [ "x$asterctpid" != "x" ] ; then
+			    echo "$0 $ARG: astercctools restarted"
+			else
+			    echo "$0 $ARG: astercctools could not be started"
+			    ERROR=6
+			fi	   
+		    fi
+		fi
+	fi
+	
+	#for asterrc
+	if [ ${asterrc} -eq 1 ]; then
+		if [ $asterrcRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: asterrc not running, trying to start"
+		    $asterrcpath -d
+		    asterrcpid=`ps -ef |grep -v grep |grep -E '/asterrc$|/asterrc[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$asterrcpid" != "x" ] ; then
+			echo "$0 $ARG: asterrc started"
+		    else
+			echo "$0 $ARG: asterrc could not be started"
+			ERROR=9
+		    fi
+		else
+		    kill -9 $asterrcpid
+		    sleep 1
+		    asterrcpid=`ps -ef |grep -v grep |grep -E '/asterrc$|/asterrc[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$asterrcpid" != "x" ]; then
+			echo "$0 $ARG: asterrc could not stop"
+		    else
+			$asterrcpath -d
+			asterrcpid=`ps -ef |grep -v grep |grep -E '/asterrc$|/asterrc[\ ]+-d' |awk '{print $2}'`
+			if [ "x$asterrcpid" != "x" ] ; then
+			    echo "$0 $ARG: asterrc restarted"
+			else
+			    echo "$0 $ARG: asterrc could not be started"
+			    ERROR=10
+			fi	   
+		    fi
+		fi
+	fi
+
+	#for astercclock
+	if [ ${astercclock} -eq 1 ]; then
+		if [ $asterlcRUNNING -eq 0 ]; then
+		    echo "$0 $ARG: astercclock not running, trying to start"
+		    $asterlcpath -d
+		    asterlcpid=`ps -ef |grep -v grep |grep -E '/astercclock$|/astercclock[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$asterlcpid" != "x" ] ; then
+			echo "$0 $ARG: astercclock started"
+		    else
+			echo "$0 $ARG: astercclock could not be started"
+			ERROR=9
+		    fi
+		else
+		    kill -9 $asterlcpid
+		    sleep 1
+		    asterlcpid=`ps -ef |grep -v grep |grep -E '/astercclock$|/astercclock[\ ]+-d' |awk '{print $2}'`
+		    if [ "x$asterlcpid" != "x" ]; then
+			echo "$0 $ARG: astercclock could not stop"
+		    else
+			$asterlcpath -d
+			asterlcpid=`ps -ef |grep -v grep |grep -E '/astercclock$|/astercclock[\ ]+-d' |awk '{print $2}'`
+			if [ "x$asterlcpid" != "x" ] ; then
+			    echo "$0 $ARG: astercclock restarted"
+			else
+			    echo "$0 $ARG: astercclock could not be started"
+			    ERROR=10
+			fi	   
+		    fi
+		fi
+	fi
+
+	if [ ${asterccdaemon} -eq 1 ]; then
+		if test $asterccdaemonpath; then
+			/bin/bash $asterccdaemonpath &
+			monitorpid=`ps -ef |grep -v grep |grep asterccdaemon |awk '{print $2}'`
+			if [ "x$monitorpid" == "x" ]; then
+				echo "$0 $ARG: asterccdaemon could not be started"
+			else
+				echo "$0 $ARG: asterccdaemon started"
+			fi
+		else
+			echo No monitor script in $asterccdaemonpath
+		fi
+	fi
+	;;
+    *)
+	echo "usage: $0 (start|stop|restart|help ;[default usage : start])"
+	cat <<EOF
+
+start      - start astercc,asterrc,astercclock and astercctools
+stop       - stop astercc,asterrc,astercclock and astercctools
+restart    - restart astercc and asterrc if running by sending a SIGHUP or start if not running
+help       - this screen
+
+EOF
+	ERROR=2
+    ;;
+
+    esac
+
+done
+
+exit $ERROR
+

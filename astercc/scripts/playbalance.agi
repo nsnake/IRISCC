@@ -1,0 +1,145 @@
+#!/usr/bin/perl
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+use Asterisk::AGI;
+use Config::IniFiles;
+use DBI;
+#use Time::Local;
+#use Data::Dumper; 
+#use strict;
+
+my $AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+$|=1; #auto flash
+
+#my $conf_file = "$Bin/astercc.conf" ;
+my $conf_file = "/opt/asterisk/scripts/astercc/astercc.conf" ;
+
+# read parameter from conf file
+my $cfg = new Config::IniFiles -file => $conf_file;
+if (not defined $cfg) {
+	&debug("Failed to parse $conf_file:");
+	foreach(@Config::IniFiles::errors) {
+		&debug("Error: $_") ;
+	}
+	exit(1);
+}
+
+my %dbInfo = (
+        dbtype => trim($cfg->val('database', 'dbtype')),
+        dbhost => trim($cfg->val('database', 'dbhost')),
+        dbname => trim($cfg->val('database', 'dbname')),
+		dbport  => trim($cfg->val('database', 'dbport')),
+ 		dbuser  => trim($cfg->val('database', 'username')),
+ 		dbpasswd  => trim($cfg->val('database', 'password'))
+   );
+
+my $dbh = &connect_mysql(%dbInfo);
+my $db_prefix = $dbInfo{'prefix'};
+my $query;
+my $rows;
+my $ref;
+my $extension;
+
+#$AGI->verbose($input{'extension'});
+#$AGI->verbose($input{'callerid'});
+#$AGI->verbose($input{'channel'});
+#$AGI->verbose($input{'type'});
+
+my	$timeout = 40;
+$extension = $input{'extension'};
+
+# 检查该号码属于哪个reseller
+
+$query = "SELECT clid.id,accountgroup.curcredit,accountgroup.creditlimit FROM ".$db_prefix."clid LEFT JOIN accountgroup ON (accountgroup.id = clid.groupid) WHERE clid = '$input{'callerid'}' AND  groupid > 0 AND clid.status = 1";
+
+$rows = &executeQuery($query,'rows');
+
+$ref = $rows->fetchrow_hashref();
+$AGI->say_number('100','','');
+if($ref->{'id'} > 0){
+	my $n = 0;
+	while($n <= 5){
+		$AGI->exec('wait','0.5');
+		my $balance = $ref->{'creditlimit'} - $ref->{'curcredit'};
+		if($balance < 0){
+			$balance =~ s/^\-//;
+			$AGI->verbose($balance);
+			my @str = split(/\./,$balance);
+			$AGI->exec('playback','the_balance_is');
+			$AGI->exec('playback','minus');
+				$AGI->verbose($str[0]);
+			$AGI->say_number($str[0]);
+			if($str[1] ne '' && $str[1] ne '0000' ){
+				$AGI->exec('playback','point');
+				$AGI->say_digits($str[1]);
+			}
+		}else{
+			$AGI->verbose($balance);
+			$AGI->exec('playback','the_balance_is');
+			my @str = split(/\./,$balance);
+			$AGI->say_number($str[0]);
+			if($str[1] ne '' && $str[1] ne '0000' ){
+				$AGI->exec('playback','point');
+				$AGI->say_digits($str[1]);
+			}
+		}
+		$n ++;
+	}
+}
+
+&hangup();
+die;
+
+sub hangup{
+	$AGI->hangup();
+	$AGI->verbose("hang up");
+	exit;
+}
+
+sub connect_mysql
+{
+	my	%info = @_;
+	my	$dbh = DBI->connect("DBI:mysql:database=$info{'dbname'};host=$info{'dbhost'};port=$info{'dbport'}",$info{'dbuser'},$info{'dbpasswd'});
+	return($dbh);
+}
+
+sub executeQuery
+{
+	my	$query = shift;
+	return if ($query eq '');
+
+	my	$queryType = shift;
+
+	if (!$dbh->ping) {
+		 $dbh = &connect_mysql(%dbInfo);
+	}
+	#$AGI->verbose($query);
+	
+	if ($queryType eq '') {
+			my $affect = $dbh->do($query);
+			if ($affect eq '0E0'){
+				return 0;
+			}else{
+				return $affect;
+			}
+	}elsif ($queryType eq 'rows'){
+			my $rows = $dbh->prepare($query);
+			$rows->execute();
+			return $rows;
+	}elsif ($queryType eq 'insert'){
+		$dbh->do($query);
+		return $dbh->{q{mysql_insertid}};
+	}
+}
+
+sub trim($)
+{
+	my $string = shift;
+	$string =~ s/^\s+//;
+	$string =~ s/\s+$//;
+	return $string;
+}
+
+
+

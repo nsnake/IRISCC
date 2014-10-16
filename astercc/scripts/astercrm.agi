@@ -1,0 +1,378 @@
+#!/usr/bin/perl
+use FindBin qw($Bin);
+use lib "$Bin/lib";
+use Asterisk::AGI;
+use Config::IniFiles;
+use DBI;
+use Time::Local;
+use Data::Dumper; 
+use strict;
+
+
+#AGI Tx >> agi_request: fh_inbound.agi
+#AGI Tx >> agi_channel: DAHDI/1-1
+#AGI Tx >> agi_language: en
+#AGI Tx >> agi_type: DAHDI
+#AGI Tx >> agi_uniqueid: 1249077344.7
+#AGI Tx >> agi_callerid: 041139735852
+#AGI Tx >> agi_calleridname: unknown
+#AGI Tx >> agi_callingpres: 0
+#AGI Tx >> agi_callingani2: 0
+#AGI Tx >> agi_callington: 0
+#AGI Tx >> agi_callingtns: 0
+#AGI Tx >> agi_dnid: unknown
+#AGI Tx >> agi_rdnis: unknown
+#AGI Tx >> agi_context: from-pstn
+#AGI Tx >> agi_extension: s
+#AGI Tx >> agi_priority: 3
+#AGI Tx >> agi_enhanced: 0.0
+#AGI Tx >> agi_accountcode:
+
+my $AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+$|=1; #auto flash
+my $debug = 1;
+
+#my $conf_file = "$Bin/astercc.conf" ;
+my $conf_file = "/opt/asterisk/scripts/astercc/astercc.conf" ;
+
+# read parameter from conf file
+my $cfg = new Config::IniFiles -file => $conf_file;
+if (not defined $cfg) {
+	print "Failed to parse $conf_file:";
+	foreach(@Config::IniFiles::errors) {
+		print "Error: $_\n" ;
+	}
+	exit(1);
+}
+
+my %dbInfo = (
+        dbtype => trim($cfg->val('database', 'dbtype')),
+        dbhost => trim($cfg->val('database', 'dbhost')),
+        dbname => trim($cfg->val('database', 'dbname')),
+		dbport  => trim($cfg->val('database', 'dbport')),
+ 		dbuser  => trim($cfg->val('database', 'username')),
+ 		dbpasswd  => trim($cfg->val('database', 'password'))
+   );
+
+#my %dbInfo = (
+#        dbtype => 'mysql',
+#        dbhost => 'localhost',
+#        dbname => 'astercc',
+#		dbport  => '3306',
+# 		dbuser  => 'root',
+# 		dbpasswd  => 'astercc',
+#		prefix => ''
+#   );
+
+my $dbh = &connect_mysql(%dbInfo);
+my $db_prefix = $dbInfo{'prefix'};
+my $query;
+my $rows;
+my $did;
+my $campaign_id = 0;
+my $ref;
+my $target;
+my $extension;
+
+my $paramdelimiter = '|';
+if ($input{'version'} =~ /1\.6/ ) {
+	$paramdelimiter = ',';
+}
+
+$AGI->verbose($input{'extension'});
+$AGI->verbose($input{'callerid'});
+$AGI->verbose($input{'channel'});
+$AGI->verbose($input{'type'});
+
+$extension = $input{'extension'};
+my $dialed_id = $AGI->get_variable("DIALEDLISTID");
+my $campaign_id = $AGI->get_variable("CAMPAIGNID");
+my $DIALPART = $AGI->get_variable("DIALPART");
+
+$AGI->verbose($dialed_id);
+$AGI->verbose($campaign_id);
+$AGI->verbose($DIALPART);
+
+if($DIALPART eq 'CALLEE'){
+	$query = "SELECT * FROM ".$db_prefix."campaign WHERE id = $campaign_id ";
+	my $campaign_rows = &executeQuery($query,'rows');
+	my $campaign_ref = $campaign_rows->fetchrow_hashref();
+
+	if ($campaign_ref) {
+		if($campaign_ref->{'enablebalance'} eq "strict" && $campaign_ref->{'balance'} <= "0"){
+			$query = "UPDATE ".$db_prefix."campaign  SET status='idle' WHERE id='$campaign_id' ;";		
+			&executeQuery($query);
+
+			$AGI->noop("Dial Stop : campaign_id=$campaign_id AND enablebalance=strict AND balance<=0 ");
+			&hangup;
+			exit;
+		}
+
+		$AGI->exec("Dial","Local/$extension\@$campaign_ref->{'firstcontext'}/n".$paramdelimiter."$campaign_ref->{'waittime'}".$paramdelimiter."tT");
+		$AGI->get_variable("DIALSTATUS");
+		my $callstatus = $AGI->get_variable("DIALSTATUS");
+		$AGI->verbose("DIALSTATUS:$callstatus");
+		my $credit = 0;
+		if($campaign_ref->{'enablebalance'} ne "no"){
+			#获取通话时长
+			my $billsec = $AGI->get_variable("ANSWEREDTIME");
+			#$AGI->noop("ppppppppppppppppp   $billsec");
+			#$query = "SELECT * FROM ".$db_prefix."dialedlist WHERE id='$dialed_id' ;";
+			#my $dialed_rows = &executeQuery($query,'rows');
+			#my $dialed_ref = $dialed_rows->fetchrow_hashref();
+			#if($dialed_ref){
+			#	if($dialed_ref->{'billsec_leg_a'} > 0){
+			#		$billsec = $dialed_ref->{'billsec_leg_a'};
+			#		$AGI->noop("mmmmmmmmmmmmmmmm   $billsec");
+			#	}
+			#}else{
+			#	$query = "SELECT * FROM ".$db_prefix."campaigndialedlist WHERE dialednumber='$extension' AND campaignid='$campaign_id' ORDER BY id DESC LIMIT 1;";
+			#	my $campaigndialed_rows = &executeQuery($query,'rows');
+			#	my $campaigndialed_ref = $campaigndialed_rows->fetchrow_hashref();
+			#	if($campaigndialed_ref){
+			#		$billsec = $campaigndialed_ref->{'billsec_leg_a'};
+			#		$AGI->noop("nnnnnnnnnnnnnnnnnnnn   $billsec");
+			#	}
+			#}
+			#$AGI->noop("overrrrrrrrrrrrrrrrrrrrrrrrr   $billsec");
+			my $balance = $campaign_ref->{'balance'};
+			if($billsec > 0){
+				if($billsec < $campaign_ref->{'init_billing'}){
+					$credit = $campaign_ref->{'init_billing'};
+					$balance = $campaign_ref->{'balance'}-$credit;
+				}else{
+					if($campaign_ref->{'billing_block'} > 0){
+						my $z = int(($billsec - $campaign_ref->{'init_billing'})/$campaign_ref->{'billing_block'});
+						my $y = ($billsec - $campaign_ref->{'init_billing'})%$campaign_ref->{'billing_block'};
+						if($y > 0){
+							$credit = ($z+1)*$campaign_ref->{'billing_block'}+$campaign_ref->{'init_billing'};
+						}else{
+							$credit = $z*$campaign_ref->{'billing_block'}+$campaign_ref->{'init_billing'};
+						}	
+						$balance = $campaign_ref->{'balance'}-$credit;
+					}else{
+						$credit = $billsec;
+						$balance = $campaign_ref->{'balance'} - $credit;
+					}
+				}
+				#更新剩余金额
+				if($balance <= 0 && $campaign_ref->{'enablebalance'} eq "strict"){
+					$query = "UPDATE ".$db_prefix."campaign  SET balance=balance-$credit, status='idle' WHERE id='$campaign_id' ;";		
+				}else{
+					$query = "UPDATE ".$db_prefix."campaign  SET balance=balance-$credit WHERE id='$campaign_id' ;";
+				}
+				&executeQuery($query,'');
+			}
+		}
+		
+		if($dialed_id > 0){
+			#更新计费金额
+			$query = "UPDATE ".$db_prefix."dialedlist SET credit='$credit' WHERE id='$dialed_id';";
+			&executeQuery($query,'');
+			$query = "UPDATE ".$db_prefix."campaigndialedlist SET credit='$credit' WHERE dialednumber='$extension' AND campaignid='$campaign_id' ORDER BY id DESC LIMIT 1;";
+			&executeQuery($query,'');
+			
+			$query = "UPDATE ".$db_prefix."dialedlist SET callresult='$callstatus' WHERE id='$dialed_id' AND (callresult='' OR callresult='normal' OR callresult='unknown')";
+			my $affect = &executeQuery($query,'');
+			$AGI->verbose("affectaffectaffectaffect:$affect");
+			if($affect > 0){
+			}else{
+				$query = "UPDATE ".$db_prefix."campaigndialedlist SET callresult='$callstatus' WHERE dialednumber='$extension' AND (callresult='' OR callresult='normal' OR callresult='normal') AND dialedtime > (now()-INTERVAL 60 SECOND) ";
+				&executeQuery($query,'');
+			}
+		}
+		
+	}
+	exit;
+}elsif($DIALPART eq 'CALLER'){
+	#$AGI->exec("AMD");
+	my $customerphone = $input{'callerid'};
+	my $cuscid = $AGI->get_variable("DIALEDNUM");
+	$AGI->set_variable("CALLERID(num)",$cuscid);
+	$customerphone = $cuscid;
+
+	if($extension eq 'fax'){
+		my $cuscid = $AGI->get_variable("CUSCID");
+		if($cuscid ne 'NONE'){
+			$AGI->set_variable("CALLERID(num)",$cuscid);
+			$customerphone = $cuscid;
+		}
+		my $survey_id;
+		my $group_id = 0;
+		if($dialed_id > 0 && $campaign_id >0){
+			
+			$query = "UPDATE ".$db_prefix."dialedlist SET detect='FAX' WHERE id='$dialed_id' ";
+			my $affect = &executeQuery($query,'');
+			if($affect > 0){
+			}else{
+				$query = "UPDATE ".$db_prefix."campaigndialedlist SET detect='FAX' WHERE dialednumber='$extension' AND campaignid = $campaign_id AND dialedtime > (now()-INTERVAL 60 SECOND) ";
+			}
+
+			$query = "SELECT * FROM ".$db_prefix."survey WHERE campaignid = $campaign_id and enable = 1 ORDER BY cretime LIMIT 0,1";
+			my $survey_rows = &executeQuery($query,'rows');
+			my $survey_ref = $survey_rows->fetchrow_hashref();
+
+			if ($survey_ref) {
+				$survey_id = $survey_ref->{'id'};
+				$group_id = $survey_ref->{'groupid'};
+			}else{
+				# 没有定义问卷
+				$survey_id = 0;
+			}
+		}
+
+		if ($survey_id>0) {
+			# 更新 surveyresult, 增加 phonenum 字段
+			my $customerid = 0;
+			my $contactid = 0;
+
+			$query = "SELECT id FROM customer WHERE phone='$customerphone' OR mobile='$customerphone' ORDER BY id DESC LIMIT 1";
+			my $rows_customer = &executeQuery($query,'rows');
+			my $ref_customer = $rows_customer->fetchrow_hashref();
+			if (!$ref_customer) {
+				$query = "SELECT id FROM contact WHERE phone='$customerphone' OR mobile='$customerphone' OR phone1='$customerphone'  OR phone2='$customerphone' ORDER BY id DESC LIMIT 1";
+				my $rows_contact = &executeQuery($query,'rows');
+				my $ref_contact = $rows_contact->fetchrow_hashref();
+				if ($ref_contact) {
+					$contactid = $ref_contact->{'id'};
+				}
+			}else{
+				$customerid = $ref_customer->{'id'};
+			}
+			
+
+			$query = "INSERT INTO ".$db_prefix."surveyresult SET phonenumber = '$customerphone', surveynote = 'FAX', surveyid = '$survey_id', campaignid = '$campaign_id', uniqueid= '".$input{'uniqueid'}."', groupid = '$group_id',creby = 'system', cretime = now(), customerid='$customerid', contactid='$contactid'  ";
+			&executeQuery($query);
+		}
+		
+	}else{
+
+		my $amdstatus = $AGI->get_variable("AMDSTATUS");
+		$AGI->verbose($amdstatus);
+		#$amdstatus = 'NOTSURE';
+		if($amdstatus eq 'HUMAN' || $amdstatus eq 'NOTSURE' || 1){
+			
+			$query = "UPDATE ".$db_prefix."dialedlist SET detect='$amdstatus' WHERE id='$dialed_id' ";
+			my $affect = &executeQuery($query,'');
+
+			$query = "SELECT * FROM ".$db_prefix."campaign WHERE id = $campaign_id ";
+			my $campaign_rows = &executeQuery($query,'rows');
+			my $campaign_ref = $campaign_rows->fetchrow_hashref();
+
+			if ($campaign_ref) {
+
+				$AGI->exec("Dial","Local/$extension\@$campaign_ref->{'nextcontext'}/n".$paramdelimiter."40".$paramdelimiter."tT");
+			}
+			
+		}else{
+			my $cuscid = $AGI->get_variable("CUSCID");
+			if($cuscid ne 'NONE'){
+				$AGI->set_variable("CALLERID(num)",$cuscid);
+				$customerphone = $cuscid;
+			}
+			my $survey_id;
+			my $group_id = 0;
+			if($dialed_id > 0 && $campaign_id >0){
+				
+				$query = "UPDATE ".$db_prefix."dialedlist SET detect='$amdstatus' WHERE id='$dialed_id' ";
+				my $affect = &executeQuery($query,'');
+				if($affect > 0){
+				}else{
+					$query = "UPDATE ".$db_prefix."campaigndialedlist SET detect='$amdstatus' WHERE dialednumber='$extension' AND campaignid = $campaign_id AND dialedtime > (now()-INTERVAL 60 SECOND) ";
+				}
+
+				$query = "SELECT * FROM ".$db_prefix."survey WHERE campaignid = $campaign_id and enable = 1 ORDER BY cretime LIMIT 0,1";
+				my $survey_rows = &executeQuery($query,'rows');
+				my $survey_ref = $survey_rows->fetchrow_hashref();
+
+				if ($survey_ref) {
+					$survey_id = $survey_ref->{'id'};
+					$group_id = $survey_ref->{'groupid'};
+				}else{
+					# 没有定义问卷
+					$survey_id = 0;
+				}
+			}
+
+			if ($survey_id>0) {
+				# 更新 surveyresult, 增加 phonenum 字段
+				my $customerid = 0;
+				my $contactid = 0;
+
+				$query = "SELECT id FROM customer WHERE phone='$customerphone' OR mobile='$customerphone' ORDER BY id DESC LIMIT 1";
+				my $rows_customer = &executeQuery($query,'rows');
+				my $ref_customer = $rows_customer->fetchrow_hashref();
+				if (!$ref_customer) {
+					$query = "SELECT id FROM contact WHERE phone='$customerphone' OR mobile='$customerphone' OR phone1='$customerphone'  OR phone2='$customerphone' ORDER BY id DESC LIMIT 1";
+					my $rows_contact = &executeQuery($query,'rows');
+					my $ref_contact = $rows_contact->fetchrow_hashref();
+					if ($ref_contact) {
+						$contactid = $ref_contact->{'id'};
+					}
+				}else{
+					$customerid = $ref_customer->{'id'};
+				}
+
+				$query = "INSERT INTO ".$db_prefix."surveyresult SET phonenumber = '$customerphone', surveynote = '$amdstatus', surveyid = '$survey_id', campaignid = '$campaign_id', uniqueid= '".$input{'uniqueid'}."', groupid = '$group_id',creby = 'system', cretime = now(), customerid='$customerid', contactid='$contactid'  ";
+				&executeQuery($query);
+			}
+		}
+	}
+	exit;
+}
+
+&hangup();
+die;
+
+sub hangup{
+	$AGI->verbose("hang up");
+	$AGI->hangup();
+	exit;
+}
+
+sub connect_mysql
+{
+	my	%info = @_;
+	my	$dbh = DBI->connect("DBI:mysql:database=$info{'dbname'};host=$info{'dbhost'};port=$info{'dbport'}",$info{'dbuser'},$info{'dbpasswd'});
+	return($dbh);
+}
+
+sub executeQuery
+{
+	my	$query = shift;
+	return if ($query eq '');
+
+	my	$queryType = shift;
+
+	if (!$dbh->ping) {
+		 $dbh = &connect_mysql(%dbInfo);
+	}
+	$AGI->verbose($query);
+	
+	if ($queryType eq '') {
+			my $affect = $dbh->do($query);
+			if ($affect eq '0E0'){
+				return 0;
+			}else{
+				return $affect;
+			}
+	}elsif ($queryType eq 'rows'){
+			my $rows = $dbh->prepare($query);
+			$rows->execute();
+			return $rows;
+	}elsif ($queryType eq 'insert'){
+		$dbh->do($query);
+		return $dbh->{q{mysql_insertid}};
+	}
+}
+
+
+
+sub trim($)
+{
+	my $string = shift;
+	$string =~ s/^\s+//;
+	$string =~ s/\s+$//;
+	return $string;
+}
