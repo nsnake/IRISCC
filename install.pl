@@ -29,7 +29,7 @@ use FindBin qw($Bin);
 my	$INPUT = STDIN;
 my	$OUTPUT = STDOUT;
 my	$ERRPUT = STDERR;
-my	$VERSION = 2.5;
+my	$VERSION = 3.0;
 
 #=================================================================
 # call command args
@@ -62,14 +62,13 @@ syntax:
   setup freeiris2    :    ./install.pl --setup
   uninstall freeiris2:    ./install.pl --uninstall
   this help          :    ./install.pl --help
-  this help          :    ./install.pl
 ~;
 exit;
 }
 
 
 #=================================================================
-# Install startup 
+# Install startup
 #=================================================================
 sub install
 {
@@ -78,13 +77,14 @@ my	$type = shift;
 	#---------------------------------------------------------------------------------------------------------prerequest checking
 	&println('error',"Your are not root") if ($< ne '0');
 	&println(undef,qq~
- Freeiris2 Install Stage by CGI.NET $VERSION
+Freeiris2 Install Stage by CGI.NET $VERSION
 CGI.NET <loveme1314\@gmail.com>
 ----------------------------------------------------------
 WARNING:
   This is free Open Source software.
   IT COMES WITHOUT WARRANTY OF ANY KIND.
-----------------------------------------------------------~);
+----------------------------------------------------------
+~);
 
 	#环境检测
 	&println('step',"Prerequest checking.........");
@@ -144,7 +144,7 @@ my	%instvar;
 	}
 
 	#测试系统RPM包安装量
-	foreach  (('httpd','mysql-server','mysql','mysql-devel','php','php-mysql','perl','libdbi-dbd-mysql','perl-libwww-perl')) {
+	foreach  (('httpd','mysql-server','mysql','php','php-mysqlnd','perl','libdbi-dbd-mysql','perl-libwww-perl')) {
 		if (`rpm -q $_` =~ /is not installed/) {
 			&println('failed',"Maybe you need install $_ ---> \'yum install $_\'");
 			exit;
@@ -152,9 +152,9 @@ my	%instvar;
 	}
 
 	#测试dahdi
-	&println('error',"Your need to install dahdi driver.") if (!-e"/usr/sbin/dahdi_cfg");
-	#测试libpri
-	&println('error',"Your need to install libpri driver.") if (!-e"/usr/lib/libpri.so");
+	#&println('error',"Your need to install dahdi driver.") if (!-e"/usr/sbin/dahdi_cfg");
+	##测试libpri
+	#&println('error',"Your need to install libpri driver.") if (!-e"/usr/lib/libpri.so");
 	#测试asterisk是否安装
 	&println('error',"Your need to install asterisk.") if (!-e"/usr/sbin/asterisk");
 	#测试asterisk-addons是否安装
@@ -255,7 +255,7 @@ my	$instvar = shift;
 
 	#---------------安装启动文件(未启动,启动工作由初始化部分完成)
 	system("cp -avf ".$instvar->{'install_target'}."/contrib/init.d/fri2d /etc/init.d/");
-	system("cp -avf ".$instvar->{'install_target'}."/contrib/init.d/hardware /etc/init.d/");
+
 
 	#---------------设置apache参数
 	unlink("/etc/httpd/conf.d/freeiris.httpd.conf");
@@ -346,7 +346,7 @@ my	$dbh;
 		my	$dbpass;
 			&println('input',"Please input Mysql user password ?");
 			$dbpass = <$INPUT>;	chomp($dbpass);
-			
+
 			#try to connect
 			&println('response',"Try to Connect MySQL Server......");
 		my	$trycon = `/usr/bin/mysql --host $dbhost --port=$dbport --database=$dbname --user=$dbuser --password=$dbpass --silent --execute='select "OK"'`;
@@ -461,9 +461,7 @@ my	@cdr_mysql=<SDV>;
 
 	#---------------设置freeiris2的服务为启动项
 	&println('response',"set freeiris2 services");
-	sleep(1);
 	system("chkconfig --add fri2d");
-	system("chkconfig --add hardware");
 	sleep(1);
 
 	#---------------执行example的安装
@@ -483,6 +481,9 @@ my	@cdr_mysql=<SDV>;
 	&println('response',"all done!");
 	unlink("$setvar{'install_target'}/NOTDONE");
 
+	chdir('astercc');
+	system("chmod 755 install.sh");
+	system('./install.sh');
 	&println('response',"Please Reboot your system!");
 
 exit;
@@ -613,9 +614,7 @@ sub uninstall
 {
 system('/etc/init.d/fri2d stop');
 system('rm -rf /freeiris2');
-system('rm -rf /etc/init.d/hardware');
 system('rm -rf /etc/init.d/fri2d');
-#system("rm -rf /usr/bin/mysql -uroot --silent --execute='drop database freeiris2'");
 unlink("/etc/httpd/conf.d/freeiris.httpd.conf");
 }
 
