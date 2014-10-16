@@ -9,8 +9,8 @@
 
 #use 5.010;
 use strict qw(vars subs);
-use FindBin();
-use lib qw($FindBin::Bin lib);
+use FindBin qw($Bin);
+use lib "$Bin/lib/";
 use Getopt::Long qw(:config no_ignore_case bundling);
 use Config::IniFiles;
 use agiengine;

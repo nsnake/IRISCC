@@ -20,6 +20,7 @@
 #   $Id: vmsender.php 520 2011-06-03 09:36:06Z nsnake $
 #
 */
+date_default_timezone_set('UTC');
 require_once(dirname(__FILE__)."/../lib/class.phpmailer.php");
 require_once(dirname(__FILE__)."/../lib/asteriskconf.inc.php");
 
