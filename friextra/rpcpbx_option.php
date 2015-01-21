@@ -42,7 +42,8 @@ $server->add('option_confile_delete');	#删除文件freeiris.conf不可删除
 $server->add('option_confsection_get');	#读出section的所有key
 $server->add('option_confkey_edit');	#写入配置文件中key的编辑配置
 
-$server->add('statistical_record_list');	#读出通话记录
+// 暂时没有此方法，所以临时注释掉。 2015-01-10 23:20:05 By Coco老爸
+// $server->add('statistical_record_list');	#读出通话记录
 
 $server->add('hardware_card_stat');	#读出硬件板卡的状态
 $server->add('hardware_chandahdi_signalling_set');	#读出硬件板卡的状态

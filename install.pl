@@ -241,12 +241,19 @@ my	$instvar = shift;
 	system("mkdir /var/spool/asterisk/voicemail/freeiris/");
 	system("mkdir /var/spool/asterisk/ivrmenu/");
 
+	# 2015-01-20 18:57:27 修复未穿件 monitor 目录导致的自动录音页面报错的BUG By Coco 老爸
+	system("mkdir /var/spool/asterisk/monitor/");
+
 	#---------------添加权限
 	# 设置asterisk部分的可写权限
 	system("chmod -R 777 /etc/asterisk/");
 	system("chmod -R 777 /var/lib/asterisk/sounds/");
 	system("chmod -R 777 /var/lib/asterisk/moh/");
 	system("chmod -R 777 /var/spool/asterisk/");
+
+	# 2015-01-20 18:57:27 修复未穿件 monitor 目录导致的自动录音页面报错的BUG By Coco 老爸
+	system("chmod -R 777 /var/spool/asterisk/monitor");
+
 	# 设置freeiris2部分的可写权限
 	system("chmod -R 777 ".$instvar->{'install_target'}."/etc/");
 	system("chmod -R 777 ".$instvar->{'install_target'}."/webclient/templates_c");
@@ -395,12 +402,14 @@ my	$dbh;
 		" --user=".$setvar{'dbuser'}.
 		" --password=".$setvar{'dbpasswd'}.
 		" --one-database ".$setvar{'dbname'}.
+		" --default-character-set=latin1 ".
 		" < ".$setvar{'install_target'}."/contrib/createdb.sql");
 	system("/usr/bin/mysql --host=".$setvar{'dbhost'}.
 		" --port=".$setvar{'dbport'}.
 		" --user=".$setvar{'dbuser'}.
 		" --password=".$setvar{'dbpasswd'}.
 		" --one-database ".$setvar{'dbname'}.
+		" --default-character-set=latin1 ".
 		" < ".$setvar{'install_target'}."/contrib/initdb.sql");
 
 	#---------------设置fri2和asterisk的数据库参数
@@ -471,6 +480,7 @@ my	@cdr_mysql=<SDV>;
 		" --user=".$setvar{'dbuser'}.
 		" --password=".$setvar{'dbpasswd'}.
 		" --one-database ".$setvar{'dbname'}.
+		" --default-character-set=latin1 ".
 		" < ".$setvar{'install_target'}."/contrib/example/example.sql");
 	system("cp -af ".$setvar{'install_target'}."/contrib/example/example.queues_list.conf /etc/asterisk/queues_list.conf");
 	system("cp -af ".$setvar{'install_target'}."/contrib/example/example.sip_exten.conf /etc/asterisk/sip_exten.conf");
@@ -481,9 +491,14 @@ my	@cdr_mysql=<SDV>;
 	&println('response',"all done!");
 	unlink("$setvar{'install_target'}/NOTDONE");
 
-	chdir('astercc');
-	system("chmod 755 install.sh");
-	system('./install.sh');
+	#---------------增加是否安装astercc的选择，偶是没有用。2015-01-11 0:58:39 By Coco老爸
+	&println('input',"Whether you need to install astercc (default N) [Y|N] ?");
+	$install_astercc = <$INPUT>;	chomp($install_astercc);
+	if ( $install_astercc eq 'Y' ) {
+		chdir('astercc');
+		system("chmod 755 install.sh");
+		system('./install.sh');
+	}
 	&println('response',"Please Reboot your system!");
 
 exit;

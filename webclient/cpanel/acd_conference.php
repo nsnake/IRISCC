@@ -118,7 +118,8 @@ function page_conference_list() {
 
 	//取出会议室里的人员
 	foreach ($conferences_ref as $key => $value) {
-		$rpcres = sendrequest($rpcpbx->ami_command(uniqid(),'meetme list '.$value['confno'].' concise'));
+		//增加第二个参数0，因为sendrequest的第二个参数不是可选。2015-01-11 0:21:13 By Coco老爸
+		$rpcres = sendrequest($rpcpbx->ami_command(uniqid(),'meetme list '.$value['confno'].' concise'),0);
 
 		$list_count=0;
 		$listed_name=null;

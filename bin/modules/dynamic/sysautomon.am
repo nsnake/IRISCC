@@ -155,7 +155,10 @@ my	($matched_sysautomon,$sth);
 			"readonly = '0'")
 			or die $self->logfile(4, 'Database Error : '.$DBH->errstr);
 
-		$AGI->exec('MixMonitor',"$vmfpath/$filename\.WAV|ab|chmod 777 $vmfpath/$filename\.WAV");
+		#$AGI->exec('MixMonitor',"$vmfpath/$filename\.WAV|ab|chmod 777 $vmfpath/$filename\.WAV");
+		
+		# 2015-01-20 18:54:54 修复 Asterisk 11的MixMonitor语法不为竖杠而是逗号。 By Coco 老爸
+		$AGI->exec('MixMonitor',"$vmfpath/$filename\.WAV,ab,chmod 777 $vmfpath/$filename\.WAV");
 	}
 
 exit;

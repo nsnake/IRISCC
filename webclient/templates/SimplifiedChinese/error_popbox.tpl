@@ -3,13 +3,14 @@
  <meta http-equiv="content-type" content="text/html;charset=utf-8">
   <TITLE> Warnning messages </TITLE>
   <script language="javascript" src="../js/msgcode.js"></script>
-	<script>
+  <script>
 	function response()
 	{
 		var type = "<% $type %>";
 		var errorcode = "<% $errorcode %>";
 		var newurl = "<% $location %>";
 		var isNumeric=/^[0-9]+$/;
+		var _parent;
 
 		if (type == "submit_successfuly")
 		{
@@ -20,9 +21,11 @@
 			{
 				top.jAlert(errorcode, '系统错误');
 			}
-			parent.document.location.href=newurl;
 
+			// 修复Chomre浏览器的登录跳转的兼容问题。 2015-01-11 0:16:47 By Coco老爸
+			_parent = ( window.location.ancestorOrigins != undefined && window.location.ancestorOrigins.length != undefined ) ? window.parent.parent : window.parent;
 
+			_parent.location.href=newurl;
 		} else if (type == "submit_confirm")
 		{
 			if (isNumeric.exec(errorcode))

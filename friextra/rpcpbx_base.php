@@ -136,12 +136,14 @@ function base_dbquery($sql)
 	$result=mysql_query($sql,$dbcon);
 	if (!$result)
 		return(rpcreturn(500,mysql_error(),100,null));
-	while ($each = mysql_fetch_array($result))
+	if ( is_resource($result) )
 	{
-		array_push($result_array,$each);
+		while ($each = mysql_fetch_array($result))
+		{
+			array_push($result_array,$each);
+		}
+		mysql_free_result($result);
 	}
-	mysql_free_result($result);
-
 	return(rpcreturn(200,null,null,array('result_array'=>$result_array)));
 }
 
@@ -502,7 +504,12 @@ function stat_cpu_usage()
 	$cpuinfo2 = preg_split("/ /",$cpu);
 	$Total_1=$cpuinfo1[1]+$cpuinfo1[3]+$cpuinfo1[2]+$cpuinfo1[4];
 	$Total_2=$cpuinfo2[1]+$cpuinfo2[3]+$cpuinfo2[2]+$cpuinfo2[4];
-	$Rate=((($cpuinfo2[1]+$cpuinfo2[2])-($cpuinfo1[1]+$cpuinfo1[2]))/($Total_2-$Total_1))*100;
+	
+	// 修复两次检测中，值完全相等，造成下面的计算中变成为0的计算错误。 2015-01-10 23:21:08 By Coco老爸
+	if ( $Total_2 === $Total_1 || $cpuinfo1[2] === $cpuinfo2[2] )
+		$Rate = 0;
+	else
+		$Rate=((($cpuinfo2[1]+$cpuinfo2[2])-($cpuinfo1[1]+$cpuinfo1[2]))/($Total_2-$Total_1))*100;
 
 	$loadavg = `cat /proc/loadavg`;
 	trim($loadavg);

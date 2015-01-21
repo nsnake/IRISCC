@@ -83,8 +83,14 @@ function do_login() {
 	if (trim($_REQUEST['passwd']) == "")
 		error_popbox(103,null,null,null,null,'submit_failed');
 
+	//修复可以利用输入用户为【admin' OR ''='】来扰乱SQL查询的安全漏洞 修复人员：Coco老爸
+	$adminid = str_replace(' ', null, str_replace(' ', null, addslashes($_REQUEST['adminid'])));
+
 	//发送请求验证login
-	$rpcres = sendrequest($rpcpbx->base_clientlogin($_REQUEST['adminid'],md5($_REQUEST['passwd'])),1);
+	// $rpcres = sendrequest($rpcpbx->base_clientlogin($_REQUEST['adminid'],md5($_REQUEST['passwd'])),1);
+
+	//2015-01-10 22:08:24 修复安全漏洞
+	$rpcres = sendrequest($rpcpbx->base_clientlogin($adminid,md5($_REQUEST['passwd'])),1);
 
 	//成功(不会在这里出现失败)
 	session_cache_expire($friconf['session_expiry']);

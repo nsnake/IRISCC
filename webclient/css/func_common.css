@@ -12,6 +12,9 @@ table {
 	font-family: 微软雅黑, Trebuchet MS, Verdana, Arial, Helvetica, Lucida, sans-serif;
 	font-size: 10pt;
 }
+form > table td {
+    white-space: nowrap;
+}
 input text{
 	font-size: 100pt;
 	border: 1px solid #ACA8A1
@@ -76,6 +79,7 @@ a:hover {
 /* ---------->>> Tooltipmsg <<<---------------------------------------------------------------*/
 #tooltip {
     position: absolute;
+    top:-100px;
     width: auto;
     border: 1px solid #666;
     background: #FFFFE1;
