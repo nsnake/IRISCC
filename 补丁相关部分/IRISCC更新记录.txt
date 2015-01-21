@@ -1,0 +1,81 @@
+IRISCC 更新记录
+维护人员：Coco老爸	QQ:124795026
+
+[2015-01-11 1:11:55] 更新内容
+│  install.pl						# 修复 导入数据库文件时没有指定数据编码而导致的内容乱码的BUG
+│									   # 增加 可选安装astercc
+│                             # 修复 安装时没有创建 /var/spool/asterisk/monitor 目录导致的自动录音页面无法显示的BUG
+├─bin
+│  └─modules
+│      └─dynamic
+│              sysautomon.am  # 修复 调用 MixMonitor 时的格式错误
+├─friextra
+│      rpcpbx_base.php			# 修复 stat_cpu_usage(获取CPU消耗) 方法中因两次间隔的差值为0值的PHP报错的BUG
+│									   # 修复 base_dbquery(指定SQL操作) 方法中因执行UPDATE时返回的类型为Bool时，再使用mysql_fetch_array方法导致的PHP报错的BUG
+│		@ ----- rpcpbx_base.php Diff 信息 ------------------------------------------------------------------------------------- @
+│ 			139c139
+│ 			<       while ($each = mysql_fetch_array($result))
+│ 			---
+│ 			>       if ( is_resource($result) )
+│ 			141c141,145
+│ 			<               array_push($result_array,$each);
+│ 			---
+│ 			>               while ($each = mysql_fetch_array($result))
+│ 			>               {
+│ 			>                       array_push($result_array,$each);
+│ 			>               }
+│ 			>               mysql_free_result($result);
+│ 			143,144d146
+│ 			<       mysql_free_result($result);
+│ 			< 
+│ 			505c507,512
+│ 			<       $Rate=((($cpuinfo2[1]+$cpuinfo2[2])-($cpuinfo1[1]+$cpuinfo1[2]))/($Total_2-$Total_1))*100;
+│ 			---
+│ 			> 
+│ 			>       // 修复两次检测中，值完全相等，造成下面的计算中变成为0的计算错误。 2015-01-10 23:21:08 By Coco老爸
+│ 			>       if ( $Total_2 === $Total_1 || $cpuinfo1[2] === $cpuinfo2[2] )
+│ 			>               $Rate = 0;
+│ 			>       else
+│ 			>               $Rate=((($cpuinfo2[1]+$cpuinfo2[2])-($cpuinfo1[1]+$cpuinfo1[2]))/($Total_2-$Total_1))*100;
+│		@ ----- rpcpbx_base.php Diff 信息 ------------------------------------------------------------------------------------- @
+│
+│      rpcpbx_option.php 			# 修复 因没有 statistical_record_list 方法，但是服务端却声明了此方法，导致客户端报错的BUG
+│		@ ----- rpcpbx_option.php Diff 信息 ------------------------------------------------------------------------------------- @
+│ 			45c45,46
+│ 			< $server->add('statistical_record_list');      #读出通话记录
+│ 			---
+│ 			> // 暂时没有此方法，所以临时注释掉。 2015-01-10 23:20:05 By Coco老爸
+│ 			> // $server->add('statistical_record_list');   #读出通话记录
+│		@ ----- rpcpbx_option.php Diff 信息 ------------------------------------------------------------------------------------- @
+└─webclient
+   ├─cpanel
+   │      acd_conference.php 		# 修复 因调用 sendrequest 方法时，未增加第二个参数而导致的会议室页面报错的BUG
+   │		@ ----- acd_conference.php Diff 信息 ------------------------------------------------------------------------------------- @
+   │ 			121c121,122
+   │ 			<               $rpcres = sendrequest($rpcpbx->ami_command(uniqid(),'meetme list '.$value['confno'].' concise'));
+   │ 			---
+   │ 			>               //增加第二个参数0，因为sendrequest的第二个参数不是可选。2015-01-11 0:21:13 By Coco老爸
+   │ 			>               $rpcres = sendrequest($rpcpbx->ami_command(uniqid(),'meetme list '.$value['confno'].' concise'),0);
+   │		@ ----- acd_conference.php Diff 信息 ------------------------------------------------------------------------------------- @
+   │      index.php 				# 修复可以利用输入用户为【admin' OR ''='】来扰乱SQL查询的安全漏洞
+   │		@ ----- index.php Diff 信息 ------------------------------------------------------------------------------------- @
+   │ 			85a86,88
+   │ 			>       //修复可以利用输入用户为【admin' OR ''='】来扰乱SQL查询的安全漏洞 修复人员：Coco老爸
+   │ 			>       $adminid = str_replace(' ', null, str_replace(' ', null, addslashes($_REQUEST['adminid'])));
+   │ 			> 
+   │ 			87c90,93
+   │ 			<       $rpcres = sendrequest($rpcpbx->base_clientlogin($_REQUEST['adminid'],md5($_REQUEST['passwd'])),1);
+   │ 			---
+   │ 			>       // $rpcres = sendrequest($rpcpbx->base_clientlogin($_REQUEST['adminid'],md5($_REQUEST['passwd'])),1);
+   │ 			> 
+   │ 			>       //2015-01-10 22:08:24 修复安全漏洞
+   │ 			>       $rpcres = sendrequest($rpcpbx->base_clientlogin($adminid,md5($_REQUEST['passwd'])),1);
+   │		@ ----- index.php Diff 信息 ------------------------------------------------------------------------------------- @
+   │
+   ├─css
+   │      common.css 				# 优化 隐藏tooltip在没有信息时，显示的那个黄色小方格，和设置IE浏览器下表单中左侧信息强制不换行。
+   │      func_common.css 			# 优化 隐藏tooltip在没有信息时，显示的那个黄色小方格，和设置IE浏览器下表单中左侧信息强制不换行。
+   │
+   └─templates
+       └─SimplifiedChinese
+               error_popbox.tpl 	# 修复 登录时 Chorme浏览器 无法自动跳转的BUG

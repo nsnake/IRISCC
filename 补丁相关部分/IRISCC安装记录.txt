@@ -1,0 +1,69 @@
+IRISCC安装记录
+
+下载CentOS 6.6光盘文件
+
+中文最小化安装
+
+启动后打开网卡
+vi /etc/sysconfig/network-scripts/ifcfg-eth0 修改 ONBOOT=yes
+
+重启网络
+/etc/init.d/network restart
+
+安装wget
+yum -y install wget
+
+安装Atomic源
+wget -q -O - http://www.atomicorp.com/installers/atomic | sh
+
+查看是否安装成功
+ll /etc/yum.repos.d/atomic.repo 
+
+创建Asterisk的源
+vi /etc/yum.repos.d/asterisk.repo
+
+@ -------------------------------------------------- @
+[asterisk-tested]
+name=CentOS-$releasever - Asterisk - Tested
+baseurl=http://packages.asterisk.org/centos/$releasever/tested/$basearch/
+enabled=0
+gpgcheck=0
+#gpgkey=http://packages.asterisk.org/RPM-GPG-KEY-Digium
+
+[asterisk-current]
+name=CentOS-$releasever - Asterisk - Current
+baseurl=http://packages.asterisk.org/centos/$releasever/current/$basearch/
+enabled=1
+gpgcheck=0
+#gpgkey=http://packages.asterisk.org/RPM-GPG-KEY-Digium
+
+[digium-tested]
+name=CentOS-$releasever - Digium - Tested
+baseurl=http://packages.digium.com/centos/$releasever/tested/$basearch/
+enabled=0
+gpgcheck=0
+#gpgkey=http://packages.digium.com/RPM-GPG-KEY-Digium
+
+[digium-current]
+name=CentOS-$releasever - Digium - Current
+baseurl=http://packages.digium.com/centos/$releasever/current/$basearch/
+enabled=1
+gpgcheck=0
+#gpgkey=http://packages.digium.com/RPM-GPG-KEY-Digium
+@ -------------------------------------------------- @
+
+重新加载YUM缓存
+yum clean all
+yum makecache
+
+安装系统需要的包
+yum install -y kernel kernel-devel kernel-headers
+重起系统
+
+yum install -y kernel kernel-devel kernel-headers
+yum install -y ntp gcc gcc-c++ make wget openssh-clients openssl-devel ncurses-devel newt-devel libxml2-devel
+yum install -y httpd mysql mysql-server mysql-devel
+yum install -y perl perl-Time-HiRes libdbi-dbd-mysql perl-libwww-perl php-process sqlite sqlite-devel 
+yum install -y php php-devel php-cli php-soap php-mysqlnd php-mcrypt php-mbstring php-eaccelerator 
+
+如果源不能直接安装asterisk的话，就想办法吧。
